@@ -59,8 +59,6 @@ class Parser:
                 self.enter()
             self.packages()
 
-    def body(self):  #check for body
-
 # -------------------- OTHER FUNCTIONS --------------------------------
     def next(self):     #get the next token
         self.num += 1
