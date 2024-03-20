@@ -803,20 +803,21 @@ class Parser:
         if self.current == 'at':
             self.match('at')
             if self.current in ["Totoo", "Peke", "Wala", "Baybay Literal", "Yunit Literal", "Punto Literal", "Titik Literal", 
-                                    "Identifier", "di", "[", "(", "{", "~", "tala", "diks", "yunit", "punto", "bool",  "baybay", "titik"]:
+                                    f"Identifier{self.identifier_num}", "di", "[", "(", "{", "~", "tala", "diks", "yunit", "punto", "bool",  "baybay", "titik"]:
                     self.condition()
             else:
                 self.err('"Totoo", "Peke", "Wala", "Baybay Literal", "Yunit Literal", "Punto Literal", "Titik Literal", ' + #done
                         '"Identifier", "di", "[", "(", "{", "~", "tala", "diks", "yunit", "punto", "bool",  "baybay", "titik"')
                 self.enter()
-        elif self.current('o'):
+        elif self.current == 'o':
             self.match('o')
             if self.current in ["Totoo", "Peke", "Wala", "Baybay Literal", "Yunit Literal", "Punto Literal", "Titik Literal", 
-                                    "Identifier", "di", "[", "(", "{", "~", "tala", "diks", "yunit", "punto", "bool",  "baybay", "titik"]:
+                                    f"Identifier{self.identifier_num}", "di", "[", "(", "{", "~", "tala", "diks", "yunit", "punto", "bool",  "baybay", "titik"]:
                     self.condition()
-            self.err('"Totoo", "Peke", "Wala", "Baybay Literal", "Yunit Literal", "Punto Literal", "Titik Literal", ' + #done
-                        '"Identifier", "di", "[", "(", "{", "~", "tala", "diks", "yunit", "punto", "bool",  "baybay", "titik"')
-            self.enter()
+            else:
+                self.err('"Totoo", "Peke", "Wala", "Baybay Literal", "Yunit Literal", "Punto Literal", "Titik Literal", ' + #done
+                            '"Identifier", "di", "[", "(", "{", "~", "tala", "diks", "yunit", "punto", "bool",  "baybay", "titik"')
+                self.enter()
     
     def conditional_block(self):
         if self.current == '{':
