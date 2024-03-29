@@ -38,7 +38,7 @@ def update_lexical_errors_text(text):
     lexical_errors_area.delete("1.0", "end")
     lexical_errors_area.insert("1.0", text)
     lexical_errors_area.config(state="disabled")  # Disable editing
-
+    
 def update_lexeme_tokens_table():
     read = lx.Lexer('')
     read.tokens.clear()
@@ -47,9 +47,9 @@ def update_lexeme_tokens_table():
     line = coding_area.get("1.0", "end-1c")
     read = lx.Lexer(line)
     read.Tokenize()
-    lexical_errors_text = ""
+    lexical_errors_text = ""    
     for token in read.tokens:
-        lexeme_tokens_area.insert("", "end", values=(token[0], token[1]), tags=('custom_font'))
+        lexeme_tokens_area.insert("", "end", values=(token['value'], token['token']), tags=('custom_font'))
 
     lexeme_tokens_area.heading("#1", text="Lexeme", anchor="center",)
     lexeme_tokens_area.heading("#2", text="Token Type", anchor="center")
