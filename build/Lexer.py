@@ -80,7 +80,6 @@ class Lexer:
         self.punto_index = 0
         self.yunit_index = 0
         self.titik_index = 0
-        self.string2 = 0
 
     def traverse(self):
         self.index += 1

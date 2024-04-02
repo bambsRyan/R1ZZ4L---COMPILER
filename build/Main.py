@@ -77,7 +77,7 @@ def syntax_analyzer():
     read.Tokenize()
 
     for token in read.tokens:
-        lexeme_tokens_area.insert("", "end", values=(token[0], token[1]), tags=('custom_font'))
+        lexeme_tokens_area.insert("", "end", values=(token['value'], token['token']), tags=('custom_font'))
 
     lexeme_tokens_area.heading("#1", text="Lexeme", anchor="center",)
     lexeme_tokens_area.heading("#2", text="Token Type", anchor="center")
