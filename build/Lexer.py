@@ -109,7 +109,8 @@ class Lexer:
         return
     
     def single_line(self):
-        while self.current != '\n':
+        print(self.current)
+        while self.current != '\n' and self.index != len(self.code):
             self.string += self.current
             self.traverse()
         self.addTokens('single_line', self.string)
@@ -617,7 +618,7 @@ class Lexer:
         elif self.final_state(';'):
             self.delim_next_check(delim15, ';')
             return
-        elif self.final_state('$'):
+        elif self.state('$'):
             self.single_line()
             return
         elif self.state('0'):
@@ -676,7 +677,7 @@ class Lexer:
             self.lexical_again()
         return
     def baybaylit(self):
-        while self.current != '\"' and self.current != 'newline':
+        while self.current != '\"' and self.current != 'newline' and self.index != len(self.code) :
             if self.current == '\\' and self.next == 'n':
                 self.string += '\n'
                 self.traverse()
@@ -692,8 +693,8 @@ class Lexer:
         if self.state('\"'):
             self.addTokens('Baybay Literal', self.string)
         else:
-            self.error.append(['Error: Invalid array of strings \'' + self.current + '\' at line number ' + str(self.line)])
-            self.string = ''   
+            self.error.append(['Error: Invalid array of characters \'' + self.string + '\' at line number ' + str(self.line)])
+            self.string = ''
             self.lexical_again()
         return
     def titiklit(self):
@@ -703,11 +704,12 @@ class Lexer:
             self.titik_index += 1
             self.traverse()
         if self.state('\''):
-            self.addTokens('Titik Literal', self.string)
+            self.delim_current_check(delim16, 'Titik Literal')
         else:
             self.error.append(['Error: Invalid array of characters \'' + self.string + '\' at line number ' + str(self.line)])
             self.string = ''
             self.lexical_again()
+        return
     def start(self):
         if self.state('s'):
             if self.state('s'):
