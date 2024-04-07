@@ -57,7 +57,7 @@ delim28 = [' ','(', '{' , 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',]
 
 class Lexer:
-    def __init__(self, code):
+    def __init__(self, code):   
         self.code = code
         self.tokens = []
         self.error = []
