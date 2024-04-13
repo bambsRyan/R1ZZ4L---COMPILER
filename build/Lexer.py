@@ -100,6 +100,10 @@ class Lexer:
         self.values['columns'] = self.line_number 
         self.values['value'] = string
         self.tokens.append(self.values)
+        if token == f'Identifier{self.identifier_num}':
+            self.values['for_syntax']= 'Identifier'
+        else:
+            self.values['for_syntax']= token
         self.values = {}
         self.string = ''
     
@@ -113,7 +117,7 @@ class Lexer:
         while self.current != '\n' and self.index != len(self.code):
             self.string += self.current
             self.traverse()
-        self.addTokens('single_line', self.string)
+        self.addTokens('Line Comment', self.string)
         self.string = ''
         return
 
@@ -160,7 +164,7 @@ class Lexer:
                     self.lexical_again()
                 else:
                     self.identifier_num += 1
-                    self.addTokens(f'identifier{self.identifier_num}', self.string)
+                    self.addTokens(f'Identifier{self.identifier_num}', self.string)
                     self.string = ''
                     self.lexical_again()
         else:
@@ -176,7 +180,7 @@ class Lexer:
             self.traverse()
         if self.current in delim11:
             self.identifier_num += 1
-            self.addTokens( f'identifier{self.identifier_num}', self.string)
+            self.addTokens( f'Identifier{self.identifier_num}', self.string)
             self.lexical_again()
         else:
             self.invalid_delim()
@@ -212,9 +216,6 @@ class Lexer:
             if self.final_state('t'):
                 self.delim_next_check(delim1, 'at')
                 return
-            elif self.final_state('y'):
-                self.delim_next_check(delim1, 'ay')
-                return
         elif self.state('b'): 
             if self.state('a'):
                 if self.state('l'):
@@ -226,7 +227,7 @@ class Lexer:
                     if self.state('b'):
                         if self.state('a'):
                             if self.final_state('y'):
-                                self.delim_next_check(delim3, 'baybay')
+                                self.delim_next_check(delim7, 'baybay')
                                 return
             elif self.state('i'):
                 if self.state('l'):
@@ -238,7 +239,7 @@ class Lexer:
             elif self.state('o'):
                 if self.state('o'):
                     if self.final_state('l'):
-                        self.delim_next_check(delim3, 'bool')
+                        self.delim_next_check(delim7, 'bool')
                         return
             elif self.state('u'):
                 if self.state('k'):
@@ -257,7 +258,7 @@ class Lexer:
                     return
                 elif self.state('k'):
                     if self.final_state('s'):
-                        self.delim_next_check(delim3, 'diks')
+                        self.delim_next_check(delim7, 'diks')
                         return  
         elif self.state('E'):
             if self.state('x'):
@@ -284,6 +285,13 @@ class Lexer:
                         if self.final_state('n'):
                             self.delim_next_check(delim5, 'gawin')
                             return
+            elif self.state('l'):
+                if self.state('o'):
+                    if self.state('b'):
+                        if self.state('a'):
+                            if self.final_state('l'):
+                                self.delim_next_check(delim1, 'global')
+                                return
             elif self.state('g'):
                 if self.state('.'):
                     self.start()
@@ -327,15 +335,7 @@ class Lexer:
                                         if self.state('o'):
                                             if self.final_state('r'):
                                                 self.delim_next_check(delim4, 'IndexError')
-                                                return
-        elif self.state('i'):
-            if self.state('b'):
-                if self.state('a'):
-                    if self.state('n'):
-                        if self.final_state('g'):    
-                            self.delim_next_check(delim1, 'ibang')
-                            return
-        
+                                                return        
         elif self.state('K'):
             if self.state('e'):
                 if self.state('y'):
@@ -369,13 +369,13 @@ class Lexer:
                 if self.state('b'):
                     if self.state('a'):
                         if self.final_state('s'):
-                            self.delim_next_check(delim7, 'labas')
+                            self.delim_next_check(delim2, 'labas')
                             return
                 elif self.state('k'):
                     if self.state('t'):
                         if self.state('a'):
                             if self.final_state('w'):
-                                self.delim_next_check(delim7, 'laktaw')
+                                self.delim_next_check(delim2, 'laktaw')
                                 return
                 elif self.state('w'):
                     if self.state('a'):
@@ -427,7 +427,7 @@ class Lexer:
                 if self.state('n'):
                     if self.state('t'): 
                         if self.final_state('o'):
-                            self.delim_next_check(delim3, 'punto')
+                            self.delim_next_check(delim7, 'punto')
                             return
         elif self.state('P'):
             if self.state('e'):
@@ -436,8 +436,30 @@ class Lexer:
                         self.delim_next_check(delim6, 'Peke')
                         return
         elif self.state('s'):
-            if self.final_state('a'):
-                self.delim_next_check(delim1, 'sa')
+            if self.state('a'):
+                if self.state('B'):
+                    if self.state('a'):
+                        if self.state('y'):
+                            if self.state('b'):
+                                if self.state('a'):
+                                    if self.state('y'):
+                                        if self.final_state('b'):
+                                            self.delim_next_check(delim3, 'saBaybay')
+                elif self.state('P'):
+                    if self.state('u'):
+                        if self.state('n'):
+                            if self.state('t'):
+                                if self.final_state('o'):
+                                    self.delim_next_check(delim3, 'saPunto')
+                elif self.state('Y'):
+                    if self.state('u'):
+                        if self.state('n'):
+                            if self.state('i'):
+                                if self.state('t'):
+                                    if self.final_state('t'):
+                                        self.delim_next_check(delim3, 'saYunit')
+                else:
+                    self.delim_current_check(delim1, 'sa')
                 return
             elif self.state('u'):
                 if self.state('l'):
@@ -476,24 +498,24 @@ class Lexer:
                             return
                 elif self.state('l'):
                     if self.final_state('a'):
-                        self.delim_next_check(delim3, 'tala')
+                        self.delim_next_check(delim7, 'tala')
                         return
                 elif self.state('p'):
                     if self.state('o'):
                         if self.final_state('s'):
-                            self.delim_next_check(delim7, 'tapos')
+                            self.delim_next_check(delim2, 'tapos')
                             return
             elif self.state('i'):
                 if self.state('t'):
                     if self.state('i'):
                         if self.final_state('k'):
-                            self.delim_next_check(delim3, 'titik')
+                            self.delim_next_check(delim7, 'titik')
                             return
             elif self.state('u'):
                 if self.state('l'):
                     if self.state('o'):
                         if self.final_state('y'):
-                            self.delim_next_check(delim7, 'tuloy')
+                            self.delim_next_check(delim2, 'tuloy')
                             return
                 elif self.state('w'):
                     if self.state('i'):
@@ -524,7 +546,7 @@ class Lexer:
                     if self.state('n'):
                         if self.state('i'):
                             if self.final_state('t'):
-                                self.delim_next_check(delim3, 'yunit')
+                                self.delim_next_check(delim7, 'yunit')
                                 return
         elif self.state('Z'):
                 if self.state('e'):
@@ -575,6 +597,12 @@ class Lexer:
         elif self.final_state('%'):
             self.delim_next_check(delim9, '%')
             return
+        elif self.final_state('|'):
+            self.delim_next_check(delim28, '|')
+            return
+        elif self.final_state(':'):
+            self.delim_next_check(delim24, ':')
+            return
         elif self.state('!'):
             if self.final_state('='):
                 self.delim_next_check(delim15, '!=')
@@ -598,7 +626,7 @@ class Lexer:
             self.delim_next_check(delim22, ')')
             return
         elif self.final_state('['):
-            self.delim_next_check(delim17, '[')
+            self.delim_next_check(delim27, '[')
             return
         elif self.final_state(']'):
             self.delim_next_check(delim18, ']')
@@ -623,6 +651,16 @@ class Lexer:
             return
         elif self.state('0'):
             self.zero()
+            return
+        elif self.final_state('~'):
+            if self.next  == '0':
+                self.traverse()
+                self.zero()
+            elif self.next in digits:
+                self.traverse()
+                self.numlit()
+            else:
+                self.delim_next_check(delim26, '~')
             return
         elif self.state('\"'):
             self.baybaylit()     
@@ -691,7 +729,7 @@ class Lexer:
             self.string += self.current
             self.traverse()
         if self.state('\"'):
-            self.addTokens('Baybay Literal', self.string)
+            self.delim_current_check(delim12, 'Baybay Literal')
         else:
             self.error.append(['Error: Invalid array of characters \'' + self.string + '\' at line number ' + str(self.line)])
             self.string = ''
@@ -717,7 +755,7 @@ class Lexer:
                     if self.state('a'):
                         if self.state('w'):
                             if self.final_state('a'):
-                                self.delim_next_check(delim5, self.string)
+                                self.delim_next_check(delim2, self.string)
                                 return
         components = self.string.split('.')
         self.identifier_num += 1
