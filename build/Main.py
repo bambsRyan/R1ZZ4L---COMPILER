@@ -6,6 +6,7 @@ import Lexer as lx
 import Syntax as syn
 import os 
 import sys
+from time import perf_counter
 
 OUTPUT_PATH = os.path.dirname(sys.executable) if getattr(sys, 'frozen', False) else os.path.dirname(__file__)
 ASSETS_PATH = os.path.join(OUTPUT_PATH, "assets", "frame0")
@@ -67,6 +68,9 @@ def update_lexeme_tokens_table():
     else:
         update_lexical_errors_text(lexical_errors_text)
 
+    start=perf_counter()
+    end=perf_counter()
+    print(end - start)
 def syntax_analyzer():
     read = lx.Lexer('')
     read.tokens.clear()
@@ -94,7 +98,9 @@ def syntax_analyzer():
     parser = syn.Parser(read.tokens)    
     parser.parse()
     update_lexical_errors_text(parser.errors[0])
-
+    
+    end=perf_counter
+    print(end)
 
 
 #Rectangle Task Bar

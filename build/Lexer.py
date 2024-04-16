@@ -113,7 +113,6 @@ class Lexer:
         return
     
     def single_line(self):
-        print(self.current)
         while self.current != '\n' and self.index != len(self.code):
             self.string += self.current
             self.traverse()
@@ -693,6 +692,7 @@ class Lexer:
             self.traverse()
         if self.current in delim10:
             self.addTokens('Yunit Literal', self.string)
+            self.lexical_again()
         elif self.current == '.' and self.next in num:
             self.string += self.current
             self.traverse()
@@ -710,6 +710,7 @@ class Lexer:
             self.traverse()
         if self.current in delim27:
             self.addTokens('Punto Literal', self.string)
+            self.lexical_again()
         else:
             self.invalid_delim()
             self.lexical_again()
