@@ -108,7 +108,7 @@ class Lexer:
         self.string = ''
     
     def invalid_delim(self):
-        self.error.append(['Line '+ str(self.line) + f':Lexical Error: {self.string} - Invalid delimeter'])
+        self.error.append(['Line '+ str(self.line) + f':Lexical Error: {self.string} Invalid delimeter'])
         self.string = ''
         return
     
@@ -193,7 +193,7 @@ class Lexer:
             if self.current in alphabet:
                 self.Identifier()
             else:
-                self.error.append(['Line '+ str(self.line) + ':Lexical Error: ' + self.current +'- Invalid character '])
+                self.error.append(['Line '+ str(self.line) + ':Lexical Error: ' + self.current +' Invalid character '])
         return
 
     def Identifier(self):
@@ -755,7 +755,7 @@ class Lexer:
         if self.state('\"'):
             self.delim_current_check_symbols(delim12, 'Baybay Literal')
         else:
-            self.error.append(['Line '+ str(self.line) + ': Lexical Error: ' + self.string +' - Invalid array of characters \''])
+            self.error.append(['Line '+ str(self.line) + ': Lexical Error: ' + self.string +' Invalid array of characters \''])
             self.string = ''
             self.lexical_again()
         return
