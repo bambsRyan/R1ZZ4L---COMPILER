@@ -183,7 +183,7 @@ class Parser:
             self.next()
             self.newline()
             self.program()
-            self.package()
+            self.packages()
             while self.current != None or self.current == 'gg.ssSawa':
                 self.body()
                 if self.current not in body:
@@ -209,9 +209,8 @@ class Parser:
                
     def nickname(self):
         if self.match('bilang'):
-            if self.match('Identifier'):
-                if self.first(packages):
-                    self.packages()
+            if self.match('Identifier'):    
+                return
 
     def body(self):
         if self.first(statement):
