@@ -198,20 +198,20 @@ class Parser:
         if self.match('g.ssSawa'):
             return
         
-    def package(self):
+    def packages(self):
         if self.match('hakot'):
             if self.match('Identifier'):
                 pass
             elif self.first(nickname):
                     self.nickname()
         if self.first(packages):
-                    self.package()
+                    self.packages()
                
     def nickname(self):
         if self.match('bilang'):
             if self.match('Identifier'):
                 if self.first(packages):
-                    self.package()
+                    self.packages()
 
     def body(self):
         if self.first(statement):
