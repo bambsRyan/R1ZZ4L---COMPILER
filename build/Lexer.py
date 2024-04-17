@@ -173,6 +173,7 @@ class Lexer:
             self.addTokens(self.string, token)
         else: 
             self.invalid_delim()
+        self.lexical_again()
         return 
 
     def check_identifier(self):
@@ -584,36 +585,36 @@ class Lexer:
                                                             self.delim_next_check(delim4, 'ZeroDivError')
                                                             return
         elif self.state('='):
-            if self.current in delim15:
-                self.delim_current_check_symbols(delim15, '=')
-            elif self.final_state('='):
+            if self.final_state('='):
                 self.delim_next_check_symbols(delim15, '==')
+            else:
+                self.delim_current_check_symbols(delim15, '=')
             return
         elif self.state('+'):
-            if self.current in delim14:
-                self.delim_current_check_symbols(delim14, '+')
-            elif self.final_state('='):
+            if self.final_state('='):
                 self.delim_next_check_symbols(delim14, '+=')
+            else:
+                self.delim_current_check_symbols(delim14, '+')
             return  
         elif self.state('-'):
-            if self.current in delim9:
-                self.delim_current_check_symbols(delim9, '-')
-            elif self.final_state('='):
+            if self.final_state('='):
                 self.delim_next_check_symbols(delim9, '-=')
-            return  
+            else:
+                self.delim_current_check_symbols(delim9, '-')
+            return 
         elif self.state('*'):
-            if self.current in delim9:
-                self.delim_current_check_symbols(delim9, '*')
-            elif self.final_state('='):
+            if self.final_state('='):
                 self.delim_next_check_symbols(delim9, '*=')
             elif self.final_state('*'):
                 self.delim_next_check_symbols(delim9, '**')
+            else:
+                self.delim_current_check_symbols(delim9, '*')
             return
         elif self.state('/'):
-            if self.current in delim9:
-                self.delim_current_check_(delim9, '/')
-            elif self.final_state('='):
+            if self.final_state('='):
                 self.delim_next_check_symbols(delim9, '/=')
+            else:
+                self.delim_current_check_symbols(delim9, '/')
             return
         elif self.final_state('%'):
             self.delim_next_check_symbols(delim9, '%')
@@ -629,16 +630,16 @@ class Lexer:
                 self.delim_next_check_symbols(delim15, '!=')
                 return
         elif self.state('<'):
-            if self.current in delim9:
-                self.delim_current_check_symbols(delim9, '<')
-            elif self.final_state('='):
+            if self.final_state('='):
                 self.delim_next_check_symbols(delim9, '<=')
+            else:
+                self.delim_current_check_symbols(delim9, '<')
             return
         elif self.state('>'):
-            if self.current in delim9:
-                self.delim_current_check_symbols(delim9, '>')
-            elif self.final_state('='):
+            if self.final_state('='):
                 self.delim_next_check_symbols(delim9, '>=')
+            else:
+                self.delim_current_check_symbols(delim9, '>')
             return
         elif self.final_state('('):
             self.delim_next_check_symbols(delim21, '(')
