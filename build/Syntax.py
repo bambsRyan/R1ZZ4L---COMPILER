@@ -204,8 +204,7 @@ class Parser:
     def packages(self):
         if self.match('hakot'):
             if self.match('Identifier'):
-                pass
-            elif self.first(nickname):
+                if self.first(nickname):
                     self.nickname()
             else:
                 self.err('"Identifier","bilang"')
@@ -215,7 +214,12 @@ class Parser:
     def nickname(self):
         if self.match('bilang'):
             if self.match('Identifier'):    
-                return
+                if self.match('newline'):
+                    return
+                else:
+                    self.err('"newline"')
+            else:
+                self.err('"Identifier"')
 
     def body(self):
         if self.first(statement):
@@ -1882,17 +1886,12 @@ class Parser:
     def end(self):
         while self.current != None and self.current != 'newline':
             self.next()
-
-    def lists(self, list):
-        if self.current in list:
-            self.next()
         
     def match(self, token):
-        print(self.current, token)
         if self.current == token:
             self.next()
             return True
-        return False   
+        return False
         
     def first(self, list):
         if self.current in list:
@@ -1903,3 +1902,4 @@ class Parser:
         self.errors.append(f"Syntax Error: Unexpected {self.current}, expecting :{error_list}")
         self.end()
         return
+    
