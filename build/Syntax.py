@@ -196,7 +196,10 @@ class Parser:
 
     def program(self):
         if self.match('g.ssSawa'):
-            return
+            if self.match('newline'):
+                return
+            else:
+                self.err('"newline"')
         
     def packages(self):
         if self.match('hakot'):
@@ -204,6 +207,8 @@ class Parser:
                 pass
             elif self.first(nickname):
                     self.nickname()
+            else:
+                self.err('"Identifier","bilang"')
         if self.first(packages):
                     self.packages()
                
@@ -1893,3 +1898,8 @@ class Parser:
         if self.current in list:
             return True
         return False
+    
+    def err(self, error_list):
+        self.errors.append(f"Syntax Error: Unexpected {self.current}, expecting :{error_list}")
+        self.end()
+        return
