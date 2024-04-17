@@ -108,7 +108,7 @@ class Lexer:
         self.string = ''
     
     def invalid_delim(self):
-        self.error.append(['Error: Invalid delimeter ' + self.string + ' at line number ' + str(self.line)])
+        self.error.append(['Lexical Error: Invalid delimeter ' + self.string + ' at line number ' + str(self.line)])
         self.string = ''
         return
     
@@ -192,7 +192,7 @@ class Lexer:
             if self.current in alphabet:
                 self.Identifier()
             else:
-                self.error.append(['Error: Invalid character ' + self.current + ' at line number ' + str(self.line)])
+                self.error.append(['Lexical Error: Invalid character ' + self.current + ' at line number ' + str(self.line)])
         return
 
     def Identifier(self):
@@ -754,7 +754,7 @@ class Lexer:
         if self.state('\"'):
             self.delim_current_check_symbols(delim12, 'Baybay Literal')
         else:
-            self.error.append(['Error: Invalid array of characters \'' + self.string + '\' at line number ' + str(self.line)])
+            self.error.append(['Lexical Error: Invalid array of characters \'' + self.string + '\' at line number ' + str(self.line)])
             self.string = ''
             self.lexical_again()
         return
@@ -767,7 +767,7 @@ class Lexer:
         if self.state('\''):
             self.delim_current_check_symbols(delim16, 'Titik Literal')
         else:
-            self.error.append(['Error: Invalid array of characters \'' + self.string + '\' at line number ' + str(self.line)])
+            self.error.append(['Lexical Error: Invalid array of characters \'' + self.string + '\' at line number ' + str(self.line)])
             self.string = ''
             self.lexical_again()
         return
