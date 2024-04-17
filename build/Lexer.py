@@ -5,20 +5,20 @@ alphabet = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q',
             'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 num = ['0','1','2','3','4','5','6','7','8','9']
 digits = ['1','2','3','4','5','6','7','8','9']
-delim1 = [' ']
-delim2 = [' ', '\n', '$']
-delim3 = [' ', '(']
-delim4 = [' ',',',')']
-delim5 = [' ', '{', '$', '\n']
-delim6 = [' ',')', ']', '}', ',', '\n', '$'] 
-delim7 = [' ', ':']
-delim8 = [' ', '(', '[', '{', '\n', '$']
+delim1 = [' ','']
+delim2 = [' ', '\n', '$','']
+delim3 = [' ', '(','']
+delim4 = [' ',',',')','']
+delim5 = [' ', '{', '$', '\n','']
+delim6 = [' ',')', ']', '}', ',', '\n', '$',''] 
+delim7 = [' ', ':','']
+delim8 = [' ', '(', '[', '{', '\n', '$','']
 delim9 = [' ', '(', '~', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l','m', 'n', 'o', 'p', 'q', 'r', 's', 
           't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H','I', 'J', 'K', 'L', 'M', 'N', 'O', 
-          'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3','4', '5', '6', '7', '8', '9']
-delim10 = [' ', '+', '-', '*', '/', '%', '<', '>', '=', '!', ')', ']', '{', '}', ',', ';', '\n', '$']
-delim11 = [' ', '+', '-', '*', '/', '%', '(', ')', '<', '>', '=', '!', '[', ']', '{','}', ',', '.', ';', '\n', '$','|']
-delim12 = [' ', ')', ']', '{', '}', ',', ';', '+', '=', '!', '\n', '$']
+          'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3','4', '5', '6', '7', '8', '9','']
+delim10 = [' ', '+', '-', '*', '/', '%', '<', '>', '=', '!', ')', ']', '{', '}', ',', ';', '\n', '$','']
+delim11 = [' ', '+', '-', '*', '/', '%', '(', ')', '<', '>', '=', '!', '[', ']', '{','}', ',', '.', ';', '\n', '$','|','']
+delim12 = [' ', ')', ']', '{', '}', ',', ';', '+', '=', '!', '\n', '$','']
 delim13 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l','m', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 
            'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 
            'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '']
@@ -49,12 +49,12 @@ delim23 = [' ', '"', '(', '[', '{', '~', '\n', '$', 'a', 'b', 'c', 'd', 'e', 'f'
 delim24 = [' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
            'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
            'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '\'', '']
-delim25 = ['\n']
+delim25 = ['\n','']
 delim26 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 
            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z','(','']
 delim27 = [' ', '+', '-', '*', '/', '%', '<', '>', '=', '!', ')', ']', '}', ',', '\n', '$', '']
 delim28 = [' ','(', '{' , 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 
-           'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',]
+           'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z','']
 
 class Lexer:
     def __init__(self, code):   
@@ -142,16 +142,38 @@ class Lexer:
         if self.next in delim:
             self.addTokens(self.string, token)
         else: 
-            self.invalid_delim()
+            if self.next in alphanum or self.next == '_':
+                self.traverse()
+                self.check_identifier()
+            else:
+                self.invalid_delim()
         return 
 
+    def delim_next_check_symbols(self, delim, token):
+        if self.next in delim:
+            self.addTokens(self.string, token)
+        else: 
+            self.invalid_delim()
+        return 
+    
     def delim_current_check(self, delim, token):
         if self.current in delim:
             self.addTokens(self.string, token)
         else:
-            self.invalid_delim()
+            if self.current in alphanum or self.next == '_':
+                self.check_identifier()
+                return
+            else:
+                self.invalid_delim()
         self.lexical_again()
         return
+
+    def delim_current_check_symbols(self, delim, token):
+        if self.current in delim:
+            self.addTokens(self.string, token)
+        else: 
+            self.invalid_delim()
+        return 
 
     def check_identifier(self):
         if len(self.string) != 0:
@@ -563,87 +585,87 @@ class Lexer:
                                                             return
         elif self.state('='):
             if self.current in delim15:
-                self.delim_current_check(delim15, '=')
+                self.delim_current_check_symbols(delim15, '=')
             elif self.final_state('='):
-                self.delim_next_check(delim15, '==')
+                self.delim_next_check_symbols(delim15, '==')
             return
         elif self.state('+'):
             if self.current in delim14:
-                self.delim_current_check(delim14, '+')
+                self.delim_current_check_symbols(delim14, '+')
             elif self.final_state('='):
-                self.delim_next_check(delim14, '+=')
+                self.delim_next_check_symbols(delim14, '+=')
             return  
         elif self.state('-'):
             if self.current in delim9:
-                self.delim_current_check(delim9, '-')
+                self.delim_current_check_symbols(delim9, '-')
             elif self.final_state('='):
-                self.delim_next_check(delim9, '-=')
+                self.delim_next_check_symbols(delim9, '-=')
             return  
         elif self.state('*'):
             if self.current in delim9:
-                self.delim_current_check(delim9, '*')
+                self.delim_current_check_symbols(delim9, '*')
             elif self.final_state('='):
-                self.delim_next_check(delim9, '*=')
+                self.delim_next_check_symbols(delim9, '*=')
             elif self.final_state('*'):
-                self.delim_next_check(delim9, '**')
+                self.delim_next_check_symbols(delim9, '**')
             return
         elif self.state('/'):
             if self.current in delim9:
-                self.delim_current_check(delim9, '/')
+                self.delim_current_check_(delim9, '/')
             elif self.final_state('='):
-                self.delim_next_check(delim9, '/=')
+                self.delim_next_check_symbols(delim9, '/=')
             return
         elif self.final_state('%'):
-            self.delim_next_check(delim9, '%')
+            self.delim_next_check_symbols(delim9, '%')
             return
         elif self.final_state('|'):
-            self.delim_next_check(delim28, '|')
+            self.delim_next_check_symbols(delim28, '|')
             return
         elif self.final_state(':'):
-            self.delim_next_check(delim24, ':')
+            self.delim_next_check_symbols(delim24, ':')
             return
         elif self.state('!'):
             if self.final_state('='):
-                self.delim_next_check(delim15, '!=')
+                self.delim_next_check_symbols(delim15, '!=')
                 return
         elif self.state('<'):
             if self.current in delim9:
-                self.delim_current_check(delim9, '<')
+                self.delim_current_check_symbols(delim9, '<')
             elif self.final_state('='):
-                self.delim_next_check(delim9, '<=')
+                self.delim_next_check_symbols(delim9, '<=')
             return
         elif self.state('>'):
             if self.current in delim9:
-                self.delim_current_check(delim9, '>')
+                self.delim_current_check_symbols(delim9, '>')
             elif self.final_state('='):
-                self.delim_next_check(delim9, '>=')
+                self.delim_next_check_symbols(delim9, '>=')
             return
         elif self.final_state('('):
-            self.delim_next_check(delim21, '(')
+            self.delim_next_check_symbols(delim21, '(')
             return
         elif self.final_state(')'):
-            self.delim_next_check(delim22, ')')
+            self.delim_next_check_symbols(delim22, ')')
             return
         elif self.final_state('['):
-            self.delim_next_check(delim27, '[')
+            self.delim_next_check_symbols(delim27, '[')
             return
         elif self.final_state(']'):
-            self.delim_next_check(delim18, ']')
+            self.delim_next_check_symbols(delim18, ']')
             return
         elif self.final_state('{'):
-            self.delim_next_check(delim19, '{')
+            self.delim_next_check_symbols(delim19, '{')
             return
         elif self.final_state('}'):
-            self.delim_next_check(delim20, '}')
+            self.delim_next_check_symbols(delim20, '}')
             return
         elif self.final_state(','):
-            self.delim_next_check(delim23, ',')
+            self.delim_next_check_symbols(delim23, ',')
             return
         elif self.final_state('.'):
-            self.delim_next_check(delim13, '.')
+            self.delim_next_check_symbols(delim13, '.')
             return
         elif self.final_state(';'):
-            self.delim_next_check(delim15, ';')
+            self.delim_next_check_symbols(delim15, ';')
             return
         elif self.state('$'):
             self.single_line()
@@ -659,7 +681,7 @@ class Lexer:
                 self.traverse()
                 self.numlit()
             else:
-                self.delim_next_check(delim26, '~')
+                self.delim_next_check_symbols(delim26, '~')
             return
         elif self.state('\"'):
             self.baybaylit()     
@@ -730,7 +752,7 @@ class Lexer:
             self.string += self.current
             self.traverse()
         if self.state('\"'):
-            self.delim_current_check(delim12, 'Baybay Literal')
+            self.delim_current_check_symbols(delim12, 'Baybay Literal')
         else:
             self.error.append(['Error: Invalid array of characters \'' + self.string + '\' at line number ' + str(self.line)])
             self.string = ''
@@ -743,7 +765,7 @@ class Lexer:
             self.titik_index += 1
             self.traverse()
         if self.state('\''):
-            self.delim_current_check(delim16, 'Titik Literal')
+            self.delim_current_check_symbols(delim16, 'Titik Literal')
         else:
             self.error.append(['Error: Invalid array of characters \'' + self.string + '\' at line number ' + str(self.line)])
             self.string = ''

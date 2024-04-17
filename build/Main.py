@@ -41,6 +41,7 @@ def update_lexical_errors_text(text):
     lexical_errors_area.config(state="disabled")  # Disable editing
     
 def update_lexeme_tokens_table():
+    start=perf_counter()
     read = lx.Lexer('')
     read.tokens.clear()
     read.error.clear()
@@ -68,9 +69,9 @@ def update_lexeme_tokens_table():
     else:
         update_lexical_errors_text(lexical_errors_text)
 
-    start=perf_counter()
     end=perf_counter()
     print(end - start)
+
 def syntax_analyzer():
     read = lx.Lexer('')
     read.tokens.clear()
