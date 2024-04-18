@@ -3074,7 +3074,10 @@ class Parser:
         return False
     
     def err(self, error_list):
-        self.errors.append(f"Syntax Error: Unexpected {self.current}, expecting :{error_list}")
+        if self.current == None:
+            self.errors.append(f"Syntax Error: expecting : {error_list}")
+        else:
+            self.errors.append(f"Syntax Error: Unexpected {self.current}, expecting : {error_list}")
         self.end()
         return
     
