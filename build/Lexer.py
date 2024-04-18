@@ -117,6 +117,7 @@ class Lexer:
             self.traverse()
         self.addTokens('Line Comment', self.string)
         self.string = ''
+        self.lexical_again()
         return
 
     def lexical_again(self):
