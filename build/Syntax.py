@@ -113,7 +113,7 @@ func_content_continue = ["yunit", "punto", "baybay", "titik", "bool", "tala", "d
 return1 = ["balik"]
 return_val = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("]
 func_loop = ["para", "habang", "gawin"]
-iterable = ["[", "{"]
+iterable = ["[", "{", "Idetifier", "Baybay Identifier", "lawak"]
 lawak_value = ["Yunit Literal", "Identifier"]
 func_loop_body = ["yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok"]
 func_loop_content = ["yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok"]
@@ -186,9 +186,8 @@ class Parser:
             self.packages()
             while self.current != None or self.current == 'gg.ssSawa':
                 self.body()
-                if self.current not in body:
-                    self.errors.append(f"Syntax Error: Invalid body {self.current}")
-                    break
+                if self.current not in body and self.current != None:
+                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "takda", "subok"')
 
         if self.errors == []:
             self.errors = ["Syntax Completed: No errors found"]
@@ -206,96 +205,172 @@ class Parser:
             if self.match('Identifier'):
                 if self.first(nickname):
                     self.nickname()
+                    if self.match('newline'):
+                        self.match('newline')
+                    else:
+                        self.err('"newline"')
+                elif self.match('newline'):
+                    self.newline()
+                else:
+                    self.err('"bilang","newline"')
             else:
-                self.err('"Identifier","bilang"')
+                self.err('"Identifier"')
         if self.first(packages):
                     self.packages()
                
     def nickname(self):
         if self.match('bilang'):
-            if self.match('Identifier'):    
-                if self.match('newline'):
-                    return
-                else:
-                    self.err('"newline"')
+            if self.match('Identifier'): 
+                return  
             else:
                 self.err('"Identifier"')
 
     def body(self):
         if self.first(statement):
             self.statement()
+            if self.first(body):
+                self.body()
     
     def statement(self):
         if self.first(statement_for_conditional):
             self.statement_for_conditional()
         elif self.first(func_dec):
             self.func_dec()
+            print(self.current)
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('"newline"')
         elif self.first(exception_handling):
-            self.exception_handling()   
+            self.exception_handling()
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('"newline"')
+        else:
+            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "takda", "subok"')
     
     def statement_for_conditional(self):
         if self.first(statement_for_looping):
             self.statement_for_looping()
         elif self.first(conditional):
             self.conditional()
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('"newline"')
+        else:
+            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili"')
         
     def statement_for_looping(self):
         if self.first(statement_for_func_dec):
             self.statement_for_func_dec()
         elif self.first(loop):
             self.loop()
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('"newline"')
+        else:
+            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin"')
 
     def statement_for_func_dec(self):
         if self.first(var_dec):
             self.var_dec()
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('"newline"')
         elif self.first(id):
             self.id()
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('"newline"')
         elif self.first(outputting):
             self.outputting()
+            if self.match('newline'):
+                self.newline()
         elif self.first(jumps):
             self.jumps()
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('"newline"')
+        else:
+            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura"')
 
     def var_dec(self):
         if self.match('yunit'):
             if self.match(':'):
                 if self.first(num_Identifier):
                     self.num_Identifier()
+                else:
+                    self.err('"Identifier"')
+            else:
+                self.err('":"')
         elif self.match('punto'):
             if self.match(':'):
                 if self.first(num_Identifier):
                     self.num_Identifier()
+                else:
+                    self.err('"Identifier"')
+            else:
+                self.err('":"')
         elif self.match('baybay'):
             if self.match(':'):
                 if self.first(baybay_Identifier):
                     self.baybay_Identifier()
+                else:
+                    self.err('"Identifier"')
+            else:
+                self.err('":"')
         elif self.match('titik'):
             if self.match(':'):
                 if self.first(titik_Identifier):
                     self.titik_Identifier()
+                else:
+                    self.err('"Identifier"')
+            else:
+                self.err('":"')
         elif self.match('bool'):
             if self.match(':'):
                 if self.first(bool_Identifier):
                     self.bool_Identifier()
+                else:
+                    self.err('"Identifier"')
+            else:
+                self.err('":"')
         elif self.match('tala'):
             if self.match(':'):
                 if self.first(tala_Identifier):
                     self.tala_Identifier()
+                else:
+                    self.err('"Identifier"')
+            else:   
+                self.err('":"')
         elif self.match('diks'):
             if self.match(':'):
                 if self.first(diks_Identifier):
                     self.diks_Identifier()
+                else:
+                    self.err('"Identifier"')
+            else:
+                self.err('":"')
         
     def num_Identifier(self):
         if self.match('Identifier'):
             if self.first(num_Identifier_continue):
                 self.num_Identifier_continue()
-                if self.first(num_ext):
-                    self.num_ext()
+            if self.first(num_ext):
+                self.num_ext()
 
     def num_Identifier_continue(self):
         if self.match('='):
             if self.first(num_dec_expression):
                 self.num_dec_expression()
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
     
     def num_ext(self):
         if self.match(','):
@@ -303,6 +378,8 @@ class Parser:
                 self.num_Identifier()
                 if self.first(num_ext):
                     self.num_ext()
+            else:
+                self.err('"Identifier"')
     
     def num_dec_expression(self):
         if self.first(num_expression):
@@ -313,12 +390,19 @@ class Parser:
                 if self.match(')'):
                     if self.first(num_dec_expression_continue):
                         self.num_dec_expression_continue()
+                else:
+                    self.err('")"')
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
+
 
     def num_dec_expression_continue(self):
         if self.first(mop):
             self.mop()
             if self.first(num_dec_expression):
                 self.num_dec_expression()
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
     
     def num_expression(self):
         if self.first(value_id):
@@ -340,6 +424,12 @@ class Parser:
                     if self.match(')'):
                         if self.first(num_dec_expression_continue):
                             self.num_dec_expression_continue()
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
+            else:
+                self.err('"("')
                 
     def num_value(self):
         if self.match('Punto Literal'):
@@ -359,13 +449,15 @@ class Parser:
         if self.match('Identifier'):
             if self.first(baybay_Identifier_continue):
                 self.baybay_Identifier_continue()
-                if self.first(baybay_ext):
-                    self.baybay_ext()
+            if self.first(baybay_ext):
+                self.baybay_ext()
     
     def baybay_Identifier_continue(self):
         if self.match('='):
             if self.first(baybay_dec_expression):
                 self.baybay_dec_expression()
+            else:
+                self.err('"Identifier", "Baybay Literal", "saBaybay", "("')
 
     def baybay_ext(self):
         if self.match(','):
@@ -373,6 +465,8 @@ class Parser:
                 self.baybay_Identifier()
                 if self.first(baybay_ext):
                     self.baybay_ext()
+            else:
+                self.err('"Identifier"')
     
     def baybay_dec_expression(self):
         if self.first(baybay_expression):
@@ -383,10 +477,17 @@ class Parser:
                 if self.match(')'):
                     if self.first(baybay_dec_expression_continue):
                         self.baybay_dec_expression_continue()
+                else:
+                    self.err('")"')
+            else:
+                self.err('"Identifier", "Baybay Literal", "saBaybay"')  
 
     def baybay_dec_expression_continue(self):
         if self.match('+'):
-            return
+            if self.first(baybay_dec_expression):
+                self.baybay_dec_expression()
+            else:
+                self.err('"Identifier", "Baybay Literal", "saBaybay", "("')
         
     def baybay_expression(self):
         if self.first(value_id):
@@ -412,13 +513,15 @@ class Parser:
         if self.match('Identifier'):
             if self.first(titik_Identifier_continue):
                 self.titik_Identifier_continue()
-                if self.first(titik_ext):
-                    self.titik_ext()
+            if self.first(titik_ext):
+                self.titik_ext()
 
     def titik_Identifier_continue(self):
         if self.match('='):
             if self.first(titik_expression):
                 self.titik_expression()
+            else:
+                self.err('"Identifier", "Titik Literal", "saTitik"')  
 
     def titik_expression(self):
         if self.first(value_id):
@@ -438,18 +541,22 @@ class Parser:
                 self.titik_Identifier()
                 if self.first(titik_ext):
                     self.titik_ext()
+            else:
+                self.err('"Identifier"')
                 
     def bool_Identifier(self):
         if self.match('Identifier'):
             if self.first(bool_identifier_continue):
                 self.bool_identifier_continue()
-                if self.first(bool_ext):
-                    self.bool_ext()
+            if self.first(bool_ext):
+                self.bool_ext()
         
     def bool_identifier_continue(self):
         if self.match('='):
             if self.first(condition):
                 self.condition()
+            else:
+                self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "(", "Totoo", "Peke"')
 
     def bool_ext(self):
         if self.match(','):
@@ -457,14 +564,18 @@ class Parser:
                 self.bool_Identifier()
                 if self.first(bool_ext):
                     self.bool_ext()
+            else:
+                self.err('"Identifier"')
 
     def condition(self):
-        if self.fist(negate):
+        if self.first(negate):
             self.negate()
             if self.first(cond):
                 self.cond()
                 if self.first(condition_continue):
                     self.condition_continue()
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "(", "Totoo", "Peke"')
 
     def cond(self):
         if self.first(condition_statement):
@@ -474,6 +585,10 @@ class Parser:
                 self.condition()
                 if self.match(')'):
                     return
+                else:
+                    self.err('")"')
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "(", "Totoo", "Peke"')
         
     def negate(self):
         if self.match('di'):
@@ -491,30 +606,40 @@ class Parser:
                 self.cop()
                 if self.first(num_expression):
                     self.num_expression()
+                else:
+                    self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~"')
         elif self.first(baybay_sub_expression):
             self.baybay_sub_expression()
             if self.first(eop):
                 self.eop()
                 if self.first(baybay_expression):
                     self.baybay_expression()
+                else:
+                    self.err('"Identifier", "Baybay Literal", "saBaybay"')
         elif self.first(titik_sub_expression):
             self.titik_sub_expression()
             if self.first(eop):
                 self.eop()
                 if self.first(titik_expression):
                     self.titik_expression()
+                else:
+                    self.err('"Identifier", "Titik Literal", "saTitik"')
         elif self.first(tala_sub_expression):
             self.tala_sub_expression()
             if self.first(eop):
                 self.eop()
                 if self.first(tala_expression):
                     self.tala_expression()
+                else:
+                    self.err('"Identifier", "["')
         elif self.first(diks_sub_expression):
             self.diks_sub_expression()
             if self.first(eop):
                 self.eop()
                 if self.first(diks_expression):
                     self.diks_expression()
+                else:
+                    self.err('"Identifier", "{"')
         elif self.match('Totoo'):
             return
         elif self.match('Peke'):
@@ -525,6 +650,8 @@ class Parser:
             self.cop()
             if self.first(condition_sub_expression):
                 self.condition_sub_expression()
+            else:
+                self.err('"(","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{"')
 
     def condition_sub_expression(self):
         if self.match('('):
@@ -554,6 +681,9 @@ class Parser:
             self.lop()
             if self.first(condition):
                 self.condition()
+            else:
+                self.err('"di", "Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "(", "Totoo", "Peke"')
+
 
     def cop(self):
         if self.match('>'):
@@ -584,8 +714,8 @@ class Parser:
             if self.match('='):
                 if self.first(tala_dec_expression):
                     self.tala_dec_expression()
-                    if self.first(tala_ext):
-                        self.tala_ext()
+                if self.first(tala_ext):
+                    self.tala_ext()
 
     def tala_ext(self):
         if self.match(','):
@@ -593,6 +723,8 @@ class Parser:
                 self.tala_Identifier()
                 if self.first(tala_ext):
                     self.tala_ext()
+            else:
+                self.err('"Identifier"')
 
     def tala_dec_expression(self):
         if self.first(tala_expression):
@@ -603,11 +735,17 @@ class Parser:
                 if self.match(')'):
                     if self.first(tala_dec_expression_continue):
                         self.tala_dec_expression_continue()
+                else:
+                    self.err('")"')
+            else:
+                self.err('"[","Identifier"') 
 
     def tala_dec_expression_continue(self):
         if self.match('+'):
             if self.first(tala_dec_expression):
                 self.tala_dec_expression()
+            else:
+                self.err('"Identifier", "[", "("')
 
     def tala_expression(self):
         if self.first(value_id):
@@ -624,6 +762,8 @@ class Parser:
                 if self.match(']'):
                     if self.first(tala_dec_expression_continue):
                         self.tala_dec_expression_continue()
+                else:
+                    self.err('"]"')
 
     def tala_content(self):
         if self.first(math):
@@ -637,14 +777,16 @@ class Parser:
                 self.math()
                 if self.first(tala_content_continue):
                     self.tala_content_continue()
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
             
     def diks_Identifier(self):
         if self.match('Identifier'):
             if self.match('='):
                 if self.first(diks_dec_expression):
                     self.diks_dec_expression()
-                    if self.first(diks_ext):
-                        self.diks_ext()
+                if self.first(diks_ext):
+                    self.diks_ext()
 
     def diks_ext(self):
         if self.match(','):
@@ -652,6 +794,8 @@ class Parser:
                 self.diks_Identifier()
                 if self.first(diks_ext):
                     self.diks_ext()
+            else:
+                self.err('"Identifier"')
 
     def diks_dec_expression(self): 
         if self.first(diks_expression):
@@ -662,12 +806,18 @@ class Parser:
                 if self.match(')'):
                     if self.first(diks_dec_expression_continue):
                         self.diks_dec_expression_continue()
+                else:
+                    self.err('")"')
+            else:
+                self.err('"{","Identifier"')
 
     def diks_dec_expression_continue(self):
         if self.match('|'):
             if self.first(diks_dec_expression):
                 self.diks_dec_expression()
-        
+            else:
+                self.err('"Identifier", "{", "("')
+
     def diks_expression(self):
         if self.first(value_id):
             self.value_id()
@@ -683,6 +833,8 @@ class Parser:
                 if self.match('}'):
                     if self.first(diks_dec_expression_continue):
                         self.diks_dec_expression_continue()
+                else:
+                    self.err('"}"')
                 
     def diks_content(self):
         if self.first(allowed_value):
@@ -692,6 +844,10 @@ class Parser:
                     self.math()
                     if self.first(diks_content_continue):
                         self.diks_content_continue()
+                else:
+                    self.err('["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
+            else:
+                self.err('";"')
 
     def diks_content_continue(self):
         if self.match(','):
@@ -702,6 +858,13 @@ class Parser:
                         self.math()
                         if self.first(diks_content_continue):
                             self.diks_content_continue()
+                        else:
+                            self.err('["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
+                else:
+                    self.err('";"')
+            else:
+                self.err('"Yunit Literal", "Baybay Literal", "Identifier"')
+
 
     def jumps(self):
         if self.match('laktaw'):
@@ -720,6 +883,8 @@ class Parser:
         if self.match('Identifier'):
             if self.first(id_continue):
                 self.id_continue()
+            else:
+                self.err('"(", ".", "["')
         
     def id_continue(self):
         if self.match('('):
@@ -728,6 +893,8 @@ class Parser:
                 if self.match(')'):
                     if self.first(aop):
                         self.aop()
+                else:
+                    self.err('")"')
         elif self.match('.'):
             if self.match('Identifier'):
                 if self.match('('):
@@ -735,13 +902,23 @@ class Parser:
                         self.arg()
                         if self.match(')'):
                             return
+                        else:
+                            self.err('")"')
+                else:
+                    self.err('"("') 
+            else:
+                self.err('"Identifier"')
+                    
                         
         elif self.first(value_index_continue):
-            self.value_index_continue()
-            if self.first(aop):
-                self.aop()
-                if self.first(allowed_aop):
-                    self.allowed_aop()
+            if self.first(value_index_continue):
+                self.value_index_continue()
+                if self.first(aop):
+                    self.aop()
+                    if self.first(allowed_aop):
+                        self.allowed_aop()
+                else:
+                    self.err('"=", "+=", "-=", "*=", "/="')
 
     def aop(self):
         if self.match('='):
@@ -760,6 +937,8 @@ class Parser:
             self.negate()
             if self.first(math):
                 self.math()
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
         elif self.first(inputting):
             self.inputting()
 
@@ -778,23 +957,31 @@ class Parser:
             self.mop()
             if self.first(math):
                 self.math()
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
         elif self.first(cop):
             self.cop()
             if self.first(math):
                 self.math()
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
         elif self.first(lop):
             self.lop()
             if self.first(math):
                 self.math()
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
         elif self.match('|'):
             if self.first(math):
                 self.math()
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
 
     def math_expression(self):
         if self.first(value_id_sub_expression):
             self.value_id_sub_expression()
             if self.first(math_value_id_expression_continue):
-                self.math_value_id_expressio_continue()
+                self.math_value_id_expression_continue()
         elif self.first(num_sub_expression):
             self.num_sub_expression()
             if self.first(math_num_expression_continue):
@@ -816,6 +1003,16 @@ class Parser:
             if self.first(math_diks_expression_continue):
                 self.math_diks_expression_continue()
 
+    def math_value_id_expression_continue(self):
+        if self.first(cop):
+            self.cop()
+            if self.first(condition_sub_expression):
+                self.condition_sub_expression()
+                if self.first(condition_continue):
+                    self.condition_continue()
+            else:
+                self.first('"(", "Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "Totoo", "Peke"')
+
     def math_num_expression_continue(self):
         if self.first(cop):
             self.cop()
@@ -823,7 +1020,9 @@ class Parser:
                 self.num_sub_expression()
                 if self.first(condition_continue):
                     self.condition_continue()
-        
+            else:
+                self.err('"Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~"')
+
     def math_baybay_expression_continue(self):
         if self.first(eop):
             self.eop()
@@ -831,6 +1030,8 @@ class Parser:
                 self.baybay_sub_expression()
                 if self.first(condition_continue):
                     self.condition_continue()
+            else:
+                self.err('"Baybay Literal", "saBaybay"')
 
     def math_titik_expression_continue(self):
         if self.first(eop):
@@ -839,6 +1040,8 @@ class Parser:
                 self.titik_sub_expression()
                 if self.first(condition_continue):
                     self.condition_continue()
+            else:
+                self.err('"Titik Literal", "saTitik"')
 
     def math_tala_expression_continue(self):
         if self.first(eop):
@@ -847,6 +1050,8 @@ class Parser:
                 self.tala_sub_expression()
                 if self.first(condition_continue):
                     self.condition_continue()
+            else:
+                self.err('"{", "saTala"')
 
     def math_diks_expression_continue(self):
         if self.first(eop):
@@ -855,6 +1060,8 @@ class Parser:
                 self.diks_sub_expression()
                 if self.first(condition_continue):
                     self.condition_continue()
+            else:
+                self.err('"[", "saDiks"')
 
     def inputting(self):
         if self.match('kuha'):
@@ -863,8 +1070,14 @@ class Parser:
                     self.data_type()
                     if self.first(prompt):
                         self.prompt()
-                        if self.match(')'):
-                            return
+                    if self.match(')'):
+                        return
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"yunit", "punto", "baybay", "titik", "bool"')
+            else:
+                self.err('"("')
                         
     def data_type(self):
         if self.match('yunit'):
@@ -882,6 +1095,8 @@ class Parser:
         if self.match(','):
             if self.match('Baybay Literal'):
                 return
+            else: 
+                self.err('"Baybay Literal"')
     
     def outputting(self): 
         if self.match('sulat'):
@@ -890,6 +1105,12 @@ class Parser:
                     self.printable()
                     if self.match(')'):
                         return
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
+            else:
+                self.err('"("')
                 
     def printable(self):
         if self.first(math):
@@ -903,6 +1124,8 @@ class Parser:
                 self.math()
                 if self.first(printable_continue):
                     self.printable_continue()
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
         
     def value_id_expression(self):
         if self.match('('):
@@ -911,6 +1134,10 @@ class Parser:
                 if self.match(')'):
                     if self.first(value_id_continue):
                         self.value_id_continue()
+                else:
+                    self.err('")"')
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "["')
         elif self.first(value_id_sub_expression):
             self.value_id_sub_expression()
 
@@ -930,6 +1157,8 @@ class Parser:
             if self.match('Identifier'):
                 if self.first(value_id_sub_ext):
                     self.value_id_sub_ext()
+            else:
+                self.err('"Identifier"')
         elif self.first(value_id_sub_ext):
             self.value_id_sub_ext()       
 
@@ -937,13 +1166,20 @@ class Parser:
         if self.match('['):
             if self.first(allowed_value):
                 self.allowed_value()
-                if self.first(value_index_continue):
-                    self.value_index_continue()
+                if self.match(']'):
+                    if self.first(value_index_continue):
+                        self.value_index_continue()
+                else:
+                    self.err('"]"')
+            else:
+                self.err('"Yunit Literal", "Baybay Literal", "Identifier"')
         elif self.match('('):
             if self.first(arg):
                 self.arg()
                 if self.match(')'):
                     return
+                else:
+                    self.err('")"')
                 
     def allowed_value(self):
         if self.match('Yunit Literal'):
@@ -960,6 +1196,10 @@ class Parser:
                 if self.match(']'):
                     if self.first(value_index_continue):
                         self.value_index_continue()
+                else:
+                    self.err('"]"')
+            else:
+                self.err('"Yunit Literal", "Baybay Literal", "Identifier"')
 
     def arg(self):
         if self.first(math):
@@ -973,18 +1213,26 @@ class Parser:
                 self.math()
                 if self.first(arg_continue):
                     self.arg_continue()
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
 
     def value_id_continue(self):
         if self.match('|'):
             if self.first(diks_dec_expression):
                 self.diks_dec_expression()
+            else: 
+                self.err('"[", "saDiks", "("')
         elif self.match('+'):
             if self.first(value_id_continue_plus):
                 self.value_id_continue_plus()
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "["')
         elif self.first(sub_mop):
             self.sub_mop()
             if self.first(num_dec_expression):
                 self.num_dec_expression()
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
 
     def sub_mop(self):
         if self.match('-'):
@@ -1015,12 +1263,24 @@ class Parser:
                     self.typecast_value()
                     if self.match(')'):
                         return
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"Punto Literal", "Titik Literal", "Baybay Literal", "Yunit Literal", "Identifier"')
+            else:
+                self.err('"("')
         elif self.match('saPunto'):
             if self.match('('):
                 if self.first(typecast_value):
                     self.typecast_value()
                     if self.match(')'):
                         return
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"Punto Literal", "Titik Literal", "Baybay Literal", "Yunit Literal", "Identifier"')
+            else:
+                self.err('"("')
                     
     def baybay_typecast(self):
         if self.match('saBaybay'):
@@ -1029,6 +1289,12 @@ class Parser:
                     self.typecast_value()
                     if self.match(')'):
                         return
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"Punto Literal", "Titik Literal", "Baybay Literal", "Yunit Literal", "Identifier"')
+            else:
+                self.err('"("')
 
     def titik_typecast(self):
         if self.match('saTitik'):
@@ -1037,6 +1303,12 @@ class Parser:
                     self.titik_typecast_value()
                     if self.match(')'):
                         return
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"Titik Literal", "Baybay Literal", "Yunit Literal", "Identifier"')
+            else:
+                self.err('"("')
     
     def typecast_value(self):
         if self.match('Punto Literal'):
@@ -1059,16 +1331,34 @@ class Parser:
             if self.match('Identifier'):
                 if self.match('('):
                     if self.first(param):
-                        if self.match(')'):
-                            if self.match('{'):
+                        pass
+                    if self.match(')'):
+                        self.newline()
+                        if self.match('{'):
+                            if self.match('newline'):
+                                self.newline()
                                 if self.first(global_call):
                                     self.global_call()
                                 if self.first(func_content):
                                     self.func_content()
-                                if self.first(func_content_continue):
-                                    self.func_content_continue()
-                                if self.match('}'):
-                                    return
+                                    if self.first(func_content_continue):
+                                        self.func_content_continue()
+                                    if self.match('}'):
+                                        return
+                                    else:
+                                        self.err('"}"')
+                                else:
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok"')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('{')
+                    else:
+                        self.err(')')
+                else:
+                    self.err('(')
+            else:
+                self.err('Identifier')
                                 
     def param(self):
         if self.first(param_var_dec):
@@ -1080,96 +1370,150 @@ class Parser:
                 if self.match('Identifier'):
                     if self.first(param_num_next):
                         self.param_num_next()
+                else:
+                    self.err('Identifier')
+            else:
+                self.err('":"')
+
         elif self.match('punto'):
             if self.match(':'):
                 if self.match('Identifier'):
                     if self.first(param_num_next):
                         self.param_num_next()
+                else:
+                    self.err('Identifier')
+            else:
+                self.err('":"')
         elif self.match('baybay'):
             if self.match(':'):
                 if self.match('Identifier'):
                     if self.first(param_baybay_next):
                         self.param_baybay_next()
+                else:
+                    self.err('Identifier')
+            else:
+                self.err('":"')
         elif self.match('titik'):
             if self.match(':'):
                 if self.match('Identifier'):
                     if self.first(param_titik_next):
                         self.param_titik_next()
+                else:
+                    self.err('Identifier')
+            else:
+                self.err('":"')
         elif self.match('bool'):
             if self.match(':'):
                 if self.match('Identifier'):
                     if self.first(param_bool_next):
                         self.param_bool_next()
+                else:
+                    self.err('Identifier')
+            else:
+                self.err('":"')
         elif self.match('tala'):
             if self.match(':'):
                 if self.match('Identifier'):
                     if self.first(param_tala_next):
                         self.param_tala_next()
+                else:
+                    self.err('Identifier')
+            else:
+                self.err('":"')
         elif self.match('diks'):
             if self.match(':'):
                 if self.match('Identifier'):
                     if self.first(param_diks_next):
                         self.param_diks_next()
+                else:
+                    self.err('Identifier')
+            else:
+                self.err('":"')
 
     def param_num_next(self):
         if self.match(','):
             if self.first(param_var_dec):
                 self.param_var_dec()
+            else:
+                self.err('yunit, punto, baybay, titik, bool, tala, diks')
         elif self.match('='):
             if self.first(num_dec_expression):
                 self.num_dec_expression()
                 if self.first(param_default_continue):
                     self.param_default_continue()
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
     
     def param_baybay_next(self):
         if self.match(','):
             if self.first(param_var_dec):
                 self.param_var_dec()
+            else:
+                self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks"')
         elif self.match('='):
             if self.first(baybay_dec_expression):
                 self.baybay_dec_expression()
                 if self.first(param_default_continue):
                     self.param_default_continue()
+            else:
+                self.err('"Identifier", "Baybay Literal", "saBaybay", "("')
+
                 
     def param_titik_next(self):
         if self.match(','):
             if self.first(param_var_dec):
                 self.param_var_dec()
+            else:
+                self.err("yunit", "punto", "baybay", "titik", "bool", "tala", "diks"'')
         elif self.match('='):
             if self.first(titik_expression):
                 self.titik_expression()
                 if self.first(param_default_continue):
                     self.param_default_continue()
+            else:
+                self.err('"Identifier", "Titik Literal", "saTitik"')
     
     def param_bool_next(self):
         if self.match(','):
             if self.first(param_var_dec):
                 self.param_var_dec()
+            else:
+                self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks"')
         elif self.match('='):
             if self.first(condition):
                 self.condition()
                 if self.first(param_default_continue):
                     self.param_default_continue()
+            else:
+                self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
     
     def param_tala_next(self):
         if self.match(','):
             if self.first(param_var_dec):
                 self.param_var_dec()
+            else:
+                self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks"')
         elif self.match('='):
             if self.first(tala_expression):
                 self.tala_expression()
                 if self.first(param_default_continue):
                     self.param_default_continue()
+            else:
+                self.err('"Identifier","["')
 
     def param_diks_next(self):
         if self.match(','):
             if self.first(param_var_dec):
                 self.param_var_dec()
+            else:
+                self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks"')
         elif self.match('='):
             if self.first(diks_expression):
                 self.diks_expression()
                 if self.first(param_default_continue):
                     self.param_default_continue()
+        else:
+            self.err('"Identifier", "{"')   
 
     def param_default_continue(self):
         if self.match(','):
@@ -1177,61 +1521,148 @@ class Parser:
                 self.param_var_dec_default()
                 if self.first(param_default_continue):
                     self.param_default_continue()
+            else:
+                self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks"')
 
     def param_var_dec_default(self):
         if self.match('yunit'):
             if self.match(':'):
                 if self.match('Identifier'):
-                    if self.first(num_dec_expression):
-                        self.num_dec_expression()
+                    if self.match('='):
+                        if self.first(num_dec_expression):
+                            self.num_dec_expression()
+                        else:
+                            self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
+                    else:
+                        self.err('"="')
+                else:
+                    self.err('Identifier')
+            else:
+                self.err('":"')
         elif self.match('punto'):
             if self.match(':'):
                 if self.match('Identifier'):
-                    if self.first(num_dec_expression):
-                        self.num_dec_expression()
+                    if self.match('='):
+                        if self.first(num_dec_expression):
+                            self.num_dec_expression()
+                        else:
+                            self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
+                    else:
+                        self.err('"="')
+                else:
+                    self.err('Identifier')
+            else:
+                self.err('":"')
         elif self.match('baybay'):
             if self.match(':'):
                 if self.match('Identifier'):
-                    if self.first(baybay_dec_expression):
-                        self.baybay_dec_expression()
+                    if self.match('='):
+                        if self.first(baybay_dec_expression):
+                            self.baybay_dec_expression()
+                        else:
+                            self.err('"Identifier", "Baybay Literal", "saBaybay", "("')
+                    else:
+                        self.err('"="')
+                else:
+                    self.err('Identifier')
+            else:
+                self.err('":"')
         elif self.match('titik'):
             if self.match(':'):
                 if self.match('Identifier'):
-                    if self.first(titik_expression):
-                        self.titik_expression()
+                    if self.match('='):
+                        if self.first(titik_expression):
+                            self.titik_expression()
+                        else:
+                            self.err('"Identifier", "Titik Literal", "saTitik"')
+                    else:
+                        self.err('"="')
+                else:
+                    self.err('Identifier')
+            else:
+                self.err('":"')
         elif self.match('bool'):
             if self.match(':'):
                 if self.match('Identifier'):
-                    if self.first(condition):
-                        self.condition()
+                    if self.match('='):
+                        if self.first(condition):
+                            self.condition()
+                        else:
+                            self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
+                    else:
+                        self.err('"="')
+                else:
+                    self.err('Identifier')
+            else:
+                self.err('":"')
         elif self.match('tala'):
             if self.match(':'):
                 if self.match('Identifier'):
-                    if self.first(tala_expression):
-                        self.tala_expression()
+                    if self.match('='):
+                        if self.first(tala_expression):
+                            self.tala_expression()
+                        else:
+                            self.err('"Identifier","["')
+                    else:
+                        self.err('"="')
+                else:
+                    self.err('Identifier')
+            else:
+                self.err('":"')
         elif self.match('diks'):
             if self.match(':'):
                 if self.match('Identifier'):
-                    if self.first(diks_expression):
-                        self.diks_expression()
+                    if self.match('='):
+                        if self.first(diks_expression):
+                            self.diks_expression()
+                        else:
+                            self.err('"Identifier", "{"')
+                    else:
+                        self.err('"="')
+                else:
+                    self.err('Identifier')
+            else:
+                self.err('":"')
 
     def global_call(self):
         if self.match('global'):
             if self.match('Identifier'):
                 if self.first(nickname):
                     self.nickname()
+            else:
+                self.err('Identifier')
+        if self.match('newline'):
+            self.newline()
+        else:
+            self.err('newline')
 
     def func_content(self):
         if self.first(statement_for_func_dec):
             self.statement_for_func_dec()
         elif self.first(return1):
             self.return1()
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('newline')
         elif self.first(func_loop):
             self.func_loop()
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('newline')
         elif self.first(func_conditional):
             self.func_conditional()
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('newline')
         elif self.first(func_exception_handling):
             self.func_exception_handling()
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('newline')
 
     def func_content_continue(self):
         if self.first(func_content):
@@ -1242,7 +1673,7 @@ class Parser:
     def return1(self):
         if self.match('balik'):
             if self.first(return_val):
-                self.return_val()
+                self.return_val()   
 
     def return_val(self):
         if self.first(math):
@@ -1254,44 +1685,97 @@ class Parser:
                 if self.match('sa'):
                     if self.first(iterable):
                         self.iterable()
+                        self.newline()
                         if self.match('{'):
-                            if self.first(func_loop_body):
-                                self.func_loop_body()
-                            if self.match('}'):
-                                return
+                            if self.match('newline'):
+                                self.newline()
+                                if self.first(func_loop_body):
+                                    self.func_loop_body()
+                                    if self.match('}'):
+                                        return
+                                    else:
+                                        self.err('"}"')
+                                else:
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok"')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('{')
+                    else:
+                        self.err('"[", "{", "lawak", "Identifier"')
+                else:
+                    self.err('sa')
+            else:
+                self.err('Identifier')
         elif self.match('habang'):
             if self.match('('):
                 if self.first(condition):
                     self.condition()
                     if self.match(')'):
+                        self.newline()
                         if self.match('{'):
-                            if self.first(func_loop_body):
-                                self.func_loop_body()
-                            if self.match('}'):
-                                return
+                            if self.match('newline'):
+                                self.newline()
+                                if self.first(func_loop_body):
+                                    self.func_loop_body()
+                                    if self.match('}'):
+                                        return
+                                    else:
+                                        self.err('"}"')
+                                else:
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok"')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('{')
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
         elif self.match('gawin'):
+            self.newline()
             if self.match('{'):
-                if self.first(func_loop_body):
-                    self.func_loop_body()
-                if self.match('}'):
-                    if self.match('tuwing'):
-                        if self.match('('):
-                            if self.first(condition):
-                                self.condition()
-                                if self.match(')'):
-                                    return
+                if self.match('newline'):
+                    self.newline()
+                    if self.first(func_loop_body):
+                        self.func_loop_body()
+                    if self.match('}'):
+                        if self.match('tuwing'):
+                            if self.match('('):
+                                if self.first(condition):
+                                    self.condition()
+                                    if self.match(')'):
+                                        return
+                                    else:
+                                        self.err('")"')
+                                else:
+                                    self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
+                            else:
+                                self.err('"("')
+                        else:
+                            self.err('tuwing')
+                    else:
+                        self.err('"}"')
+                else:
+                    self.err('newline')
+            else:
+                self.err('{')
+
     def iterable(self):
         if self.match('['):
             if self.first(tala_content):
-                if self.match(']'):
-                    return
+                self.tala_content()
+            if self.match(']'):
+                return
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "(", "]"')
         elif self.match('{'):
             if self.first(diks_content):
                 self.diks_content()
-                if self.match('}'):
-                    return
-        elif self.match('Identifier'):  
-            return
+            if self.match('}'):
+                return
+            else:
+                self.err('"Yunit Literal", "Baybay Literal", "Identifier"')
         elif self.match('Baybay Identifier'):
             return 
         elif self.first(value_id):
@@ -1308,7 +1792,21 @@ class Parser:
                                     self.lawak_value()
                                     if self.match(')'):
                                         return
-                            
+                                    else:
+                                        self.err('")"')
+                                else:
+                                    self.err('"Yunit Literal", "Identifier"')
+                            else:
+                                self.err('","')
+                        else:
+                            self.err('"Yunit Literal", "Identifier"')
+                    else:
+                        self.err('","')
+                else:
+                    self.err('"Yunit Literal", "Identifier"')
+            else:
+                self.err('"("')
+                                                  
     def lawak_value(self):
         if self.match('Yunit Literal'):
             return 
@@ -1326,24 +1824,34 @@ class Parser:
             self.statement_for_func_dec()
         elif self.first(loop_jumps):
             self.loop_jumps()   
-    
-    def func_loop_content(self):
-        if self.first(func_loop_conditional):
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('newline')
+        elif self.first(func_loop_conditional):
             self.func_loop_conditional()
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('newline')
         elif self.first(func_loop_exception_handling):
             self.func_loop_exception_handling()
-        
-    def func_loop_content_continue(self):
-        if self.first(func_loop_content):
-            self.func_loop_content()
-            if self.first(func_loop_content_continue):
-                self.func_loop_content_continue()
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('newline')
     
     def loop_jumps(self):
         if self.match('labas'):
             return  
         if self.match('tuloy'):
-            return        
+            return
+
+    def func_loop_content_continue(self):
+        if self.first(func_loop_content):
+            self.func_loop_content()
+            if self.first(func_loop_content_continue):
+                self.func_loop_content_continue()     
     
     def func_loop_conditional(self):
         if self.match('kung'):
@@ -1351,67 +1859,171 @@ class Parser:
                 if self.first(condition):
                     self.condition()
                     if self.match(')'):
+                        self.newline()
                         if self.match('{'):
-                            if self.first(func_loop_content):
-                                self.func_loop_content()
-                                if self.first(func_loop_content_continue):
-                                    self.func_loop_content_continue()   
+                            if self.match('newline'):
+                                self.newline()
+                                if self.first(func_loop_content):
+                                    self.func_loop_content()
+                                    if self.first(func_loop_content_continue):
+                                        self.func_loop_content_continue()   
                                     if self.match('}'):
-                                        if self.first(func_loop_conditional_continue):
-                                            self.func_loop_conditional_continue()
-                                            if self.first(func_loop_conditional_end):
-                                                self.func_loop_conditional_end()
+                                        if self.match('newline'):
+                                            self.newline()
+                                            if self.first(func_loop_conditional_continue):
+                                                self.func_loop_conditional_continue()
+                                                if self.first(func_loop_conditional_end):
+                                                    self.func_loop_conditional_end()
+                                        else:
+                                            self.err('newline')
+                                    else:
+                                        self.err('"}"')
+                                else:
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok"')
+                            else:
+                                self.err('newline')
+                        else:   
+                            self.err('{')
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
+            else:
+                self.err('"("')
         elif self.match('pili'):
             if self.match('('):
                 if self.first(pili_val):
                     self.pili_val()
                     if self.match(')'):
+                        self.newline()
                         if self.match('{'):
-                            if self.first(func_loop_pag_block):
-                                self.func_loop_pag_block()  
-                                if self.match('}'):
+                            if self.match('newline'):
+                                self.newline()
+                                if self.first(func_loop_pag_block):
+                                    self.func_loop_pag_block() 
                                     if self.match('kusa'):
                                         if self.match('{'):
-                                            if self.first(func_loop_pili_body):
-                                                self.func_loop_pili_body()   
-                                                if self.match('}'):
+                                            if self.match('newline'):
+                                                self.newline()
+                                                if self.first(func_loop_pili_body):
+                                                    self.func_loop_pili_body()   
                                                     if self.match('}'):
-                                                        return
+                                                        if self.match('newline'):
+                                                            if self.match('}'):
+                                                                return
+                                                            else:
+                                                                self.err('"}"')
+                                                        else:
+                                                            self.err('newline')
+                                                    else:
+                                                        self.err('"}"')
+                                                else:
+                                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok"')
+                                            else:
+                                                self.err('newline')
+                                        else:
+                                            self.err('"}"')
+                                    else:
+                                        self.err('kusa')
+                                else:
+                                    self.err('"pag"')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('{')
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"Yunit Literal", "Baybay Literal", "Identifier"')
+            else:
+                self.err('"("')
                             
     def func_loop_conditional_continue(self):
         if self.match('kundi'):
             if self.match('('):
                 if self.first(condition):
                     if self.match(')'):
+                        self.newline()
                         if self.match('{'):
-                            if self.first(func_loop_content):
-                                self.func_loop_content()
-                                if self.first(func_loop_content_continue):
-                                    self.func_loop_content_continue()   
+                            if self.match('newline'):
+                                self.newline()
+                                if self.first(func_loop_content):
+                                    self.func_loop_content()
+                                    if self.first(func_loop_content_continue):
+                                        self.func_loop_content_continue()   
                                     if self.match('}'):
-                                        if self.first(func_loop_conditional_continue):
-                                            self.func_loop_conditional_continue()
+                                        if self.match('newline'):
+                                            self.newline()
+                                            if self.first(func_loop_conditional_continue):
+                                                self.func_loop_conditional_continue()
+                                        else:
+                                            self.err('newline')
+                                    else:
+                                        self.err('"}"')
+                                else:
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok"')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('{')
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
+            else:
+                self.err('"("')
 
     def func_loop_conditional_end(self):
         if self.match('edi'):
+            self.newline()
             if self.match('{'):
-                if self.first(func_loop_content):
-                    self.func_loop_content()
-                    if self.first(func_loop_content_continue):
-                        self.func_loop_content_continue()
+                if self.match('newline'):
+                    self.newline()
+                    if self.first(func_loop_content):
+                        self.func_loop_content()
+                        if self.first(func_loop_content_continue):
+                            self.func_loop_content_continue()
                         if self.match('}'):
-                            return
+                            if self.match('newline'):
+                                self.newline()
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('"}"')
+                    else:
+                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok"')
+                else:
+                    self.err('newline')
+            else:
+                self.err('{')
                         
     def func_loop_pag_block(self):
         if self.match('pag'):
             if self.first(pag_val):
                 self.pag_val()
+                self.newline()
                 if self.match('{'):
-                    if self.first(func_loop_pili_body):
-                        self.func_loop_pili_body()
-                        if self.match('}'):
-                            if self.first(func_loop_pag_continue):
-                                self.func_loop_pag_continue()
+                    if self.match('newline'):
+                        self.newline()
+                        if self.first(func_loop_pili_body):
+                            self.func_loop_pili_body()
+                            if self.match('}'):
+                                if self.match('newline'):
+                                    self.newline()
+                                    if self.first(func_loop_pag_continue):
+                                        self.func_loop_pag_continue()
+                                else:
+                                    self.err('newline')
+                            else:
+                                self.err('"}"')
+                        else:
+                            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok"')
+                    else:
+                        self.err('newline')
+                else:
+                    self.err('{')
+            else:
+                self.err('"Yunit Literal", "Baybay Literal"')
                             
     def func_loop_pili_body(self):
         if self.first(func_loop_content):
@@ -1425,74 +2037,197 @@ class Parser:
 
     def func_loop_exception_handling(self):
         if self.match('subok'):
+            self.newline()
             if self.match('{'):
-                if self.first(func_loop_content):
-                    self.func_loop_content()
-                    if self.match('}'):
-                        if self.match('('):
-                            if self.first(exception):
-                                self.exception()
-                                if self.match(')'):
-                                    if self.match('{'):
-                                        if self.first(func_loop_content):
-                                            self.func_loop_content()
-                            
+                if self.match('newline'):
+                    self.newline()
+                    if self.first(func_loop_content):
+                        self.func_loop_content()
+                        if self.match('}'):
+                            if self.match('newline'):
+                                self.newline()
+                                if self.match('('):
+                                    if self.first(exception):
+                                        self.exception()
+                                    if self.match(')'):
+                                        self.newline()
+                                        if self.match('{'):
+                                            if self.match('newline'): 
+                                                self.match('newline')
+                                                if self.first(func_loop_content):
+                                                    self.func_loop_content()
+                                                    if self.match('}'):
+                                                        return
+                                                    else:
+                                                        self.err('"}"')
+                                                else:
+                                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok"')
+                                            else:
+                                                self.err('newline')
+                                        else:
+                                            self.err('{')
+                                    else:
+                                        self.err('")"')
+                                else:
+                                    self.err('(')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('"}"')
+                    else:
+                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok"')
+                else:
+                    self.err('newline')
+            else:
+                self.err('{')
+
     def func_conditional(self):
         if self.match('kung'):
             if self.match('('):
                 if self.first(condition):
                     self.condition()
                     if self.match(')'):
+                        self.newline()
                         if self.match('{'):
-                            if self.first(func_content):
-                                self.func_content()
-                                if self.first(func_content_continue):
-                                    self.func_content_continue()   
+                            if self.match('newline'):
+                                self.newline()
+                                if self.first(func_content):
+                                    self.func_content()
+                                    if self.first(func_content_continue):
+                                        self.func_content_continue()   
                                     if self.match('}'):
-                                        if self.first(func_conditional_continue):
-                                            self.func_conditional_continue()
+                                        if self.match('newline'):
+                                            self.newline()
+                                            if self.first(func_conditional_continue):
+                                                self.func_conditional_continue()
                                             if self.first(func_loop_conditional_end):
                                                 self.func_conditional_end()
+                                        else:
+                                            self.err('newline')
+                                    else:
+                                        self.err('"}"')
+                                else:
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok"')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('{')
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
+            else:
+                self.err('"("') 
         elif self.match('pili'):
             if self.match('('):
                 if self.first(pili_val):
                     self.pili_val()
                     if self.match(')'):
+                        self.newline()
                         if self.match('{'):
-                            if self.first(func_pag_block):
-                                self.func_pag_block()
-                                if self.match('kusa'):
-                                    if self.match('{'):
-                                        if self.first(func_pili_body):
-                                            self.func_pili_body()   
-                                            if self.match('}'):
-                                                if self.match('}'):
-                                                    return
-                                                
+                            if self.match('newline'):
+                                self.newline()
+                                if self.first(func_pag_block):
+                                    self.func_pag_block()
+                                    if self.match('kusa'):
+                                        self.newline()
+                                        if self.match('{'):
+                                            if self.match('newline'):
+                                                self.newline()
+                                                if self.first(func_pili_body):
+                                                    self.func_pili_body()   
+                                                    if self.match('}'):
+                                                        if self.match('newline'):
+                                                            self.newline()
+                                                            if self.match('}'):
+                                                                return
+                                                            else:
+                                                                self.err('"}"')
+                                                        else:
+                                                            self.err('newline')
+                                                    else:
+                                                        self.err('"}"')
+                                                else:
+                                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok", "labas"')
+                                            else:
+                                                self.err('newline')
+                                        else:
+                                            self.err('"}"')
+                                    else:
+                                        self.err('kusa')
+                                else:
+                                    self.err('"pag"')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('{')
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"Yunit Literal", "Baybay Literal"')
+            else:
+                self.err('"("')    
+
     def func_conditional_continue(self):
         if self.match('kundi'):
             if self.match('('):
                 if self.first(condition):
                     if self.match(')'):
+                        self.newline()
                         if self.match('{'):
-                            if self.first(func_content):
-                                self.func_content()
-                                if self.first(func_loop_content_continue):
-                                    self.func_loop_content_continue()   
+                            if self.match('newline'):
+                                self.newline()
+                                if self.first(func_content):
+                                    self.func_content()
+                                    if self.first(func_loop_content_continue):
+                                        self.func_loop_content_continue()   
                                     if self.match('}'):
-                                        if self.first(func_conditional_continue):
-                                            self.func_conditional_continue()
+                                        if self.match('newline'):   
+                                            self.newline()
+                                            if self.first(func_conditional_continue):
+                                                self.func_conditional_continue()
+                                        else:
+                                            self.err('newline')
+                                    else:
+                                        self.err('"}"')
+                                else:
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok"')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('{')
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
+            else:
+                self.err('"("')
     
     def func_conditional_end(self):
         if self.match('edi'):
+            self.newline()
             if self.match('{'):
-                if self.first(func_content):
-                    self.func_content()
-                    if self.first(func_content_continue):
-                        self.func_content_continue()
+                if self.match('newline'):
+                    self.newline()
+                    if self.first(func_content):
+                        self.func_content()
+                        if self.first(func_content_continue):
+                            self.func_content_continue()
                         if self.match('}'):
-                            return
-                        
+                            if self.match('newline'):
+                                self.newline()  
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('"}"')
+                    else:
+                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok"')
+                else:
+                    self.err('newline')
+            else:
+                self.err('{')
+                    
+
     def pili_val(self):
         if self.first(value_id):
             self.value_id()
@@ -1505,12 +2240,29 @@ class Parser:
         if self.match('pag'):
             if self.first(pag_val):
                 self.pag_val()
+                self.newline()
                 if self.match('{'):
-                    if self.first(func_pili_body):
-                        self.func_pili_body()
-                        if self.match('}'):
-                            if self.first(func_pag_continue):
-                                self.func_pag_continue()
+                    if self.match('newline'):
+                        self.newline()
+                        if self.first(func_pili_body):
+                            self.func_pili_body()
+                            if self.match('}'):
+                                if self.match('newline'):
+                                    self.newline()
+                                    if self.first(func_pag_continue):
+                                        self.func_pag_continue()
+                                else:
+                                    self.err('newline')
+                            else:
+                                self.err('"}"')
+                        else:
+                            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok", "labas"')
+                    else:
+                        self.err('newline')
+                else:
+                    self.err('{')
+            else:
+                self.err('"Yunit Literal", "Titik Literal"')  
     
     def pag_val(self):
         if self.match('Yunit Literal'):
@@ -1528,7 +2280,10 @@ class Parser:
         if self.first(func_content):
             self.func_content()
         elif self.match('labas'):
-            return
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('newline')
     
     def func_pili_content_continue(self):
         if self.first(func_pili_content):
@@ -1542,17 +2297,52 @@ class Parser:
         
     def func_exception_handling(self):
         if self.match('subok'):
+            self.newline()
             if self.match('{'):
-                if self.first(func_content):
-                    self.func_content()
-                    if self.match('}'):
-                        if self.match('('):
-                            if self.first(exception):
-                                self.exception()
-                                if self.match(')'):
-                                    if self.match('{'):
-                                        if self.first(func_content):
-                                            self.func_content()
+                if self.match('newline'):
+                    self.newline()
+                    if self.first(func_content):
+                        self.func_content()
+                        if self.match('}'):
+                            if self.match('newline'):
+                                self.newline()
+                                if self.match('bukod'):
+                                    if self.match('('):
+                                        if self.first(exception):
+                                            self.exception()
+                                        if self.match(')'):
+                                            self.newline()
+                                            if self.match('{'):
+                                                if self.match('newline'):
+                                                    self.newline()
+                                                    if self.first(func_content):
+                                                        self.func_content()
+                                                        if self.match('}'):
+                                                            return
+                                                        else:
+                                                            self.err('"}"')
+                                                    else:
+                                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok"')
+                                                else:
+                                                    self.err('newline')
+                                            else:
+                                                self.err('{')
+                                        else:
+                                            self.err('")"')
+                                    else:
+                                        self.err('"("')
+                                else:
+                                    self.err('bukod')
+                            else:   
+                                self.err('newline')
+                        else:
+                            self.err('"}"') 
+                    else:
+                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok"')
+                else:
+                    self.err('newline')
+            else:
+                self.err('{')
 
     def exception(self):
         if self.first(error):
@@ -1584,23 +2374,61 @@ class Parser:
         
     def error_continue(self):
         if self.match(','):
-            if self.first(error_continue):
-                self.error_continue()
+            if self.first(error):
+                self.error()
+                if self.first(error_continue):
+                    self.error_continue()
+            else:
+                self.err('AttribError, ExcessError, TypeError, ValueError, ZeroDivisionError, SyntaxError, NameError, IndexError, KeyError, ImportError')
 
     def exception_handling(self):
         if self.match('subok'):
+            self.newline()
             if self.match('{'):
-                if self.first(func_content):
-                    self.func_content()
-                    if self.match('}'):
-                        if self.match('bukod'):
-                            if self.match('('):
-                                if self.first(exception):
-                                    self.exception()
-                                    if self.match(')'):
-                                        if self.match('{'):
-                                            if self.first(func_content):
-                                                self.func_content()
+                if self.match('newline'):
+                    self.newline()
+                    if self.first(statement):
+                        self.statement()
+                        if self.match('}'):
+                            if self.match('newline'):
+                                self.newline()
+                                if self.match('bukod'):
+                                    if self.match('('):
+                                        if self.first(exception):
+                                            self.exception()
+                                        if self.match(')'):
+                                            self.newline()
+                                            if self.match('{'):
+                                                if self.match('newline'):
+                                                    self.newline()
+                                                    if self.first(statement):
+                                                        self.statement()
+                                                        if self.match('}'):
+                                                            return
+                                                        else:
+                                                            self.err('"}"')
+                                                    else:
+                                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "takda", "subok"')
+                                                else:
+                                                    self.err('newline')
+                                            else:
+                                                self.err('{')
+                                        else:
+                                            self.err('")"')
+                                    else:
+                                        self.err('"("')
+                                else:
+                                    self.err('bukod')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('"}"')
+                    else:
+                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "takda", "subok"')
+                else:
+                    self.err('newline')
+            else:
+                self.err('{')
                                     
     def conditional(self):
         if self.match('kung'):
@@ -1608,41 +2436,102 @@ class Parser:
                 if self.first(condition):
                     self.condition()
                     if self.match(')'):
+                        self.newline()
                         if self.match('{'):
-                            if self.first(func_content):
-                                self.func_content()
-                                if self.first(func_content_continue):
-                                    self.func_content_continue()   
+                            if self.match('newline'):
+                                self.newline()
+                                if self.first(conditional_content):
+                                    self.conditional_content() 
                                     if self.match('}'):
-                                        if self.first(conditional_continue):
-                                            self.conditional_continue()
+                                        if self.match('newline'):
+                                            self.newline()
+                                            if self.first(conditional_continue):
+                                                self.conditional_continue()
                                             if self.first(conditional_end):
                                                 self.conditional_end()
+                                        else:
+                                            self.err('newline')
+                                    else:
+                                        self.err('"}"')
+                                else:
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "subok"')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('{')
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
+            else:
+                self.err('"("')
+
         elif self.match('pili'):
             if self.match('('):
                 if self.first(pili_val):
                     self.pili_val()
                     if self.match(')'):
+                        self.newline()
                         if self.match('{'):
-                            if self.first(func_pag_block):
-                                self.func_pag_block()
-                                if self.match('kusa'):
-                                    if self.match('{'):
-                                        if self.first(func_pili_body):
-                                            self.func_pili_body()   
-                                            if self.match('}'):
+                            if self.match('newline'):
+                                self.newline()
+                                if self.first(pag_block):
+                                    self.pag_block()
+                                    if self.match('kusa'):
+                                        self.newline()
+                                        if self.match('{'):
+                                            if self.match('newline'):
+                                                self.newline()
+                                            if self.first(pili_body):
+                                                self.pili_body()   
                                                 if self.match('}'):
-                                                    return
+                                                    if self.match('newline'):
+                                                        self.newline()
+                                                        if self.match('}'):
+                                                            return
+                                                        else:
+                                                            self.err('"}"')
+                                                    else:
+                                                        self.err('newline')
+                                                else:
+                                                    self.err('"}"')
+                                            else:
+                                                self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "labas"')
+                                        else:
+                                            self.err('"{"')
+                                    else:
+                                        self.err('kusa')
+                                else:
+                                    self.err('"pag"')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('{')
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"Yunit Literal", "Titik Literal"')
+            else:
+                self.err('"("')
+
 
     def conditional_content(self):
         if self.first(statement_for_conditional):
             self.statement_for_conditional()
-            if self.first(conditional_content_continue):
-                self.conditional_content_continue()
+            if self.match('newline'):
+                self.newline()
+                if self.first(conditional_content_continue):
+                    self.conditional_content_continue()
+            else:
+                self.err('newline')
         elif self.first(conditional_exception_handling):
             self.conditional_exception_handling()
-            if self.first(conditional_content_continue):
-                self.conditional_content_continue()
+            if self.match('newline'):
+                self.newline()
+                if self.first(conditional_content_continue):
+                    self.conditional_content_continue()
+            else:
+                self.err('newline')
 
     def conditional_content_continue(self):
         if self.first(conditional_content):
@@ -1656,35 +2545,83 @@ class Parser:
             if self.match('('):
                 if self.first(condition):
                     if self.match(')'):
+                        self.newline()
                         if self.match('{'):
-                            if self.first(func_content):
-                                self.func_content()
-                                if self.first(func_loop_content_continue):
-                                    self.func_loop_content_continue()   
+                            if self.match('newline'):
+                                if self.first(conditional_content):
+                                    self.conditional_content() 
                                     if self.match('}'):
-                                        if self.first(conditional_continue):
-                                            self.conditional_continue()
-                                    
+                                        if self.match('newline'):
+                                            self.newline()
+                                            if self.first(conditional_continue):
+                                                self.conditional_continue()
+                                        else:
+                                            self.err('newline')
+                                    else:
+                                        self.err('"}"')
+                                else:
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "subok"')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('{')
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
+            else:
+                self.err('"("')
+
     def conditional_end(self):
         if self.match('edi'):
+            self.newline()
             if self.match('{'):
-                if self.first(func_content):
-                    self.func_content()
-                    if self.first(func_content_continue):
-                        self.func_content_continue()
+                if self.match('newline'):
+                    self.newline()
+                    if self.first(conditional_content):
+                        self.conditional_content()
                         if self.match('}'):
-                            return
+                            if self.match('newline'):
+                                self.newline()
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('"}"')
+                    else:
+                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "subok"')
+                else:
+                    self.err('newline')
+            else:
+                self.err('{')
+
                         
     def pag_block(self):
         if self.match('pag'):
             if self.first(pag_val):
                 self.pag_val()
+                self.newline()
                 if self.match('{'):
-                    if self.first(pili_body):
-                        self.pili_body()
-                        if self.match('}'):
-                            if self.first(pag_continue):
-                                self.pag_continue()
+                    if self.match('newline'):
+                        self.newline()
+                        if self.first(pili_body):
+                            self.pili_body()
+                            if self.match('}'):
+                                if self.match('"newline"'):
+                                    self.newline()
+                                    if self.first(pag_continue):
+                                        self.pag_continue()
+                                else:
+                                    self.err('"newline"')
+                            else:
+                                self.err('"}"')
+                        else:
+                            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "labas"')
+                    else:
+                        self.err('"newline"')
+                else:
+                    self.err('"{"')
+            else:
+                self.err('"Yunit Literal", "Titik Literal"')
 
     def pili_body(self):
         if self.first(pili_content):
@@ -1696,8 +2633,11 @@ class Parser:
         if self.first(statement_for_conditional):
             self.statement_for_conditional()
         elif self.match('labas'):
-            return
-
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('newline')
+                
     def pili_content_continue(self):
         if self.first(pili_content):
             self.pili_content()
@@ -1710,49 +2650,134 @@ class Parser:
 
     def conditional_exception_handling(self):
         if self.match('subok'):
+            self.newline()
             if self.match('{'):
-                if self.first(conditional_content):
-                    self.conditional_content()
-                    if self.match('}'):
-                        if self.match('('):
-                            if self.first(exception):
-                                self.exception()
-                                if self.match(')'):
-                                    if self.match('{'):
-                                        if self.first(conditional_content):
-                                            self.conditional_content()
+                if self.match('newline'):
+                    self.newline()
+                    if self.first(conditional_content):
+                        self.conditional_content()
+                        if self.match('}'):
+                            if self.match('newline'):
+                                self.newline()
+                                if self.match('bukod'):
+                                    if self.match('('):
+                                        if self.first(exception):
+                                            self.exception()
+                                        if self.match(')'):
+                                            self.newline()
+                                            if self.match('{'):
+                                                if self.match('newline'):
+                                                    self.newline()
+                                                    if self.first(conditional_content):
+                                                        self.conditional_content()
+                                                        if self.match('}'):
+                                                            return
+                                                        else:
+                                                            self.err('"}"')
+                                                    else:
+                                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "subok"')
+                                                else:
+                                                    self.err('newline')
+                                            else:
+                                                self.err('{')
+                                        else:
+                                            self.err('")"')
+                                    else:
+                                        self.err('"("')
+                                else:
+                                    self.err('bukod')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('"}"')
+                    else:
+                        self.match('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "subok"')
+                else:
+                    self.err('newline')
+            else:
+                self.err('{')
+        
     def loop(self):
         if self.match('para'):
             if self.match('Identifier'):
                 if self.match('sa'):
                     if self.first(iterable):
                         self.iterable()
+                        self.newline()
                         if self.match('{'):
-                            if self.first(loop_body):
-                                self.loop_body()
-                            if self.match('}'):
-                                return
+                            if self.match('newline'):
+                                self.newline()
+                                if self.first(loop_body):
+                                    self.loop_body()
+                                    if self.match('}'):
+                                        return
+                                    else:
+                                        self.err('"}"')
+                                else:
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('{')
+                    else:
+                        self.err('"[", "{", "Idetifier", "Baybay Identifier", "lawak"')
+                else:
+                    self.err('"sa"')
+            else:   
+                self.err('Identifier')
         elif self.match('habang'):
             if self.match('('):
                 if self.first(condition):
                     self.condition()
                     if self.match(')'):
+                        self.newline()
                         if self.match('{'):
-                            if self.first(loop_body):
-                                self.loop_body()
-                            if self.match('}'):
-                                return
+                            if self.match('newline'):
+                                self.newline()
+                                if self.first(loop_body):
+                                    self.loop_body()
+                                    if self.match('}'):
+                                        return
+                                    else:
+                                        self.err('"}"')
+                                else:
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('{')
+                    else:
+                        self.err('")"') 
+                else:
+                    self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
+            else:
+                self.err('"("')
         elif self.match('gawin'):
+            self.newline()
             if self.match('{'):
                 if self.first(loop_body):
                     self.loop_body()
-                if self.match('}'):
-                    if self.match('tuwing'):
-                        if self.match('('):
-                            if self.first(condition):
-                                self.condition()
-                                if self.match(')'):
-                                    return
+                    if self.match('}'):
+                        if self.match('tuwing'):
+                            if self.match('('):
+                                if self.first(condition):
+                                    self.condition()
+                                    if self.match(')'):
+                                        return
+                                    else:
+                                        self.err('")"')
+                                else:
+                                    self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
+                            else:
+                                self.err('"("')
+                        else:
+                            self.err('tuwing')
+                    else:
+                        self.err('"}"')
+                else:
+                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+            else:
+                self.err('{')
     
     def loop_body(self):
         if self.first(loop_content):
@@ -1765,10 +2790,22 @@ class Parser:
             self.statement_for_looping()
         elif self.first(loop_jumps):
             self.loop_jumps()
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('newline')
         elif self.first(loop_conditional):
             self.loop_conditional()
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('newline')
         elif self.first(loop_exception_handling):
             self.loop_exception_handling()
+            if self.match('newline'):
+                self.newline()
+            else:
+                self.err('newline')
         
     def loop_content_continue(self):
         if self.first(loop_content):
@@ -1782,66 +2819,176 @@ class Parser:
                 if self.first(condition):
                     self.condition()
                     if self.match(')'):
+                        self.newline
                         if self.match('{'):
-                            if self.first(loop_content):
-                                self.loop_content()
-                                if self.first(loop_content_continue):
-                                    self.loop_content_continue()   
+                            if self.match('newline'):
+                                self.newline()
+                                if self.first(loop_content):
+                                    self.loop_content()
+                                    if self.first(loop_content_continue):
+                                        self.loop_content_continue()   
                                     if self.match('}'):
-                                        if self.first(loop_conditional_continue):
-                                            self.loop_conditional_continue()
+                                        if self.match('newline'):
+                                            self.newline()
+                                            if self.first(loop_conditional_continue):
+                                                self.loop_conditional_continue()
                                             if self.first(loop_conditional_end):
                                                 self.loop_conditional_end()
+                                        else:
+                                            self.err('newline')
+                                    else:
+                                        self.err('"}"')
+                                else:
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('{')
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
+            else:
+                self.err('"("')
         elif self.match('pili'):
             if self.match('('):
                 if self.first(pili_val):
                     self.pili_val()
                     if self.match(')'):
+                        self.newline()
                         if self.match('{'):
-                            if self.first(loop_pag_block):
-                                self.loop_pag_block()
-                                if self.match('kusa'):
-                                    if self.match('{'):
-                                        if self.first(loop_pili_body):
-                                            self.loop_pili_body()   
-                                            if self.match('}'):
-                                                if self.match('}'):
-                                                    return 
+                            if self.match('newline'):
+                                self.newline()
+                                if self.first(loop_pag_block):
+                                    self.loop_pag_block()
+                                    if self.match('kusa'):
+                                        self.newline()
+                                        if self.match('{'):
+                                            if self.match('newline'):
+                                                self.newline()
+                                                if self.first(loop_pili_body):
+                                                    self.loop_pili_body()   
+                                                    if self.match('}'):
+                                                        if self.match('newline'):
+                                                            self.newline()
+                                                            if self.match('}'):
+                                                                return 
+                                                            else:
+                                                                self.err('"}"')
+                                                        else:
+                                                            self.err('newline')
+                                                    else:
+                                                        self.err('"}"')
+                                                else:
+                                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                                            else:
+                                                self.err('newline')
+                                        else:
+                                            self.err('"}"')
+                                    else:
+                                        self.err('kusa')
+                                else:
+                                    self.err('"pag"')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('{')
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"Yunit Literal", "Titik Literal"')
+            else:
+                self.err('"("') 
+
     def loop_conditional_continue(self):
         if self.match('kundi'):
             if self.match('('):
                 if self.first(condition):
                     if self.match(')'):
+                        self.newline()
                         if self.match('{'):
-                            if self.first(loop_content):
-                                self.loop_content()
-                                if self.first(loop_content_continue):
-                                    self.loop_content_continue()   
+                            if self.match('newline'):
+                                self.newline()
+                                if self.first(loop_content):
+                                    self.loop_content()
+                                    if self.first(loop_content_continue):
+                                        self.loop_content_continue()   
                                     if self.match('}'):
-                                        if self.first(loop_conditional_continue):
-                                            self.loop_conditional_continue()
+                                        if self.match('newline'):
+                                            self.newline()
+                                            if self.first(loop_conditional_continue):
+                                                self.loop_conditional_continue()
+                                        else:
+                                            self.err('newline')
+                                    else:
+                                        self.err('"}"')
+                                
+                                else:
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('{')
+                    else:
+                        self.err('")"')
+                else:
+                    self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
+            else:
+                self.err('"("')
 
     def loop_conditional_end(self):
         if self.match('edi'):
+            self.newline()
             if self.match('{'):
-                if self.first(loop_content):
-                    self.loop_content()
-                    if self.first(loop_content_continue):
-                        self.loop_content_continue()
+                if self.match('newline'):
+                    self.newline()
+                    if self.first(loop_content):
+                        self.loop_content()
+                        if self.first(loop_content_continue):
+                            self.loop_content_continue()
                         if self.match('}'):
-                            return
+                            if self.match('newline'):
+                                self.newline()
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('"}"')
+                    else:
+                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                else:
+                    self.err('newline')
+            else:
+                self.err('{')
+
                     
     def loop_pag_block(self):
         if self.match('pag'):
             if self.first(pag_val):
                 self.pag_val()
+                self.newline()
                 if self.match('{'):
-                    if self.first(loop_pili_body):
-                        self.loop_pili_body()
-                        if self.match('}'):
-                            if self.first(loop_pag_continue):
-                                self.loop_pag_continue()
-    
+                    if self.match('newline'):
+                        self.newline()
+                        if self.first(loop_pili_body):
+                            self.loop_pili_body()
+                            if self.match('}'):
+                                if self.match('newline'):
+                                    self.newline()
+                                    if self.first(loop_pag_continue):
+                                        self.loop_pag_continue()
+                                else:
+                                    self.err('newline')
+                            else:
+                                self.err('"}"')
+                        else:
+                            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                    else:
+                        self.err('newline')
+                else:
+                    self.err('{')
+            else:
+                self.err('"Yunit Literal", "Titik Literal"')
+        
     def loop_pili_body(self):
         if self.first(loop_content):
             self.loop_content()
@@ -1854,21 +3001,49 @@ class Parser:
         
     def loop_exception_handling(self):
         if self.match('subok'):
+            self.newline()
             if self.match('{'):
-                if self.first(loop_content):
-                    self.loop_content()
-                    if self.match('}'):
-                        if self.match('('):
-                            if self.first(exception):
-                                self.exception()
-                                if self.match(')'):
-                                    if self.match('{'):
-                                        if self.first(loop_content):
-                                            self.loop_content()
-                                            if self.match('}'):
-                                                return
-                              
-
+                if self.match('newline'):
+                    self.newline()
+                    if self.first(loop_content):
+                        self.loop_content()
+                        if self.match('}'):
+                            if self.match('newline'):
+                                self.newline()
+                                if self.match('('):
+                                    if self.first(exception):
+                                        self.exception()
+                                    if self.match(')'):
+                                        self.newline()
+                                        if self.match('{'):
+                                            if self.match('newline'):
+                                                self.newline()
+                                                if self.first(loop_content):
+                                                    self.loop_content()
+                                                    if self.match('}'):
+                                                        return
+                                                    else:
+                                                        self.err('"}"')
+                                                else:
+                                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                                            else: 
+                                                self.err('newline')
+                                        else:
+                                            self.err('{')
+                                    else:
+                                        self.err('")"')
+                                else:
+                                    self.err('"("')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('"}"')
+                    else:
+                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                else:
+                    self.err('newline')
+            else:
+                self.err('{')
 #------------------------ OTHER FUNCTIONS -------------------------------------
     def next(self):
         self.num += 1
