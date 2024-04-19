@@ -286,12 +286,8 @@ class Lexer:
                         if self.final_state('s'):
                             self.delim_next_check(delim7, 'diks')
                             return  
-                elif self.current in delim3:
-                    self.delim_current_check(delim3, 'di')
-                    return
                 else:
-                    self.invalid_delim()
-                    self.lexical_again()
+                    self.delim_current_check(delim3, 'di')
                     return
         elif self.state('E'):
             if self.state('x'):
