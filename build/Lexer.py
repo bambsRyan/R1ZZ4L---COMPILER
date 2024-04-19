@@ -11,7 +11,7 @@ delim3 = [' ', '(','']
 delim4 = [' ',',',')','']
 delim5 = [' ', '{', '$', '\n','']
 delim6 = [' ',')', ']', '}', ',', '\n', '$',''] 
-delim7 = [' ', ':','']
+delim7 = [' ', ':', ',', '']
 delim8 = [' ', '(', '[', '{', '\n', '$','']
 delim9 = [' ', '(', '~', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l','m', 'n', 'o', 'p', 'q', 'r', 's', 
           't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H','I', 'J', 'K', 'L', 'M', 'N', 'O', 
@@ -48,7 +48,7 @@ delim23 = [' ', '"', '(', '[', '{', '~', '\n', '$', 'a', 'b', 'c', 'd', 'e', 'f'
            'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\'', '']
 delim24 = [' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
            'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-           'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '\'', '']
+           'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '']
 delim25 = ['\n','']
 delim26 = ['(','']
 delim27 = [' ', '+', '-', '*', '/', '%', '<', '>', '=', '!', ')', ']', '}', ',', '\n', '$', '']
@@ -275,13 +275,17 @@ class Lexer:
                         return
         elif self.state('d'):
             if self.state('i'):
-                if self.current in delim3:
-                    self.delim_current_check(delim3, 'di')
+                if self.next in delim3:
+                    self.delim_next_check(delim3, 'di')
                     return
-                elif self.state('k'):
-                    if self.final_state('s'):
-                        self.delim_next_check(delim7, 'diks')
-                        return  
+                elif self.next in alphanum or self.next == '_':
+                    if self.state('k'):
+                        if self.final_state('s'):
+                            self.delim_next_check(delim7, 'diks')
+                            return  
+                else:
+                    self.invalid_delim()
+                    return
         elif self.state('E'):
             if self.state('x'):
                 if self.state('c'):
@@ -648,7 +652,7 @@ class Lexer:
             self.delim_next_check_symbols(delim22, ')')
             return
         elif self.final_state('['):
-            self.delim_next_check_symbols(delim27, '[')
+            self.delim_next_check_symbols(delim17, '[')
             return
         elif self.final_state(']'):
             self.delim_next_check_symbols(delim18, ']')
