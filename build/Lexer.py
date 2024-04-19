@@ -475,9 +475,8 @@ class Lexer:
                         if self.state('y'):
                             if self.state('b'):
                                 if self.state('a'):
-                                    if self.state('y'):
-                                        if self.final_state('b'):
-                                            self.delim_next_check(delim3, 'saBaybay')
+                                    if self.final_state('y'):
+                                        self.delim_next_check(delim3, 'saBaybay')
                 elif self.state('P'):
                     if self.state('u'):
                         if self.state('n'):
@@ -488,9 +487,8 @@ class Lexer:
                     if self.state('u'):
                         if self.state('n'):
                             if self.state('i'):
-                                if self.state('t'):
-                                    if self.final_state('t'):
-                                        self.delim_next_check(delim3, 'saYunit')
+                                if self.final_state('t'):
+                                    self.delim_next_check(delim3, 'saYunit')
                 else:
                     self.delim_current_check(delim1, 'sa')
                 return
