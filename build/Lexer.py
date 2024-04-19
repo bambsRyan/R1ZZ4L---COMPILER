@@ -284,7 +284,7 @@ class Lexer:
                 if self.current in alphanum or self.next == '_':
                     if self.state('k'):
                         if self.final_state('s'):
-                            self.delim_next_ceck(delim7, 'diks')
+                            self.delim_next_check(delim7, 'diks')
                             return  
                 elif self.current in delim3:
                     self.delim_current_check(delim3, 'di')
