@@ -149,6 +149,12 @@ class Lexer:
                 self.invalid_delim()
         return 
 
+    def delim_start_check(self, delim, token):
+        if self.next in delim:
+            self.addTokens(self.string, token)
+            return True
+        return False
+
     def delim_next_check_symbols(self, delim, token):
         if self.next in delim:
             self.addTokens(self.string, token)
@@ -783,8 +789,8 @@ class Lexer:
                     if self.state('a'):
                         if self.state('w'):
                             if self.final_state('a'):
-                                self.delim_next_check(delim2, self.string)
-                                return
+                                if self.delim_start_check(delim2, self.string):
+                                    return
         components = self.string.split('.')
         self.identifier_num += 1
         self.addTokens(f'Identifier{self.identifier_num}', components[0])
