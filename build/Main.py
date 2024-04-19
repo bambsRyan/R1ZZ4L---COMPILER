@@ -93,6 +93,7 @@ def syntax_analyzer():
     lexeme_tokens_area.column("#1", stretch=tk.YES)
     lexeme_tokens_area.column("#2", stretch=tk.YES)
 
+
     if len(read.error) > 0: 
         update_lexical_errors_text("Can't compile in Syntax.. Lexical errors occur")
         return
