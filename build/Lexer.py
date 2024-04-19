@@ -10,7 +10,7 @@ delim2 = [' ', '\n', '$','']
 delim3 = [' ', '(','']
 delim4 = [' ',',',')','']
 delim5 = [' ', '{', '$', '\n','']
-delim6 = [' ',')', ']', '}', ',', '\n', '$',''] 
+delim6 = [' ',')', ']', '}', ',', '\n', '$','']
 delim7 = [' ', ':', ',', '']
 delim8 = [' ', '(', '[', '{', '\n', '$','']
 delim9 = [' ', '(', '~', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l','m', 'n', 'o', 'p', 'q', 'r', 's', 
@@ -281,16 +281,17 @@ class Lexer:
                         return
         elif self.state('d'):
             if self.state('i'):
-                if self.next in delim3:
-                    self.delim_next_check(delim3, 'di')
-                    return
-                elif self.next in alphanum or self.next == '_':
+                if self.current in alphanum or self.next == '_':
                     if self.state('k'):
                         if self.final_state('s'):
-                            self.delim_next_check(delim7, 'diks')
+                            self.delim_next_ceck(delim7, 'diks')
                             return  
+                elif self.current in delim3:
+                    self.delim_current_check(delim3, 'di')
+                    return
                 else:
                     self.invalid_delim()
+                    self.lexical_again()
                     return
         elif self.state('E'):
             if self.state('x'):
@@ -638,6 +639,7 @@ class Lexer:
         elif self.state('!'):
             if self.final_state('='):
                 self.delim_next_check_symbols(delim15, '!=')
+                print(self.current)
                 return
         elif self.state('<'):
             if self.final_state('='):
