@@ -166,7 +166,7 @@ class Lexer:
         if self.current in delim:
             self.addTokens(self.string, token)
         else:
-            if self.current in alphanum or self.next == '_':
+            if self.current in alphanum or self.current == '_':
                 self.check_identifier()
                 return
             else:
