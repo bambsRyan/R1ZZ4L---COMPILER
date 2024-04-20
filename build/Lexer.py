@@ -38,7 +38,7 @@ delim18 = [' ', '$', ',', '+', ')', '[', ']', '{', '}', '!', '=', '\n', '|', '']
 delim19 = [' ', '~', '"', '}', '\n', '$', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l','m', 'n', 'o', 'p', 'q', 'r', 's', 
            't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 
            'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3','4', '5', '6', '7', '8', '9', '']
-delim20 = [' ', ']', ')', '{ ', '}', '!', '=', 't', '\n', '$', ',', '|' , '']
+delim20 = [' ', ']', ')', '{' , '}', '!', '=', 't', '\n', '$', ',', '|' ,'\t' ,'']
 delim21 = [' ', '"', '~', '(', ')', '[', '{', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 
            's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 
            'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\'', '']
@@ -203,16 +203,17 @@ class Lexer:
         return
 
     def Identifier(self):
-        while self.current in alphanum or self.current == '_':
+        x = 15 - len(self.string)-1
+        while (self.current in alphanum or self.current == '_') and x > 0:
             self.string += self.current
             self.traverse()
+            x-=1
         if self.current in delim11:
             self.identifier_num += 1
             self.addTokens( f'Identifier{self.identifier_num}', self.string)
-            self.lexical_again()
         else:
             self.invalid_delim()
-            self.lexical_again()
+        self.lexical_again()
         return
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ LEXICAL SHEESH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     def Lexical(self):
@@ -712,10 +713,10 @@ class Lexer:
             self.lexical_again()
         return
     def numlit(self):
-        self.yunit_inde = 0
+        self.yunit_index = 0
         self.string += self.current
         self.traverse()
-        while self.current in num and self.current != '.' and self.yunit_index != 10:    
+        while self.current in num and self.current != '.' and self.yunit_index < 9:    
             self.string += self.current
             self.yunit_index += 1 
             self.traverse()
@@ -737,13 +738,24 @@ class Lexer:
             self.string += self.current
             self.punto_index += 1
             self.traverse()
-        if self.current in delim27:
-            self.addTokens('Punto Literal', self.string)
-            self.lexical_again()
+        if self.punto_index != 0:
+            if self.current in delim27:
+                self.addTokens('Punto Literal', self.string)
+                self.lexical_again()
+            else:
+                self.invalid_delim()
+                self.lexical_again()
         else:
+            component = self.string.split('.')
+            self.string = component[0]
             self.invalid_delim()
+            if self.current in delim13:
+                self.addTokens('.', '.')
+            else:
+                self.string = '.'
+                self.invalid_delim()
             self.lexical_again()
-        return
+            return
     def baybaylit(self):
         while self.current != '\"' and self.current != 'newline' and self.index != len(self.code) :
             if self.current == '\\' and self.next == 'n':
