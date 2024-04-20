@@ -188,7 +188,6 @@ class Parser:
                 self.body()
                 if self.current not in body and self.current != None:
                     self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "takda", "subok"')
-
         if self.errors == []:
             self.errors = ["Syntax Completed: No errors found"]
             return 

@@ -151,20 +151,20 @@ class Lexer:
 
     def delim_start_check(self, delim, token):
         if self.next in delim:
-            self.addTokens(self.string, token)
+            self.addTokens(token,self.string)
             return True
         return False
 
     def delim_next_check_symbols(self, delim, token):
         if self.next in delim:
-            self.addTokens(self.string, token)
+            self.addTokens(token, self.string)
         else: 
             self.invalid_delim()
         return 
     
     def delim_current_check(self, delim, token):
         if self.current in delim:
-            self.addTokens(self.string, token)
+            self.addTokens(token, self.string)
         else:
             if self.current in alphanum or self.current == '_':
                 self.check_identifier()
@@ -176,7 +176,7 @@ class Lexer:
 
     def delim_current_check_symbols(self, delim, token):
         if self.current in delim:
-            self.addTokens(self.string, token)
+            self.addTokens(token, self.string)
         else: 
             self.invalid_delim()
         self.lexical_again()
