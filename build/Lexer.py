@@ -486,6 +486,12 @@ class Lexer:
                             if self.state('i'):
                                 if self.final_state('t'):
                                     self.delim_next_check(delim3, 'saYunit')
+                elif self.state('T'):
+                    if self.state('i'):
+                        if self.state('t'):
+                            if self.state('i'):
+                                if self.final_state('k'):
+                                    self.delim_next_check(delim3, 'saTitik')
                 else:
                     self.delim_current_check(delim1, 'sa')
                 return
