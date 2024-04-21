@@ -14,7 +14,7 @@ num_dec_expression = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit",
 num_dec_expression_continue = ["|", "+", "-", "*", "/", "%", "**"]
 num_expression = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~"]
 num_sub_expression = ["Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~"]
-num_value = ["Punto Literal", "Yunit Literal", "saYunit, saPunto"]
+num_value = ["Punto Literal", "Yunit Literal", "saYunit", "saPunto"]
 mop = ["|", "+", "-", "*", "/", "%", "**"]
 baybay_Identifier = ["Identifier"]
 baybay_Identifier_continue = ["="]
@@ -99,12 +99,12 @@ titik_typecast_value = ["Titik Literal", "Baybay Literal", "Yunit Literal", "Ide
 func_dec = ["takda"]
 param = ["yunit", "punto", "baybay", "titik", "bool", "tala", "diks"]
 param_var_dec = ["yunit", "punto", "baybay", "titik", "bool", "tala", "diks"]
-param_num_next = [",", "=", "△"]
-param_baybay_next = [",", "=", "△"]
-param_titik_next = [",", "=", "△"]
-param_bool_next = [",", "=", "△"]
-param_tala_next = [",", "=", "△"]
-param_diks_next = [",", "=", "△"]
+param_num_next = [",", "="]
+param_baybay_next = [",", "="]
+param_titik_next = [",", "="]
+param_bool_next = [",", "="]
+param_tala_next = [",", "="]
+param_diks_next = [",", "="]
 param_default_continue = [","]
 param_var_dec_default = ["yunit", "punto", "baybay", "titik", "bool", "tala", "diks"]
 global_call = ["global"]
@@ -172,11 +172,11 @@ class Parser:
         self.errors = []        #list of errors 
         self.current = ''       #current token
         self.values = ''        #values
+        self.line = 0
 
 # ------------------------ PARSER -------------------------------------
     def parse(self):
-        for i in self.tokens:
-            print(i)
+
         if self.max == 0:
             self.errors = ["Syntax Error: No tokens found"]
         else:
@@ -184,7 +184,7 @@ class Parser:
             self.newline()
             self.program()
             self.packages()
-            while self.current != None or self.current == 'gg.ssSawa':
+            while self.current != None and self.current != 'gg.ssSawa':
                 self.body()
                 if self.current not in body and self.current != None:
                     self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "takda", "subok"')
@@ -235,7 +235,6 @@ class Parser:
             self.statement_for_conditional()
         elif self.first(func_dec):
             self.func_dec()
-            print(self.current)
             if self.match('newline'):
                 self.newline()
             else:
@@ -277,7 +276,7 @@ class Parser:
         if self.first(var_dec):
             self.var_dec()
             if self.match('newline'):
-                self.newline()
+                self.newline()  
             else:
                 self.err('"newline"')
         elif self.first(id):
@@ -357,7 +356,7 @@ class Parser:
             else:
                 self.err('":"')
         
-    def num_Identifier(self):
+    def num_Identifier(self):   
         if self.match('Identifier'):
             if self.first(num_Identifier_continue):
                 self.num_Identifier_continue()
@@ -366,11 +365,11 @@ class Parser:
 
     def num_Identifier_continue(self):
         if self.match('='):
-            if self.first(num_dec_expression):
+            if self.first(num_dec_expression):            
                 self.num_dec_expression()
             else:
                 self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
-    
+
     def num_ext(self):
         if self.match(','):
             if self.first(num_Identifier):
@@ -504,7 +503,7 @@ class Parser:
 
     def baybay_value(self):
         if self.match('Baybay Literal'):
-            return
+            return   
         elif self.first(baybay_typecast):
             self.baybay_typecast()
 
@@ -758,11 +757,11 @@ class Parser:
         if self.match('['):
             if self.first(tala_content):
                 self.tala_content()
-                if self.match(']'):
-                    if self.first(tala_dec_expression_continue):
-                        self.tala_dec_expression_continue()
-                else:
-                    self.err('"]"')
+            if self.match(']'):
+                if self.first(tala_dec_expression_continue):
+                    self.tala_dec_expression_continue()
+            else:
+                self.err('"]"')
 
     def tala_content(self):
         if self.first(math):
@@ -3048,6 +3047,7 @@ class Parser:
         self.num += 1
         if self.num < self.max:
             self.current = self.tokens[self.num]['for_syntax']
+            self.line = self.tokens[self.num]['rows']
         else:
             self.current = None
         if self.current in ['space', 'Line Comment']:
@@ -3074,9 +3074,9 @@ class Parser:
     
     def err(self, error_list):
         if self.current == None:
-            self.errors.append(f"Syntax Error: expecting : {error_list}")
+            self.errors.append(f"Syntax Error: on Line {self.line} expecting : {error_list}")
         else:
-            self.errors.append(f"Syntax Error: Unexpected {self.current}, expecting : {error_list}")
+            self.errors.append(f"Syntax Error on Line {self.line}: Unexpected {self.current}, expecting : {error_list}")
         self.end()
         return
     
