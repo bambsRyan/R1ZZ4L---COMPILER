@@ -582,9 +582,7 @@ class Parser:
                 self.cond()
                 if self.first(condition_continue):
                     self.condition_continue()
-            else:
-                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "(", "Totoo", "Peke"')
-
+                    
     def cond(self):
         if self.first(condition_statement):
             self.condition_statement()
