@@ -84,7 +84,7 @@ value_id_sub_expression = ["Identifier"]
 value_id = ["Identifier"]
 value_id_ext = [".", "[", "("]
 value_id_sub_ext = ["[", "("]
-allowed_value = ["Yunit Literal", "Baybay Literal", "Identifier"]
+allowed_value = ["Yunit Literal", "Baybay Literal","Titik Literal", "Identifier"]
 value_index_continue = ["["]
 arg = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("]
 arg_continue = [","]
@@ -1195,6 +1195,8 @@ class Parser:
         elif self.match('Baybay Literal'):
             return
         elif self.match('Identifier'):
+            return
+        elif self.match('Titik Literal'):
             return
         
     def value_index_continue(self):
