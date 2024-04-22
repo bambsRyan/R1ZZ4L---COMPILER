@@ -582,7 +582,7 @@ class Parser:
                 self.cond()
                 if self.first(condition_continue):
                     self.condition_continue()
-                    
+
     def cond(self):
         if self.first(condition_statement):
             self.condition_statement()
@@ -3061,7 +3061,7 @@ class Parser:
             self.line = self.tokens[self.num]['rows']
         else:
             self.current = None
-        if self.current in ['space', 'Line Comment']:
+        if self.current in ['space', 'Line Comment', 'tab']:
             self.next()
 
     def newline(self):
