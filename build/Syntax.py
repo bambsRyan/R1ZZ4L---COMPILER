@@ -187,7 +187,13 @@ class Parser:
             while self.current != None and self.current != 'gg.ssSawa':
                 self.body()
                 if self.current not in body and self.current != None:
-                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "takda", "subok"')
+                    if self.current != 'gg.ssSawa':
+                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "takda", "subok"')
+                        self.end()
+                        self.newline()
+            self.newline()
+            self.ender()
+            self.newline()
         if self.errors == []:
             self.errors = ["Syntax Completed: No errors found"]
             return 
@@ -198,7 +204,11 @@ class Parser:
                 return
             else:
                 self.err('"newline"')
-        
+    def ender(self):
+        if self.match('gg.ssSawa'):
+            return
+        else:
+            self.errors.append(f"Syntax Error on Line {self.line + 1}: Unexpected {self.current}, expecting : 'gg.ssSawa'")
     def packages(self):
         if self.match('hakot'):
             if self.match('Identifier'):
@@ -1191,6 +1201,7 @@ class Parser:
         if self.match('['):
             if self.first(allowed_value):
                 self.allowed_value()
+                print
                 if self.match(']'):
                     if self.first(value_index_continue):
                         self.value_index_continue()
