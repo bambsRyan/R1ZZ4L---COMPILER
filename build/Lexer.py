@@ -714,9 +714,10 @@ class Lexer:
             self.addTokens('Yunit Literal', '0')
         elif self.state('.'):
             self.punto()
+            return
         else:
             self.invalid_delim()
-            self.lexical_again()
+        self.lexical_again()
         return
     def numlit(self):
         self.yunit_index = 0
