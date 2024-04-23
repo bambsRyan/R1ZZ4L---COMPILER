@@ -29,7 +29,16 @@ class Compilation:
     def declare(self, d_type, name):
         variable = {}
         value = {}
-        value[name] = None
+        if d_type == 'yunit':
+            value[name] = 0
+        elif d_type == 'punto':
+            value[name] = 0.0
+        elif d_type == 'baybay' or d_type == 'titik':
+            value[name] = ''
+        elif d_type == 'tala':
+            value[name] = []
+        elif d_type == 'diks':
+            value[name] = {}
         self.variables[d_type].update(value)
         variable[name] = d_type
         self.all_variables.update(variable)
@@ -39,34 +48,42 @@ class Compilation:
             self.semantic()
 
     def match(self):
-        self.newline()
-        if self.current == 'g.ssSawa':
-            self.semantic()
+        # while self.cont and self.current != None:
             self.newline()
-        elif self.current == 'yunit':
-            self.yunit()
-            self.newline()
-            self.match()
-        elif self.current == 'punto':
-            self.punto()
-            self.newline()
-        elif self.current == 'baybay':
-            self.baybay()
-            self.newline()
-        elif self.current == 'titik':
-            self.titik()
-            self.newline()
-        elif self.current == 'tala':
-            self.tala()
-            self.newline()
-        elif self.current == 'Identifier':
-            self.expression()
-        elif self.current == 'diks':
-            self.diks()
-            self.newline()
-        elif self.current == 'gg.ssSawa':
-            self.semantic()
-            self.newline()
+            if self.current == 'g.ssSawa':
+                self.semantic()
+                self.newline()
+            elif self.current == 'yunit':
+                self.yunit()
+                self.newline()
+                self.match()
+            elif self.current == 'punto':
+                self.punto()
+                self.newline()
+            elif self.current == 'baybay':
+                self.baybay()
+                self.newline()
+            elif self.current == 'titik':
+                self.titik()
+                self.newline()
+            elif self.current == 'tala':
+                self.tala()
+                self.newline()
+            elif self.current == 'Identifier':
+                self.expression()
+                self.newline()
+                self.match()
+            elif self.current == 'sulat':
+                self.sulat()
+                self.newline()
+            elif self.current == 'diks':
+                self.diks()
+                self.newline()
+            elif self.current == 'kung':
+                self.kung()
+            elif self.current == 'gg.ssSawa':
+                self.semantic()
+                self.newline()
 
     def Identifier(self):
         name = self.val
@@ -144,7 +161,9 @@ class Compilation:
                         y += str(self.saYunit())
                         continue
                     elif self.current == 'Punto Literal':
-                        y += str(int(eval(self.val)))
+                        y += str(int(eval(self.val.replace('~', '-'))))
+                    elif self.current == 'Yunit Literal':
+                        y += str(eval(self.val.replace('~', '-')))
                     else:
                         y += self.val
                     self.semantic()
@@ -197,12 +216,15 @@ class Compilation:
                         y += str(self.saYunit())
                         continue
                     elif self.current == 'Punto Literal':
-                        y += str(int(eval(self.val)))
+                        y += str(int(eval(self.val.replace('~', '-'))))
+                    elif self.current == 'Yunit Literal':
+                        y += str(eval(self.val.replace('~', '-')))
                     else:
                         y += self.val
                     self.semantic()
                 if self.cont == False:
                     return
+
                 try:
                     self.variables['yunit'][s_name] = eval(y)
                     if self.current == ',':
@@ -219,9 +241,9 @@ class Compilation:
         self.semantic()
         self.semantic()
         if self.current == 'Baybay Literal':
-            y  = f' int({self.val[1,-1].replace('~', '-')})'
+            y  = f' int({self.val[1:-1].replace('~', '-')})'
         elif self.current == 'Titik Literal':
-            y = f' int({self.val.replace[1,-1].replace('~', '-')})'
+            y = f' int({self.val.replace[1:-1].replace('~', '-')})'
         elif self.current == 'Identifier':
             y = f' int({self.Identifier()})'
         else:
@@ -272,7 +294,9 @@ class Compilation:
                         y += str(self.saPunto())
                         continue
                     elif self.current == 'Yunit Literal':
-                        y += str(float(eval(self.val)))
+                        y += str(float(eval(self.val.replace('~','-'))))
+                    elif self.current == 'Punto Literal':
+                        y += str(eval(self.val.replace('~','-')))
                     else:   
                         y += self.val
                     self.semantic()
@@ -322,10 +346,12 @@ class Compilation:
                         y += str(holder)
                         continue
                     elif self.current == 'saPunto':
-                        y += str(self.saYunit())
+                        y += str(self.saPunto())
                         continue
                     elif self.current == 'Yunit Literal':
-                        y += str(float(eval(self.val)))
+                        y += str(float(eval(self.val.replace('~','-'))))
+                    elif self.current == 'Punto Literal':
+                        y += str(eval(self.val.replace('~','-')))
                     else:   
                         y += self.val
                     self.semantic()
@@ -347,9 +373,9 @@ class Compilation:
         self.semantic()
         self.semantic()
         if self.current == 'Baybay Literal':
-            y  = f' float({self.val[1,-1].replace('~', '-')})'
+            y  = f' float({self.val[1:-1].replace('~', '-')})'
         elif self.current == 'Titik Literal':
-            y = f' float({self.val[1,-1].replace('~', '-')})'
+            y = f' float({self.val[1:-1].replace('~', '-')})'
         elif self.current == 'Identifier':
             y = f' float({self.Identifier()})'
         else:
@@ -486,12 +512,11 @@ class Compilation:
             return
         else:
             self.var.append(s_name)
-            self.declare('baybay', self.val)
+            self.declare('titik', self.val)
             self.semantic()
             if self.current == '=':
                 self.semantic()
                 if self.current == 'Identifier':
-                    print(self.current)
                     z = self.val
                     holder = self.Identifier()
                     if self.cont == False:
@@ -514,7 +539,7 @@ class Compilation:
                 try:
                     self.variables['titik'][s_name] = eval(y)
                     if self.current == ',':
-                        self.titk_continue()
+                        self.titik_continue()
                         return
                     self.newline()
                 except SyntaxError as e:
@@ -540,7 +565,6 @@ class Compilation:
             if self.current == '=':
                 self.semantic()
                 if self.current == 'Identifier':
-                    print(self.current)
                     z = self.val
                     holder = self.Identifier()
                     if self.cont == False:
@@ -633,7 +657,6 @@ class Compilation:
                         self.semantic()
                     y += ']'
                     self.semantic()
-                print(y)
                 if self.cont == False:
                     return
                 try:
@@ -723,54 +746,569 @@ class Compilation:
     
     def expression(self):
         name = self.val
-        x = ''
+        x = self.all_variables[name]
         y = ''
-        comparator = False
-        if self.val in self.var:
-            x = self.all_variables[self.val]
-            if x in ['yunit', 'punto', 'baybay', 'titik']:
+        z = ''
+        baybay_val= ''
+        num_val = ''
+        if x == 'baybay': 
+            self.semantic()
+            if self.current == '=':
                 self.semantic()
+                if self.current == 'kuha':
+                    self.semantic()
+                    self.semantic()
+                    x = self.val
+                    baybay_val = input(x[1:-1])
+                    self.variables['baybay'][name] = baybay_val 
+                    self.semantic()
+                    self.semantic()
+                    self.newline()
+                    return
+                else:
+                    while self.current != 'newline':
+                        if self.current == 'Identifier':
+                            z = self.all_variables[self.val]
+                            if z == 'baybay':
+                                y += str(self.Identifier())
+                            else:
+                                self.semantic_error(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.cont = False
+                                return
+                            continue
+                        elif self.current == 'saBaybay':
+                            y += str(self.saBaybay())
+                        elif self.current == 'Baybay Literal':
+                            y += str(self.val)
+                        elif self.current in ['+', '(', ')']:
+                            y += self.current
+                        else:
+                            if self.current in ['-', '*', '**','/', '%' ]:
+                                self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
+                            else:
+                                self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Baybay variable')
+                            self.cont = False
+                            return
+                    self.variables['baybay'][name] = eval(y)
+                    return
+            elif self.current == '+=':
                 self.semantic()
+                if self.current == 'kuha':
+                    self.semantic()
+                    self.semantic()
+                    x = self.val
+                    baybay_val = input(x[1:-1])
+                    self.variables['baybay'][name] = baybay_val 
+                    self.semantic()
+                    self.semantic()
+                    self.newline()
+                    return
+                else:
+                    while self.current != 'newline':
+                        if self.current == 'Identifier':
+                            z = self.all_variables[self.val]
+                            if z == 'baybay':
+                                y += str(self.Identifier())
+                            else:
+                                self.semantic_error(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.cont = False
+                                return
+                            continue
+                        elif self.current == 'saBaybay':
+                            y += str(self.saBaybay())
+                        elif self.current == 'Baybay Literal':
+                            y += str(self.val)
+                        elif self.current in ['+', '(', ')']:
+                            y += self.current
+                        else:
+                            if self.current in ['-', '*', '**','/', '%' ]:
+                                self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
+                            else:
+                                self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Baybay variable')
+                            self.cont = False
+                            return
+                    self.variables['baybay'][name] += eval(y)
+                    return
+            else:
+                self.semantic_error.append(f'TypeError on line {self.line}: Invalid Assignment operator on baybay variable')
+        elif x == 'yunit':
+            self.semantic()
+            if self.current == '=':
+                self.semantic()
+                if self.current == 'kuha':
+                    self.semantic()
+                    self.semantic()
+                    x = self.val
+                    try:
+                        num_val = int(input(x[1:-1]))
+                    except ValueError:
+                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Yunit variable')
+                    self.variables['yunit'][name] = num_val
+                    self.semantic()
+                    self.semantic()
+                    self.newline()
+                    print(self.current)
+                    return
+                else:
+                    while self.current != 'newline':
+                        if self.current == 'Identifier':
+                            z = self.all_variables[self.val]
+                            if z == 'yunit' or self.current == 'punto':
+                                y += str(self.Identifier())
+                            else:
+                                self.semantic_error(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.cont = False
+                                return
+                            continue
+                        elif self.current == 'yunit' or self.current == 'punto':
+                            y += str(self.val)
+                        elif self.current == 'saYunit':
+                            y += str(self.saYunit())
+                        elif self.current == 'saPunto':
+                            y += str(self.punto())
+                        elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
+                            y += self.current
+                        else:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable')
+                            self.cont = False
+                            return
+                    self.variables['yunit'][name] = int(eval(y))
+                    self.newline()
+                    return
+            elif self.current == '+=':
+                self.semantic()
+                if self.current == 'kuha':
+                    self.semantic()
+                    self.semantic()
+                    x = self.val
+                    try:
+                        num_val = int(input(x[1:-1]))
+                    except ValueError:
+                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Yunit variable')
+                    self.variables['yunit'][name] += num_val
+                    self.semantic()
+                    self.semantic()
+                    self.newline()
+                    return
+                else:
+                    while self.current != 'newline':
+                        if self.current == 'Identifier':
+                            z = self.all_variables[self.val]
+                            if z == 'yunit' or self.current == 'punto':
+                                y += str(self.Identifier())
+                            else:
+                                self.semantic_error(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.cont = False
+                                return
+                            continue
+                        elif self.current == 'yunit' or self.current == 'punto':
+                            y += str(self.val)
+                        elif self.current == 'saYunit':
+                            y += str(self.saYunit())
+                        elif self.current == 'saPunto':
+                            y += str(self.punto())
+                        elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
+                            y += self.current
+                        else:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable')
+                            self.cont = False
+                            return
+                    self.variables['yunit'][name] += int(eval(y))
+                    self.newline()
+                    return
+            elif self.current == '-=':
+                self.semantic()
+                if self.current == 'kuha':
+                    self.semantic()
+                    self.semantic()
+                    x = self.val
+                    try:
+                        num_val = int(input(x[1:-1]))
+                    except ValueError:
+                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Yunit variable')
+                    self.variables['yunit'][name] -= num_val
+                    self.semantic()
+                    self.semantic()
+                    self.newline()
+                    return
                 while self.current != 'newline':
                     if self.current == 'Identifier':
-                        y = self.Identifier()
+                        z = self.all_variables[self.val]
+                        if z == 'yunit' or self.current == 'punto':
+                            y += str(self.Identifier())
+                        else:
+                            self.semantic_error(f'TypeError in Line {self.line}: Invalid Identifier')
+                            self.cont = False
+                            return
                         continue
-                    elif self.current == 'saBaybay':
-                        y += str(self.saBaybay())
-                        continue
-                    elif self.current == 'saPunto':
-                        y += str(self.saPunto())
-                        continue
-                    elif self.current == 'saTitik':
-                        y += str(self.saTitik())
-                        continue
+                    elif self.current == 'yunit' or self.current == 'punto':
+                        y += str(self.val)
                     elif self.current == 'saYunit':
                         y += str(self.saYunit())
-                        continue
-                    elif self.current in ['<', '>', '==', '!=', '<=', '>=']:
-                        comparator = True
-                    y += self.val
-                    self.semantic()
-                if x == 'yunit': 
-                    if comparator:
-                        self.semantic_error.append(f"TypeError on line {self.line}: unsupported data for {y} : Boolean Value")
+                    elif self.current == 'saPunto':
+                        y += str(self.punto())
+                    elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
+                        y += self.current
+                    else:
+                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable')
                         self.cont = False
                         return
-                try:
-                    if x == 'yunit':
-                        self.variables[x][name] = int((eval(y)))
-                    elif x == 'punto':
-                        self.variables[x][name] = float(eval(y))    
-                    elif x == 'baybay':
-                        self.variables[x][name]  = str(eval(y))
-                    elif x == 'titik':
-                        self.variables[x][name] = str(eval(y))
-                except (NameError, SyntaxError, TypeError) as e:
-                    self.semantic_error.append(f"NameError on line {self.line}: {e}")
-                    self.cont = False
+                self.variables['yunit'][name] -= int(eval(y))
+                self.newline()
+                return
+            elif self.current == '*=':
+                self.semantic()
+                if self.current == 'kuha':
+                    self.semantic()
+                    self.semantic()
+                    x = self.val
+                    try:
+                        num_val *= int(input(x[1:-1]))
+                    except ValueError:
+                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Yunit variable')
+                    self.variables['yunit'][name] = num_val
+                    self.semantic()
+                    self.semantic()
+                    self.newline()
                     return
+                else:
+                    while self.current != 'newline':
+                        if self.current == 'Identifier':
+                            z = self.all_variables[self.val]
+                            if z == 'yunit' or self.current == 'punto':
+                                y += str(self.Identifier())
+                            else:
+                                self.semantic_error(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.cont = False
+                                return
+                            continue
+                        elif self.current == 'yunit' or self.current == 'punto':
+                            y += str(self.val)
+                        elif self.current == 'saYunit':
+                            y += str(self.saYunit())
+                        elif self.current == 'saPunto':
+                            y += str(self.punto())
+                        elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
+                            y += self.current
+                        else:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable')
+                            self.cont = False
+                            return
+                    self.variables['yunit'][name] *= int(eval(y))
+                    self.newline()
+                    return
+            elif self.current == '/=':
+                self.semantic()
+                if self.current == 'kuha':
+                    self.semantic()
+                    self.semantic()
+                    x = self.val
+                    try:
+                        num_val = int(input(x[1:-1]))
+                    except ValueError:
+                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Yunit variable')
+                    self.variables['yunit'][name] /= num_val
+                    self.semantic()
+                    self.semantic()
+                    self.newline()
+                    return
+                else:
+                    while self.current != 'newline':
+                        if self.current == 'Identifier':
+                            z = self.all_variables[self.val]
+                            if z == 'yunit' or self.current == 'punto':
+                                y += str(self.Identifier())
+                            else:
+                                self.semantic_error(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.cont = False
+                                return
+                            continue
+                        elif self.current == 'yunit' or self.current == 'punto':
+                            y += str(self.val)
+                        elif self.current == 'saYunit':
+                            y += str(self.saYunit())
+                        elif self.current == 'saPunto':
+                            y += str(self.punto())
+                        elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
+                            y += self.current
+                        else:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable')
+                            self.cont = False
+                            return
+                    self.variables['yunit'][name] *= int(eval(y))
+                    self.newline()
+                    return   
+        elif x == 'punto':
+            self.semantic()
+            if self.current == '=':
+                self.semantic()
+                if self.current == 'kuha':
+                    self.semantic()
+                    self.semantic()
+                    x = self.val
+                    try:
+                        num_val = float(input(x[1:-1]))
+                    except ValueError:
+                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Punto variable')
+                    self.variables['punto'][name] = num_val
+                    self.semantic()
+                    self.semantic()
+                    self.newline()
+                    return
+                else:
+                    while self.current != 'newline':
+                        if self.current == 'Identifier':
+                            z = self.all_variables[self.val]
+                            if z == 'yunit' or self.current == 'punto':
+                                y += str(self.Identifier())
+                            else:
+                                self.semantic_error(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.cont = False
+                                return
+                            continue
+                        elif self.current == 'yunit' or self.current == 'punto':
+                            y += str(self.val)
+                        elif self.current == 'saYunit':
+                            y += str(self.saYunit())
+                        elif self.current == 'saPunto':
+                            y += str(self.punto())
+                        elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
+                            y += self.current
+                        else:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto Variable variable')
+                            self.cont = False
+                            return
+                    self.variables['punto'][name] = float(eval(y))
+                    self.newline()
+                    return
+            elif self.current == '+=':
+                self.semantic()
+                if self.current == 'kuha':
+                    self.semantic()
+                    self.semantic()
+                    x = self.val
+                    try:
+                        num_val = float(input(x[1:-1]))
+                    except ValueError:
+                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Punto variable')
+                    self.variables['punto'][name] += num_val
+                    self.semantic()
+                    self.semantic()
+                    self.newline()
+                    return
+                else:
+                    while self.current != 'newline':
+                        if self.current == 'Identifier':
+                            z = self.all_variables[self.val]
+                            if z == 'yunit' or self.current == 'punto':
+                                y += str(self.Identifier())
+                            else:
+                                self.semantic_error(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.cont = False
+                                return
+                            continue
+                        elif self.current == 'yunit' or self.current == 'punto':
+                            y += str(self.val)
+                        elif self.current == 'saYunit':
+                            y += str(self.saYunit())
+                        elif self.current == 'saPunto':
+                            y += str(self.punto())
+                        elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
+                            y += self.current
+                        else:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto Variable variable')
+                            self.cont = False
+                            return
+                    self.variables['punto'][name] += float(eval(y))
+                    self.newline()
+                    return
+            elif self.current == '-=':
+                self.semantic()
+                if self.current == 'kuha':
+                    self.semantic()
+                    self.semantic()
+                    x = self.val
+                    try:
+                        num_val = float(input(x[1:-1]))
+                    except ValueError:
+                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Punto variable')
+                    self.variables['punto'][name] -= num_val
+                    self.semantic()
+                    self.semantic()
+                    self.newline()
+                    return
+                else:
+                    while self.current != 'newline':
+                        if self.current == 'Identifier':
+                            z = self.all_variables[self.val]
+                            if z == 'yunit' or self.current == 'punto':
+                                y += str(self.Identifier())
+                            else:
+                                self.semantic_error(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.cont = False
+                                return
+                            continue
+                        elif self.current == 'yunit' or self.current == 'punto':
+                            y += str(self.val)
+                        elif self.current == 'saYunit':
+                            y += str(self.saYunit())
+                        elif self.current == 'saPunto':
+                            y += str(self.punto())
+                        elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
+                            y += self.current
+                        else:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto Variable variable')
+                            self.cont = False
+                            return
+                    self.variables['punto'][name] -= float(eval(y))
+                    self.newline()
+                    return
+            elif self.current == '*=':
+                self.semantic()
+                if self.current == 'kuha':
+                    self.semantic()
+                    self.semantic()
+                    x = self.val
+                    try:
+                        num_val = float(input(x[1:-1]))
+                    except ValueError:
+                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Punto variable')
+                    self.variables['punto'][name] *= num_val
+                    self.semantic()
+                    self.semantic()
+                    self.newline()
+                    return
+                else:
+                    while self.current != 'newline':
+                        if self.current == 'Identifier':
+                            z = self.all_variables[self.val]
+                            if z == 'yunit' or self.current == 'punto':
+                                y += str(self.Identifier())
+                            else:
+                                self.semantic_error(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.cont = False
+                                return
+                            continue
+                        elif self.current == 'yunit' or self.current == 'punto':
+                            y += str(self.val)
+                        elif self.current == 'saYunit':
+                            y += str(self.saYunit())
+                        elif self.current == 'saPunto':
+                            y += str(self.punto())
+                        elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
+                            y += self.current
+                        else:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto Variable variable')
+                            self.cont = False
+                            return
+                    self.variables['punto'][name] *= float(eval(y))
+                    self.newline()
+                    return
+            elif self.current == '/=':
+                self.semantic()
+                if self.current == 'kuha':
+                    self.semantic()
+                    self.semantic()
+                    x = self.val
+                    try:
+                        num_val = float(input(x[1:-1]))
+                    except ValueError:
+                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Punto variable')
+                    self.variables['punto'][name] /= num_val
+                    self.semantic()
+                    self.semantic()
+                    self.newline()
+                    return
+                else:
+                    while self.current != 'newline':
+                        if self.current == 'Identifier':
+                            z = self.all_variables[self.val]
+                            if z == 'yunit' or self.current == 'punto':
+                                y += str(self.Identifier())
+                            else:
+                                self.semantic_error(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.cont = False
+                                return
+                            continue
+                        elif self.current == 'yunit' or self.current == 'punto':
+                            y += str(self.val)
+                        elif self.current == 'saYunit':
+                            y += str(self.saYunit())
+                        elif self.current == 'saPunto':
+                            y += str(self.punto())
+                        elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
+                            y += self.current
+                        else:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto Variable variable')
+                            self.cont = False
+                            return
+                    self.variables['punto'][name] *= float(eval(y))
+                    self.newline()
+                    return   
         else:
             self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
             self.cont = False
             return
+        self.newline()
+
+    def sulat(self):
+        x = ''
+        y = ''
+        z = ''
+        a = ''
+        titik_ctr = False
+        self.semantic()
+        self.semantic()
+        while self.current != ')':
+            while self.current != ',' and self.current != ')':
+                if self.current == 'Identifier':
+                    a = self.all_variables[self.val]
+                    if a == 'Titik Literal':
+                        titik_ctr = True
+                    x += str(self.Identifier())
+                    if not self.cont:
+                        return
+                    if x == '':
+                        y += f'\'\''
+                    y += x
+                    continue
+                elif self.current == 'saBaybay':
+                    y += str(self.saBaybay())
+                    continue
+                elif self.current == 'saPunto':
+                    y += str(self.saPunto())
+                    continue
+                elif self.current == 'saTitik':
+                    y += str(self.saTitik())
+                    titik_ctr = True
+                    continue
+                elif self.current == 'saYunit':
+                    y += str(self.val)
+                    continue
+                elif self.current == ';':
+                    y += ':'
+                elif self.current == 'Titik Literal':
+                    titik_ctr = True
+                elif self.current == 'Yunit Literal':
+                    y += str(self.val.replace('~', '-'))
+                    self.semantic()
+                    continue
+                elif self.current == 'Punto Literal':
+                    y += str(self.val.replace('~', '-'))
+                    self.semantic()
+                    continue
+                elif self.current in ['+','-','*','**', '/','%']:
+                    if titik_ctr == True: 
+                        self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Titik Literal")
+                        return
+                    continue  
+                y += str(self.val)
+                self.semantic()
+            titik_ctr = False
+            if  self.current == ',':
+                self.semantic() 
+            z += str(eval(y))
+            y = ''
+        print(z)
+        self.semantic()
         self.newline()
