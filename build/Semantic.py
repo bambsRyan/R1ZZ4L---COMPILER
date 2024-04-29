@@ -39,6 +39,8 @@ class Compilation:
             value[name] = []
         elif d_type == 'diks':
             value[name] = {}
+        elif d_type == 'bool':
+            value[name] = True
         self.variables[d_type].update(value)
         variable[name] = d_type
         self.all_variables.update(variable)
@@ -48,7 +50,7 @@ class Compilation:
             self.semantic()
 
     def match(self):
-        # while self.cont and self.current != None:
+        while self.cont and self.current != None:
             self.newline()
             if self.current == 'g.ssSawa':
                 self.semantic()
@@ -56,7 +58,6 @@ class Compilation:
             elif self.current == 'yunit':
                 self.yunit()
                 self.newline()
-                self.match()
             elif self.current == 'punto':
                 self.punto()
                 self.newline()
@@ -69,10 +70,12 @@ class Compilation:
             elif self.current == 'tala':
                 self.tala()
                 self.newline()
+            elif self.current == 'bool':
+                self.boolean()
+                self.newline()
             elif self.current == 'Identifier':
                 self.expression()
                 self.newline()
-                self.match()
             elif self.current == 'sulat':
                 self.sulat()
                 self.newline()
@@ -178,7 +181,9 @@ class Compilation:
                 except SyntaxError as e:
                     self.cont = False
                     return
-    
+            elif self.current == ',':
+                self.yunit_continue()
+        
     def yunit_continue(self):
         x = ''
         y = ''
@@ -234,6 +239,8 @@ class Compilation:
                 except SyntaxError as e:
                     self.cont = False
                     return
+            elif self.current == ',':
+                self.yunit_continue()
 
     def saYunit(self):
         y = ''
@@ -311,7 +318,9 @@ class Compilation:
                 except SyntaxError as e:
                     self.cont = False
                     return
-                
+            elif self.current == ',':
+                self.punto_continue()
+
     def punto_continue(self):
         x = ''
         y = ''
@@ -366,6 +375,8 @@ class Compilation:
                 except SyntaxError as e:
                     self.cont = False
                     return
+            elif self.current == ',':
+                self.punto_continue()
                 
     def saPunto(self):
         y = ''
@@ -435,6 +446,8 @@ class Compilation:
                 except SyntaxError as e:
                     self.cont = False
                     return
+            elif self.current == ',':
+                self.baybay_continue()
     
     def baybay_continue(self):
         x = ''
@@ -482,6 +495,8 @@ class Compilation:
                 except SyntaxError as e:
                     self.cont = False
                     return
+            elif self.current == ',':
+                self.baybay_continue()
         
     def saBaybay(self):
         y = ''
@@ -545,6 +560,8 @@ class Compilation:
                 except SyntaxError as e:
                     self.cont = False
                     return
+            elif self.current == ',':
+                self.titik_continue()
             
     def titik_continue(self):
         x = ''
@@ -668,6 +685,8 @@ class Compilation:
                 except SyntaxError as e:
                     self.cont = False
                     return
+            elif self.current == ',':
+                self.tala_continue()
                 
     def tala_continue(self):
         x = ''
@@ -730,6 +749,8 @@ class Compilation:
                 except SyntaxError as e:
                     self.cont = False
                     return
+            elif self.current == ',':
+                self.tala_continue()
 
     def tala_sub(self):
         y = '['
@@ -750,7 +771,7 @@ class Compilation:
         y = ''
         z = ''
         baybay_val= ''
-        num_val = ''
+        num_val = 0
         if x == 'baybay': 
             self.semantic()
             if self.current == '=':
@@ -780,8 +801,10 @@ class Compilation:
                             y += str(self.saBaybay())
                         elif self.current == 'Baybay Literal':
                             y += str(self.val)
+                            self.semantic()
                         elif self.current in ['+', '(', ')']:
                             y += self.current
+                            self.semantic()
                         else:
                             if self.current in ['-', '*', '**','/', '%' ]:
                                 self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
@@ -820,6 +843,7 @@ class Compilation:
                             y += str(self.val)
                         elif self.current in ['+', '(', ')']:
                             y += self.current
+                            self.semantic()
                         else:
                             if self.current in ['-', '*', '**','/', '%' ]:
                                 self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
@@ -840,14 +864,18 @@ class Compilation:
                     self.semantic()
                     x = self.val
                     try:
-                        num_val = int(input(x[1:-1]))
-                    except ValueError:
-                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Yunit variable')
+                        num_val = input(x[1:-1])
+                        if num_val.find('.') == -1:
+                            num_val = int(num_val)
+                        else:
+                            num_val = float(num_val)
+                            num_val = int(num_val)
+                    except TypeError:
+                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Yunit variable')
                     self.variables['yunit'][name] = num_val
                     self.semantic()
                     self.semantic()
                     self.newline()
-                    print(self.current)
                     return
                 else:
                     while self.current != 'newline':
@@ -860,16 +888,18 @@ class Compilation:
                                 self.cont = False
                                 return
                             continue
-                        elif self.current == 'yunit' or self.current == 'punto':
+                        elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
                             y += str(self.val)
+                            self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
                         elif self.current == 'saPunto':
                             y += str(self.punto())
                         elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
                             y += self.current
+                            self.semantic()
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable')
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable1')
                             self.cont = False
                             return
                     self.variables['yunit'][name] = int(eval(y))
@@ -882,9 +912,14 @@ class Compilation:
                     self.semantic()
                     x = self.val
                     try:
-                        num_val = int(input(x[1:-1]))
-                    except ValueError:
-                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Yunit variable')
+                        num_val = input(x[1:-1])
+                        if num_val.find('.') == -1:
+                            num_val = int(num_val)
+                        else:
+                            num_val = float(num_val)
+                            num_val = int(num_val)
+                    except TypeError:
+                        self.semantic_error.append('TypeError on Line {self.line}: Invalid input for Yunit variable')
                     self.variables['yunit'][name] += num_val
                     self.semantic()
                     self.semantic()
@@ -901,14 +936,16 @@ class Compilation:
                                 self.cont = False
                                 return
                             continue
-                        elif self.current == 'yunit' or self.current == 'punto':
+                        elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
                             y += str(self.val)
+                            self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
                         elif self.current == 'saPunto':
                             y += str(self.punto())
                         elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
                             y += self.current
+                            self.semantic()
                         else:
                             self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable')
                             self.cont = False
@@ -923,9 +960,14 @@ class Compilation:
                     self.semantic()
                     x = self.val
                     try:
-                        num_val = int(input(x[1:-1]))
-                    except ValueError:
-                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Yunit variable')
+                        num_val = input(x[1:-1])
+                        if num_val.find('.') == -1:
+                            num_val = int(num_val)
+                        else:
+                            num_val = float(num_val)
+                            num_val = int(num_val)
+                    except TypeError:
+                        self.semantic_error.append('TypeError on Line {self.line}: Invalid input for Yunit variable')
                     self.variables['yunit'][name] -= num_val
                     self.semantic()
                     self.semantic()
@@ -941,7 +983,7 @@ class Compilation:
                             self.cont = False
                             return
                         continue
-                    elif self.current == 'yunit' or self.current == 'punto':
+                    elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
                         y += str(self.val)
                     elif self.current == 'saYunit':
                         y += str(self.saYunit())
@@ -949,6 +991,7 @@ class Compilation:
                         y += str(self.punto())
                     elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
                         y += self.current
+                        self.semantic()
                     else:
                         self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable')
                         self.cont = False
@@ -963,9 +1006,14 @@ class Compilation:
                     self.semantic()
                     x = self.val
                     try:
-                        num_val *= int(input(x[1:-1]))
-                    except ValueError:
-                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Yunit variable')
+                        num_val = input(x[1:-1])
+                        if num_val.find('.') == -1:
+                            num_val = int(num_val)
+                        else:
+                            num_val = float(num_val)
+                            num_val = int(num_val)
+                    except TypeError:
+                        self.semantic_error.append('TypeError on Line {self.line}: Invalid input for Yunit variable')
                     self.variables['yunit'][name] = num_val
                     self.semantic()
                     self.semantic()
@@ -982,14 +1030,16 @@ class Compilation:
                                 self.cont = False
                                 return
                             continue
-                        elif self.current == 'yunit' or self.current == 'punto':
+                        elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
                             y += str(self.val)
+                            self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
                         elif self.current == 'saPunto':
                             y += str(self.punto())
                         elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
                             y += self.current
+                            self.semantic()
                         else:
                             self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable')
                             self.cont = False
@@ -1005,8 +1055,8 @@ class Compilation:
                     x = self.val
                     try:
                         num_val = int(input(x[1:-1]))
-                    except ValueError:
-                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Yunit variable')
+                    except TypeError:
+                        self.semantic_error.append('TypeError on Line {self.line}: Invalid input for Yunit variable')
                     self.variables['yunit'][name] /= num_val
                     self.semantic()
                     self.semantic()
@@ -1023,14 +1073,16 @@ class Compilation:
                                 self.cont = False
                                 return
                             continue
-                        elif self.current == 'yunit' or self.current == 'punto':
+                        elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
                             y += str(self.val)
+                            self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
                         elif self.current == 'saPunto':
                             y += str(self.punto())
                         elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
                             y += self.current
+                            self.semantic()
                         else:
                             self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable')
                             self.cont = False
@@ -1048,8 +1100,8 @@ class Compilation:
                     x = self.val
                     try:
                         num_val = float(input(x[1:-1]))
-                    except ValueError:
-                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Punto variable')
+                    except TypeError:
+                        self.semantic_error.append('TypeError on Line {self.line}: Invalid input for Punto variable')
                     self.variables['punto'][name] = num_val
                     self.semantic()
                     self.semantic()
@@ -1066,14 +1118,16 @@ class Compilation:
                                 self.cont = False
                                 return
                             continue
-                        elif self.current == 'yunit' or self.current == 'punto':
+                        elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
                             y += str(self.val)
+                            self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
                         elif self.current == 'saPunto':
                             y += str(self.punto())
                         elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
                             y += self.current
+                            self.semantic()
                         else:
                             self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto Variable variable')
                             self.cont = False
@@ -1089,8 +1143,8 @@ class Compilation:
                     x = self.val
                     try:
                         num_val = float(input(x[1:-1]))
-                    except ValueError:
-                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Punto variable')
+                    except TypeError:
+                        self.semantic_error.append('TypeError on Line {self.line}: Invalid input for Punto variable')
                     self.variables['punto'][name] += num_val
                     self.semantic()
                     self.semantic()
@@ -1107,14 +1161,16 @@ class Compilation:
                                 self.cont = False
                                 return
                             continue
-                        elif self.current == 'yunit' or self.current == 'punto':
+                        elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
                             y += str(self.val)
+                            self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
                         elif self.current == 'saPunto':
                             y += str(self.punto())
                         elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
                             y += self.current
+                            self.semantic()
                         else:
                             self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto Variable variable')
                             self.cont = False
@@ -1130,8 +1186,8 @@ class Compilation:
                     x = self.val
                     try:
                         num_val = float(input(x[1:-1]))
-                    except ValueError:
-                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Punto variable')
+                    except TypeError:
+                        self.semantic_error.append('TypeError on Line {self.line}: Invalid input for Punto variable')
                     self.variables['punto'][name] -= num_val
                     self.semantic()
                     self.semantic()
@@ -1148,14 +1204,16 @@ class Compilation:
                                 self.cont = False
                                 return
                             continue
-                        elif self.current == 'yunit' or self.current == 'punto':
+                        elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
                             y += str(self.val)
+                            self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
                         elif self.current == 'saPunto':
                             y += str(self.punto())
                         elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
                             y += self.current
+                            self.semantic()
                         else:
                             self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto Variable variable')
                             self.cont = False
@@ -1171,8 +1229,8 @@ class Compilation:
                     x = self.val
                     try:
                         num_val = float(input(x[1:-1]))
-                    except ValueError:
-                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Punto variable')
+                    except TypeError:
+                        self.semantic_error.append('TypeError on Line {self.line}: Invalid input for Punto variable')
                     self.variables['punto'][name] *= num_val
                     self.semantic()
                     self.semantic()
@@ -1189,14 +1247,16 @@ class Compilation:
                                 self.cont = False
                                 return
                             continue
-                        elif self.current == 'yunit' or self.current == 'punto':
+                        elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
                             y += str(self.val)
+                            self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
                         elif self.current == 'saPunto':
                             y += str(self.punto())
                         elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
                             y += self.current
+                            self.semantic()
                         else:
                             self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto Variable variable')
                             self.cont = False
@@ -1212,8 +1272,8 @@ class Compilation:
                     x = self.val
                     try:
                         num_val = float(input(x[1:-1]))
-                    except ValueError:
-                        self.semantic_error.append('ValueError on Line {self.line}: Invalid input for Punto variable')
+                    except TypeError:
+                        self.semantic_error.append('TypeError on Line {self.line}: Invalid input for Punto variable')
                     self.variables['punto'][name] /= num_val
                     self.semantic()
                     self.semantic()
@@ -1230,14 +1290,16 @@ class Compilation:
                                 self.cont = False
                                 return
                             continue
-                        elif self.current == 'yunit' or self.current == 'punto':
+                        elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
                             y += str(self.val)
+                            self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
                         elif self.current == 'saPunto':
                             y += str(self.punto())
                         elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
                             y += self.current
+                            self.semantic()
                         else:
                             self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto Variable variable')
                             self.cont = False
@@ -1259,12 +1321,15 @@ class Compilation:
         titik_ctr = False
         self.semantic()
         self.semantic()
-        while self.current != ')':
+        while self.current != ')':  # sulat('a',x , 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
             while self.current != ',' and self.current != ')':
                 if self.current == 'Identifier':
+                    x = ''
                     a = self.all_variables[self.val]
                     if a == 'Titik Literal':
                         titik_ctr = True
+                    elif a == 'Baybay Literal':
+                        a = self.val[1:-1]
                     x += str(self.Identifier())
                     if not self.cont:
                         return
@@ -1283,7 +1348,7 @@ class Compilation:
                     titik_ctr = True
                     continue
                 elif self.current == 'saYunit':
-                    y += str(self.val)
+                    y += str(self.saYunit())
                     continue
                 elif self.current == ';':
                     y += ':'
@@ -1300,15 +1365,102 @@ class Compilation:
                 elif self.current in ['+','-','*','**', '/','%']:
                     if titik_ctr == True: 
                         self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Titik Literal")
+                        self.cont = False
                         return
-                    continue  
+                    else:
+                        y += str(self.current)
+                        self.semantic()
+                        continue
                 y += str(self.val)
                 self.semantic()
             titik_ctr = False
-            if  self.current == ',':
+            if self.current == ',':
                 self.semantic() 
             z += str(eval(y))
             y = ''
         print(z)
         self.semantic()
         self.newline()
+
+    def boolean(self):
+        x = ''
+        y = ''
+        z = ''
+        holder = ''
+        isBool = False
+        self.semantic()
+        self.semantic()
+        s_name = self.val
+        if s_name in self.var:
+            self.semantic_error.append(f"NameError on line {self.line}: {s_name} is already defined")
+            self.cont = False
+            return
+        else:
+            self.var.append(s_name)
+            self.declare('bool', self.val)
+            self.semantic()
+            if self.current == '=':
+                self.semantic()
+                while self.current != 'newline' and self.current != ',':
+                    if self.current == 'Identifier':
+                        z = self.Identifier()
+                        if self.cont == False:
+                            return  
+                        if type(z) == bool:
+                            y += str(z)+ ' '
+                            isBool = True
+                        elif type(z) == str:
+                            y += z[1:-1]+ ' '
+                            isBool = False
+                        else:
+                            y += str(z)+ ' '
+                            isBool = False
+                        continue
+                    elif self.current == 'Totoo':
+                        y += 'True'+ ' '
+                        isBool = True
+                    elif self.current == 'Peke':
+                        y += 'False'+ ' '
+                        isBool = True
+                    elif self.current == 'saBaybay':
+                        y += str(self.saBaybay())+ ' '
+                        isBool = False
+                        continue
+                    elif self.current == 'saPunto':
+                        y += str(self.saPunto())+ ' '
+                        isBool = False
+                        continue
+                    elif self.current == 'saTitik':
+                        y += str(self.saTitik()) + ' '
+                        isBool = False
+                        continue
+                    elif self.current == 'saYunit':
+                        y += str(self.saYunit()) + ' '
+                        isBool = False
+                        continue
+                    elif self.current == 'Baybay Literal' or self.current == 'Titik Literal':
+                        y += str(self.val[1:-1]) + ' '
+                        isBool = False
+                    elif self.current == 'at':
+                        y += 'and' + ' '
+                        isBool = False
+                    elif self.current == 'o':
+                        y += 'and' + ' '
+                        isBool = False
+                    else:
+                        y += self.val + ' '
+                        isBool = False
+                    self.semantic()
+                if self.cont == False:
+                    return
+                try:
+                    self.variables['bool'][s_name] = eval(y)
+                    if self.current == ',':
+                        self.bool_continue()
+                        return
+                    self.newline()
+                except SyntaxError as e:
+                    self.cont = False
+                    return
+            elif self.current == ',':
+                self.bool_continue()    
