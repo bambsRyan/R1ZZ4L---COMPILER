@@ -61,7 +61,7 @@ diks_content_continue = [","]
 jumps = ["laktaw", "tapos", "bura"]
 del_val = ["["]
 id = ["Identifier"]
-id_continue = ["(", ".""["]
+id_continue = ["(", ".", "["]
 aop = ["=", "+=", "-=", "*=", "/="]
 allowed_aop = ["di", "kuha"]
 math = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("]
@@ -889,18 +889,26 @@ class Parser:
         if self.match('Identifier'):
             if self.first(id_continue):
                 self.id_continue()
+            elif self.first(aop):
+                self.aop()
+                if self.first(allowed_aop):
+                    self.allowed_aop()
+                elif self.first(math):
+                    self.math()
+                else:
+                    self.err('"di", "kuha", "Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
             else:
-                self.err('"(", ".", "["')
+                self.err('"(", ".", "[", "=", "+=", "-=", "*=", "/="')
         
     def id_continue(self):
         if self.match('('):
             if self.first(arg):
                 self.arg()
-                if self.match(')'):
-                    if self.first(aop):
-                        self.aop()
-                else:
-                    self.err('")"')
+            if self.match(')'):
+                if self.first(aop):
+                    self.aop()
+            else:
+                self.err('")"')
         elif self.match('.'):
             if self.match('Identifier'):
                 if self.match('('):
@@ -1340,7 +1348,7 @@ class Parser:
             if self.match('Identifier'):
                 if self.match('('):
                     if self.first(param):
-                        pass
+                        self.param()
                     if self.match(')'):
                         self.newline()
                         if self.match('{'):
@@ -1348,6 +1356,7 @@ class Parser:
                                 self.newline()
                                 if self.first(global_call):
                                     self.global_call()
+                                print(self.current)
                                 if self.first(func_content):
                                     self.func_content()
                                     if self.first(func_content_continue):
@@ -1355,19 +1364,19 @@ class Parser:
                                     if self.match('}'):
                                         return
                                     else:
-                                        self.err('"}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok", "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok"')
+                                    self.err('"global", "yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok"')
                             else:
                                 self.err('newline')
                         else:
                             self.err('{')
                     else:
-                        self.err(')')
+                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", ")"')
                 else:
-                    self.err('(')
+                    self.err("(")
             else:
-                self.err('Identifier')
+                self.err('"Identifier"')
                                 
     def param(self):
         if self.first(param_var_dec):
@@ -1639,15 +1648,17 @@ class Parser:
                 if self.first(nickname):
                     self.nickname()
             else:
-                self.err('Identifier')
+                self.err('"Identifier"')
         if self.match('newline'):
             self.newline()
+            if self.first(global_call):
+                self.global_call()
         else:
-            self.err('newline')
+            self.err('"newline", "bilang"')
 
     def func_content(self):
         if self.first(statement_for_func_dec):
-            self.statement_for_func_dec()
+                self.statement_for_func_dec()
         elif self.first(return1):
             self.return1()
             if self.match('newline'):
