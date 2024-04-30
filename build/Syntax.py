@@ -2508,7 +2508,6 @@ class Parser:
             else:
                 self.err('"("')
 
-
     def conditional_content(self):
         if self.first(statement_for_conditional):
             self.statement_for_conditional()
@@ -2752,27 +2751,33 @@ class Parser:
         elif self.match('gawin'):
             self.newline()
             if self.match('{'):
-                if self.first(loop_body):
-                    self.loop_body()
-                    if self.match('}'):
-                        if self.match('tuwing'):
-                            if self.match('('):
-                                if self.first(condition):
-                                    self.condition()
-                                    if self.match(')'):
-                                        return
+                if self.match('newline'):
+                    self.newline()
+                    if self.first(loop_body):
+                        self.loop_body()
+                        if self.match('}'):
+                            if self.match('tuwing'):
+                                if self.match('('):
+                                    if self.first(condition):
+                                        self.condition()
+                                    elif self.first(cond):
+                                        self.cond()
+                                        if self.match(')'):
+                                            return
+                                        else:
+                                            self.err('")"')
                                     else:
-                                        self.err('")"')
+                                        self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
                                 else:
-                                    self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
+                                    self.err('"("')
                             else:
-                                self.err('"("')
+                                self.err('tuwing')
                         else:
-                            self.err('tuwing')
+                            self.err('"}"')
                     else:
-                        self.err('"}"')
+                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
                 else:
-                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                    self.err('newline')
             else:
                 self.err('{')
     

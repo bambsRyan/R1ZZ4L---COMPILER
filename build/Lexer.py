@@ -11,17 +11,15 @@ delim3 = [' ', '(','']
 delim4 = [' ',',',')','']
 delim5 = [' ', '{', '$', '\n','']
 delim6 = [' ',')', ']', '}', ',', '\n', '$','']
-delim7 = [' ', ':', ',', '']
+delim7 = [' ', ':', '']
 delim8 = [' ', '(', '[', '{', '\n', '$','']
 delim9 = [' ', '(', '~', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l','m', 'n', 'o', 'p', 'q', 'r', 's', 
           't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H','I', 'J', 'K', 'L', 'M', 'N', 'O', 
           'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3','4', '5', '6', '7', '8', '9','']
 delim10 = [' ', '+', '-', '*', '/', '%', '<', '>', '=', '!', ')', ']', '{', '}', ',', ';', '\n', '$','']
-delim11 = [' ', '+', '-', '*', '/', '%', '(', ')', '<', '>', '=', '!', '[', ']', '{','}', ',', '.', ';', '\n', '$','|','']
+delim11 = [' ', '+', '-', '*', '/', '%', '(', ')', '<', '>', '=', '!', '[', ']', '{','}', ',', ';', '\n', '$','|','']
 delim12 = [' ', ')', ']', '{', '}', ',', ';', '+', '=', '!', '\n', '$','']
-delim13 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l','m', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 
-           'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 
-           'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '']
+delim13 = []
 delim14 = [' ', '(', '[', '"', '~', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
            'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8',
@@ -228,19 +226,6 @@ class Lexer:
         elif self.current == '\t':
             self.addTokens('tab','\\t')
             return  
-        elif self.state('A'):
-            if self.state('t'):
-                if self.state('t'):
-                    if self.state('r'):
-                        if self.state('i'):
-                            if self.state('b'):
-                                if self.state('E'):
-                                    if self.state('r'):
-                                        if self.state('r'):
-                                            if self.state('o'):
-                                                if self.final_state('r'):
-                                                    self.delim_next_check(delim4, 'AttribError')
-                                                    return
         elif self.state('a'):
             if self.final_state('t'):
                 self.delim_next_check(delim1, 'at')
@@ -337,25 +322,8 @@ class Lexer:
                             if self.final_state('g'):
                                 self.delim_next_check(delim3, 'habang')
                                 return
-                elif self.state('k'):
-                    if self.state('o'):
-                        if self.final_state('t'):
-                            self.delim_next_check(delim1, 'hakot')
-                            return
         elif self.state('I'):
-            if self.state('m'):
-                if self.state('p'):
-                    if self.state('o'):
-                        if self.state('r'):
-                            if self.state('t'):
-                                if self.state('E'):
-                                    if self.state('r'):
-                                        if self.state('r'):
-                                            if self.state('o'):
-                                                if self.final_state('r'):
-                                                    self.delim_next_check(delim4, 'ImportError')
-                                                    return
-            elif self.state('n'):
+            if self.state('n'):
                 if self.state('d'):
                     if self.state('e'):
                         if self.state('x'):
@@ -415,19 +383,6 @@ class Lexer:
         elif self.final_state('o'):
             self.delim_next_check(delim1, 'o')
             return
-        elif self.state('M'):
-            if self.state('e'):
-                if self.state('m'):
-                    if self.state('o'):
-                        if self.state('r'):
-                            if self.state('y'):
-                                if self.state('E'):
-                                    if self.state('r'):
-                                        if self.state('r'):
-                                            if self.state('o'):
-                                                if self.final_state('r'):
-                                                    self.delim_next_check(delim4, 'MemoryError')
-                                                    return
         elif self.state('N'):
             if self.state('a'):
                 if self.state('m'):
@@ -675,9 +630,6 @@ class Lexer:
         elif self.final_state(','):
             self.delim_next_check_symbols(delim23, ',')
             return
-        elif self.final_state('.'):
-            self.delim_next_check_symbols(delim13, '.')
-            return
         elif self.final_state(';'):
             self.delim_next_check_symbols(delim15, ';')
             return
@@ -756,11 +708,7 @@ class Lexer:
             component = self.string.split('.')
             self.string = component[0]
             self.invalid_delim()
-            if self.current in delim13:
-                self.addTokens('.', '.')
-            else:
-                self.string = '.'
-                self.invalid_delim()
+            self.error.append(['Line '+ str(self.line) + ':Lexical Error: Invalid character "."'])
             self.lexical_again()
             return
     def baybaylit(self):
@@ -808,8 +756,9 @@ class Lexer:
                                     return
         components = self.string.split('.')
         self.identifier_num += 1
-        self.addTokens(f'Identifier{self.identifier_num}', components[0])
-        self.addTokens('.', '.')
+        self.string = components[0]
+        self.invalid_delim()
+        self.error.append(['Line '+ str(self.line) + ':Lexical Error: Invalid character "."'])
         self.string = components[1]
         if self.current != '':
             self.check_identifier() 
