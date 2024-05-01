@@ -920,10 +920,11 @@ class Compilation:
                     while self.current != 'newline':
                         if self.current == 'Identifier':
                             z = self.all_variables[self.val]
-                            if z == 'yunit' or self.current == 'punto':
+                            print(self.all_variables)
+                            if z == 'yunit' or z == 'punto':
                                 y += str(self.Identifier())
                             else:   
-                                self.semantic_error(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
                             continue
@@ -1417,7 +1418,7 @@ class Compilation:
                 self.semantic() 
             z += str(eval(y))
             y = ''
-        add_lexical_errors(z)
+        add_lexical_errors(z.replace('-', '~'))
         self.semantic()
         self.newline()
 
