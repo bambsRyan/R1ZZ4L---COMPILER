@@ -287,13 +287,13 @@ class Compilation:
         self.semantic()
         self.semantic()
         if self.current == 'Baybay Literal':
-            y  = f' int({self.val[1:-1].replace('~', '-')})'
+            y  = f" int({self.val[1:-1].replace('~', '-')})"
         elif self.current == 'Titik Literal':
-            y = f' int({self.val[1:-1].replace('~', '-')})'
+            y = f" int({self.val[1:-1].replace('~', '-')})"
         elif self.current == 'Identifier':
-            y = f' int({self.Identifier()})'
+            y = f" int({self.Identifier()})"
         else:
-            y = f' int({self.val.replace('~', '-')})'
+            y = f" int({self.val.replace('~', '-')})"
         try:
             self.semantic()
             return eval(y)
@@ -423,13 +423,13 @@ class Compilation:
         self.semantic()
         self.semantic()
         if self.current == 'Baybay Literal':
-            y  = f' float({self.val[1:-1].replace('~', '-')})'
+            y  = f" float({self.val[1:-1].replace('~', '-')})"
         elif self.current == 'Titik Literal':
-            y = f' float({self.val[1:-1].replace('~', '-')})'
+            y = f" float({self.val[1:-1].replace('~', '-')})"
         elif self.current == 'Identifier':
-            y = f' float({self.Identifier()})'
+            y = f" float({self.Identifier()})"
         else:
-            y = f' float({self.val.replace('~', '-')})'
+            y = f" float({self.val.replace('~', '-')})"
         try:
             self.semantic()
             return eval(y)
@@ -1141,7 +1141,7 @@ class Compilation:
                     try:
                         num_val = float(input(x[1:-1]))
                     except TypeError:
-                        self.semantic_error.append('TypeError on Line {self.line}: Invalid input for Punto variable')
+                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Punto variable')
                     self.variables['punto'][name] = num_val
                     self.semantic()
                     self.semantic()
@@ -1151,10 +1151,10 @@ class Compilation:
                     while self.current != 'newline':
                         if self.current == 'Identifier':
                             z = self.all_variables[self.val]
-                            if z == 'yunit' or self.current == 'punto':
+                            if z == 'yunit' or z == 'punto':
                                 y += str(self.Identifier())
                             else:
-                                self.semantic_error(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
                             continue
