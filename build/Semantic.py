@@ -289,7 +289,7 @@ class Compilation:
         if self.current == 'Baybay Literal':
             y  = f' int({self.val[1:-1].replace('~', '-')})'
         elif self.current == 'Titik Literal':
-            y = f' int({self.val.replace[1:-1].replace('~', '-')})'
+            y = f' int({self.val[1:-1].replace('~', '-')})'
         elif self.current == 'Identifier':
             y = f' int({self.Identifier()})'
         else:
