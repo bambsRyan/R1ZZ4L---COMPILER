@@ -38,6 +38,7 @@ class Compilation:
         self.var = []
         self.semantic_error = []
         self.cont = True
+        self.nested_for = {}
 
     def sem(self):
         self.semantic()
@@ -112,6 +113,16 @@ class Compilation:
                 self.newline()
             elif self.current == 'kung':
                 self.kung()
+                self.newline()
+            elif self.current == 'habang':
+                self.habang()
+                self.newline()
+            elif self.current == 'gawin':
+                self.gawin()
+                self.newline()
+            elif self.current == 'para':
+                self.para()
+                self.newline()
             elif self.current == 'gg.ssSawa':
                 self.semantic()
                 self.newline()
@@ -209,8 +220,8 @@ class Compilation:
                 except SyntaxError as e:
                     self.cont = False
                     return
-            elif self.current == ',':
-                self.yunit_continue()
+        if self.current == ',':
+            self.yunit_continue()
         
     def yunit_continue(self):
         x = ''
@@ -911,7 +922,7 @@ class Compilation:
                             z = self.all_variables[self.val]
                             if z == 'yunit' or self.current == 'punto':
                                 y += str(self.Identifier())
-                            else:
+                            else:   
                                 self.semantic_error(f'TypeError in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
@@ -1405,8 +1416,8 @@ class Compilation:
             if self.current == ',':
                 self.semantic() 
             z += str(eval(y))
-            add_lexical_errors(z)
             y = ''
+        add_lexical_errors(z)
         self.semantic()
         self.newline()
 
@@ -1796,13 +1807,245 @@ class Compilation:
                 self.newline()
         self.semantic()
 
-    def pili(self):
-        pass
+    def habang(self):
+        z = 0
+        self.semantic()
+        self.semantic()
+        y = self.num
+        x = self.condition()
+        self.semantic()
+        self.newline()
+        self.semantic()
+        self.newline()
+        try:
+            while x == True:
+                while self.current != '}' and self.cont != False:
+                    if self.current == 'sulat':
+                        self.sulat()
+                        self.newline()
+                    elif self.current == 'kung':
+                        self.kung()
+                        self.newline()
+                    elif self.current == 'Identifier':
+                        self.expression()
+                        self.newline()
+                    elif self.current == 'habang':
+                        self.habang()
+                        self.newline()
+                    elif self.current == 'gawin':
+                        self.gawin()
+                        self.newline()
+                z = self.num
+                self.num = y-1
+                self.semantic()
+                x = self.condition()
+                self.semantic()
+                self.newline()
+                self.semantic()
+                self.newline()
+        except MemoryError:
+            self.semantic_error.append(f"Semantic Error on line {self.line}: Infinite Loop ")
+        self.num = z
+        self.semantic()
+        self.newline()
+
+    def gawin(self):
+        ctr = 0
+        x = True
+        self.semantic()
+        self.newline()
+        self.semantic()
+        self.newline()
+        z = self.num
+        while x and ctr < 50_000:
+            self.num = z-1
+            self.semantic()
+            while self.current != '}' and self.cont != False:
+                if self.current == 'sulat':
+                    self.sulat()
+                    self.newline()
+                elif self.current == 'kung':
+                    self.kung()
+                    self.newline()
+                elif self.current == 'Identifier':
+                    self.expression()
+                    self.newline()
+                elif self.current == 'habang':
+                    self.habang()
+                    self.newline()
+                elif self.current == 'gawin':
+                    self.gawin()
+            ctr += 1
+            self.semantic()
+            self.semantic()
+            self.semantic()
+            x = self.condition()
+        if ctr == 50_000:
+            self.semantic_error.append(f"Semantic Error on line {self.line}: Infinite Looping")
+        self.semantic()
+        self.newline() 
+
+    def tala_lit(self):
+        x = []
+        self.semantic()
+        while self.current != ']':
+            if self.current == 'Baybay Literal':
+                x.append(self.val[1:-1])
+            elif self.current == '{':
+                x.append(self.diks_lit)
+            elif self.current == '[':
+                x.append(self.tala_lit)
+            elif self.current == 'Identifier':
+                z = self.Identifier()
+            elif self.current == 'Punto Literal':
+                x.append(float(self.val.replace('~', '-')))
+            elif self.current == 'Yunit Literal':
+                x.append(int(self.val.replace('~', '-')))
+            elif self.current == 'Titik Literal':
+                x.append(self.val[1:-1])
+            elif self.current == 'saBaybay':
+                x.append(self.saBaybay())
+            elif self.current == 'saPunto':
+                x.append(self.saPunto())
+            elif self.current == 'saTitik':
+                x.append(self.saTitik())
+            elif self.current == 'saYunit':
+                x.append(self.saYunit())
+            
+            self.semantic()
+        self.semantic()
+        return x
+
+    def diks_lit(self): 
+        x = {}
+        y = None
+        self.semantic()
+        while self.current != '}':
+            if self.current == 'Baybay Literal':
+                y = self.val[1:-1]
+                self.semantic()
+                if self.current == 'Identifier':
+                    x[y] = self.Identifier()
+                elif self.current == 'Baybay Literal':
+                    x[y] = self.val[1:-1]
+                elif self.current == 'Punto Literal':
+                    x[y] = float(self.val.replace('~', '-'))
+                elif self.current == 'Yunit Literal':
+                    x[y] = int(self.val.replace('~', '-'))
+                elif self.current == 'Titik Literal':
+                    x[y] = self.val[1:-1]
+                elif self.current == 'saBaybay':
+                    x[y] = self.saBaybay()
+                elif self.current == 'saPunto':
+                    x[y] = self.saPunto()
+                elif self.current == 'saTitik':
+                    x[y] = self.saTitik()
+                elif self.current == 'saYunit':
+                    x[y] = self.saYunit()
+                elif self.current == '[':
+                    x[y] = self.tala_lit()
+                elif self.current == '{':
+                    x[y] = self.diks_lit()
+            elif self.current == 'Yunit Literal':
+                y = int(self.val.replace('~', '-'))
+                self.semantic()
+                if self.current == 'Identifier':
+                    x[y] = self.Identifier()
+                elif self.current == 'Baybay Literal':
+                    x[y] = self.val[1:-1]
+                elif self.current == 'Punto Literal':
+                    x[y] = float(self.val.replace('~', '-'))
+                elif self.current == 'Yunit Literal':
+                    x[y] = int(self.val.replace('~', '-'))
+                elif self.current == 'Titik Literal':
+                    x[y] = self.val[1:-1]
+                elif self.current == 'saBaybay':
+                    x[y] = self.saBaybay()
+                elif self.current == 'saPunto':
+                    x[y] = self.saPunto()
+                elif self.current == 'saTitik':
+                    x[y] = self.saTitik()
+                elif self.current == 'saYunit':
+                    x[y] = self.saYunit()
+                elif self.current == '[':
+                    x[y] = self.tala_lit()
+                elif self.current == '{':
+                    x[y] = self.diks_lit()
+            elif self.current == 'Titik Literal':
+                y = self.val[1:-1]
+                self.semantic()
+                if self.current == 'Identifier':
+                    x[y] = self.Identifier()
+                elif self.current == 'Baybay Literal':
+                    x[y] = self.val[1:-1]
+                elif self.current == 'Punto Literal':
+                    x[y] = float(self.val.replace('~', '-'))
+                elif self.current == 'Yunit Literal':
+                    x[y] = int(self.val.replace('~', '-'))
+                elif self.current == 'Titik Literal':
+                    x[y] = self.val[1:-1]
+                elif self.current == 'saBaybay':
+                    x[y] = self.saBaybay()
+                elif self.current == 'saPunto':
+                    x[y] = self.saPunto()
+                elif self.current == 'saTitik':
+                    x[y] = self.saTitik()
+                elif self.current == 'saYunit':
+                    x[y] = self.saYunit()
+                elif self.current == '[':
+                    x[y] = self.tala_lit()
+                elif self.current == '{':
+                    x[y] = self.diks_lit()
+            elif self.current == 'Identifier':
+                y = self.Identifier()
+                if type(y) in [int,str]:
+                    self.semantic()
+                    if self.current == 'Identifier':
+                        x[y] = self.Identifier()
+                    elif self.current == 'Baybay Literal':
+                        x[y] = self.val[1:-1]
+                    elif self.current == 'Punto Literal':
+                        x[y] = float(self.val.replace('~', '-'))
+                    elif self.current == 'Yunit Literal':
+                        x[y] = int(self.val.replace('~', '-'))
+                    elif self.current == 'Titik Literal':
+                        x[y] = self.val[1:-1]
+                    elif self.current == 'saBaybay':
+                        x[y] = self.saBaybay()
+                    elif self.current == 'saPunto':
+                        x[y] = self.saPunto()
+                    elif self.current == 'saTitik':
+                        x[y] = self.saTitik()
+                    elif self.current == 'saYunit':
+                        x[y] = self.saYunit()
+                    elif self.current == '[':
+                        x[y] = self.tala_lit()
+                    elif self.current == '{':
+                        x[y] = self.diks_lit()
+                else:
+                    self.semantic_error.append(f"TypeError on Line {self.line}: Invalid Identifier on the Key Value")
+                    self.cont = False
+                    return
+            self.semantic()
+
+    def para(self):
+        list_lit = []
+        diks_lit = {}
+        baybay_lit = ''
+        num = 0
+        self.semantic()
+        self.nested_for[self.val] = None
+        self.semantic()
+        self.semantic()
+        if self.current == '[':
+            list_lit = self.tala_lit()
+        print(list_lit, self.current)
+        self.semantic()
+        self.newline()
 
 
 
 
-    
 # UI --------------------------------------------------------------------------------------------------------------------------------
 style = ttk.Style()
 style.theme_use("clam")
@@ -1888,14 +2131,14 @@ def syntax_analyzer():
     # if parser.errors[0] == "Syntax Completed: No errors found":
     #     update_lexical_errors_text("Syntax Completed: No errors found")
     update_lexical_errors_text("")
-    update_lexical_errors_text("========================================RUNNING=======================================\n")
+    update_lexical_errors_text("========================================  RUNNING  =======================================\n")
     comp = Compilation(read.tokens)
     comp.sem()
     print(comp.variables)
     if comp.cont == False:
         update_lexical_errors_text(comp.semantic_error[0])
         return
-    add_lexical_errors("\n=========================================DONE=========================================\n")
+    add_lexical_errors("\n=========================================  DONE  =========================================\n")
     # print(comp.all_variables)
     if len(comp.semantic_error) > 0:
         print(comp.semantic_error)

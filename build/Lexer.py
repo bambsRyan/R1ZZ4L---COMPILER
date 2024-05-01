@@ -713,20 +713,10 @@ class Lexer:
             return
     def baybaylit(self):
         while self.current != '\"' and self.current != 'newline' and self.index != len(self.code) :
-            if self.current == '\\' and self.next == 'n':
-                self.string += '\n'
-                self.traverse()
-                self.traverse()
-                continue
-            elif self.current == '\\' and self.next == 't':
-                self.string += '\t'
-                self.traverse()
-                self.traverse()
-                continue
             self.string += self.current
             self.traverse()
         if self.state('\"'):
-            self.delim_current_check_symbols(delim12, 'Baybay Literal')
+            self.delim_current_check_symbols(delim12, 'Baybay Literal') 
         else:
             self.error.append(['Line '+ str(self.line) + ': Lexical Error: ' + self.string +' Invalid array of characters \''])
             self.string = ''
