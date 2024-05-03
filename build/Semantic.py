@@ -7,7 +7,6 @@ import Syntax as syn
 import os 
 import sys
 from time import perf_counter
-import circ
 
 OUTPUT_PATH = os.path.dirname(sys.executable) if getattr(sys, 'frozen', False) else os.path.dirname(__file__)
 ASSETS_PATH = os.path.join(OUTPUT_PATH, "assets", "frame0")
@@ -939,7 +938,7 @@ class Compilation:
                             y += self.current
                             self.semantic()
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable1')
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable')
                             self.cont = False
                             return
                     self.variables['yunit'][name] = int(eval(y))
@@ -2126,23 +2125,23 @@ def syntax_analyzer():
         update_lexical_errors_text("Can't compile in Syntax.. Lexical errors occur")
         return
     start=perf_counter()
-    # parser = syn.Parser(read.tokens)    
-    # parser.parse()
-    # update_lexical_errors_text(parser.errors[0])
-    # if parser.errors[0] == "Syntax Completed: No errors found":
-    #     update_lexical_errors_text("Syntax Completed: No errors found")
-    update_lexical_errors_text("")
-    update_lexical_errors_text("========================================  RUNNING  =======================================\n")
-    comp = Compilation(read.tokens)
-    comp.sem()
-    print(comp.variables)
-    if comp.cont == False:
-        update_lexical_errors_text(comp.semantic_error[0])
-        return
-    add_lexical_errors("\n=========================================  DONE  =========================================\n")
-    # print(comp.all_variables)
-    if len(comp.semantic_error) > 0:
-        print(comp.semantic_error)
+    parser = syn.Parser(read.tokens)    
+    parser.parse()
+    update_lexical_errors_text(parser.errors[0])
+    if parser.errors[0] == "Syntax Completed: No errors found":
+        update_lexical_errors_text("Syntax Completed: No errors found")
+    # update_lexical_errors_text("")
+    # update_lexical_errors_text("========================================  RUNNING  =======================================\n")
+    # comp = Compilation(read.tokens)
+    # comp.sem()
+    # print(comp.variables)
+    # if comp.cont == False:
+    #     update_lexical_errors_text(comp.semantic_error[0])
+    #     return
+    # add_lexical_errors("\n=========================================  DONE  =========================================\n")
+    # # print(comp.all_variables)
+    # if len(comp.semantic_error) > 0:
+    #     print(comp.semantic_error)
 
     
     end=perf_counter()
