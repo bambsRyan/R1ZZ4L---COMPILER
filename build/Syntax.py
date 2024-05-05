@@ -64,6 +64,7 @@ id = ["Identifier"]
 id_continue = ["(", "["]
 aop = ["=", "+=", "-=", "*=", "/="]
 allowed_aop = ["di", "kuha"]
+math_tala = ["[", "Identifier"]
 math_tala_expression = ["["]
 math_tala_expression_continue = ["==", "!="]
 math_tala_content = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "("]
@@ -373,6 +374,9 @@ class Parser:
                 return
             else:
                 self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "(", "]"')
+        elif self.first(value_id):
+            self.value_id()
+
 
     def num_tala_continue(self):
         if self.match('+'):
@@ -386,9 +390,12 @@ class Parser:
     def num_tala_content(self):
         if self.first(num_dec_expression):
             self.num_dec_expression()
+        elif self.first(num_tala):
+            self.num_tala()
     
     def num_tala_content_continue(self):
         if self.match(','):
+            self.newline()
             if self.first(num_tala_content):
                 self.num_dec_expression()
                 if self.first(num_tala_content_continue):
@@ -519,6 +526,8 @@ class Parser:
                 return
             else:
                 self.err('"Identifier", "Baybay Literal", "saBaybay", "(", "]"')
+        elif self.first(value_id):
+            self.value_id()
 
     def baybay_tala_continue(self):
         if self.match('+'):
@@ -532,9 +541,12 @@ class Parser:
     def baybay_tala_content(self):
         if self.first(baybay_dec_expression):
             self.baybay_dec_expression()
+        elif self.first(baybay_tala):
+            self.baybay_tala()
 
     def baybay_tala_content_continue(self):
         if self.match(','):
+            self.newline()
             if self.first(baybay_tala_content):
                 self.baybay_tala_content()
                 if self.first(baybay_tala_content_continue):
@@ -655,6 +667,8 @@ class Parser:
                 return
             else:
                 self.err('"Identifier", "Titik Literal", "saTitik", "(", "]"')   
+        elif self.first(value_id):
+            self.value_id()
 
     def titik_tala_continue(self):
         if self.match('+'):
@@ -668,6 +682,8 @@ class Parser:
     def titik_tala_content(self):
         if self.first(titik_expression):
             self.titik_expression()
+        elif self.first(titik_tala):
+            self.titik_tala()
 
     def titik_tala_content_continue(self):
         if self.match(','):
@@ -823,6 +839,12 @@ class Parser:
             return
         
     def math_tala_expression(self):
+        if self.first(math_tala):
+            self.math_tala()
+            if self.first(math_tala_continue):
+                self.math_tala_continue()
+
+    def math_tala(self):
         if self.match('['):
             if self.first(math_tala_content):
                 self.math_tala_content()
@@ -2738,8 +2760,8 @@ class Parser:
                                         if self.match('{'):
                                             if self.match('newline'):
                                                 self.newline()
-                                                if self.first(loop_pili_body):
-                                                    self.loop_pili_body()  
+                                                if self.first(loop_body):
+                                                    self.loop_body()  
                                                     self.newline() 
                                                     if self.match('}'):
                                                         if self.match('newline'):
