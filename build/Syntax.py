@@ -9,9 +9,9 @@ num_Identifier = ["Identifier"]
 num_Identifier_continue = ["=", "["]
 num_tala_expression = ["["]
 num_ext = [","]
-num_tala = ["["]
+num_tala = ["[", "Identifier"]
 num_tala_continue = ["+"]
-num_tala_content = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("]
+num_tala_content = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "(", "["]
 num_tala_content_continue = [","]
 num_tala_concatenate = ["[", "Identifier"]
 num_dec_expression = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("]
@@ -24,9 +24,9 @@ baybay_Identifier = ["Identifier"]
 baybay_Identifier_continue = ["[", "="]
 baybay_tala_expression = ["["]
 baybay_ext = [","]
-baybay_tala = ["["]
+baybay_tala = ["[", "Identifier"]
 baybay_tala_continue = ["+"]
-baybay_tala_content = ["Identifier", "Baybay Literal", "saBaybay", "("]
+baybay_tala_content = ["Identifier", "Baybay Literal", "saBaybay", "(", "["]
 baybay_tala_content_continue = [","]
 baybay_tala_concatenate = ["[", "Identifier"]
 baybay_dec_expression = ["Identifier", "Baybay Literal", "saBaybay", "("]
@@ -40,7 +40,7 @@ titik_tala_expression = ["["]
 titik_expression = ["Identifier", "Titik Literal", "saTitik"]
 titik_sub_expression = ["Titik Literal", "saTitik"]
 titik_ext = [","]
-titik_tala = ["["]
+titik_tala = ["[", "Identifier"]
 titik_tala_continue = ["+"]
 titik_tala_content = ["Identifier", "Titik Literal", "saTitik"]
 titik_tala_content_continue = [","]
@@ -54,6 +54,13 @@ negate = ["di"]
 condition_statement = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "Totoo", "Peke"]
 condition_id_continue = [">", "<", ">=", "<=", "==", "!="]
 condition_sub_expression = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "Totoo", "Peke", "("]
+math_tala_dec_expression = ["(", "[", "Identifier"]
+math_tala_expression = ["[", "Identifier"]
+math_tala = ["[", "Identifier"]
+math_tala_content = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(",  "Totoo", "Peke"]
+math_tala_content_continue = [","]
+math_tala_continue = ["+"]
+math_tala_concatenate = ["[", "Identifier"]
 condition_continue = ["at", "o"]
 cop = [">", "<", ">=", "<=", "==", "!="]
 eop = ["==", "!="]
@@ -64,26 +71,18 @@ id = ["Identifier"]
 id_continue = ["(", "[", "=", "+=", "-=", "*=", "/="]
 aop = ["=", "+=", "-=", "*=", "/="]
 allowed_aop = ["di", "kuha"]
-math_tala = ["[", "Identifier"]
-math_tala_expression = ["["]
-math_tala_expression_continue = ["==", "!="]
-math_tala_content = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "("]
-math_tala_content_continue = [","]
-math_tala_concatenate = ["[", "Identifier"]
-math_tala_continue = ["+"]
-math = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "("]
+math = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "Totoo", "Peke"]
 math_continue = ["+", "-", "*", "/", "%", "**", ">", "<", ">=", "<=", "==", "!=", "at", "o"]
-math_expression = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "["]
+math_expression = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "Totoo", "Peke"]
 math_value_id_expression_continue = [">", "<", ">=", "<=", "==", "!="]
 math_num_expression_continue = [">", "<", ">=", "<=", "==", "!="]
 math_baybay_expression_continue = ["==", "!="]
 math_titik_expression_continue = ["==", "!="]
-math_num_tala_expression_continue = ["==", "!="]
-math_baybay_tala_expression_continue = ["==", "!="]
+math_tala_expression_continue = ["==", "!="]
 inputting = ["kuha"]
 prompt = ["Baybay Literal"]
 outputting = ["sulat"]
-printable = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "("]
+printable = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "Totoo", "Peke"]
 printable_continue = [","]
 value_id_expression = ["Identifier", "("]
 value_id_sub_expression = ["Identifier"]
@@ -95,22 +94,21 @@ arg = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~"
 arg_continue = [","]
 value_id_continue = ["+", "-", "*", "/", "%", "**"]
 sub_mop = ["-", "*", "/", "%", "**"]
-value_id_continue_plus = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik"]
+value_id_continue_plus = ["Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "["]
 num_typecast = ["saYunit", "saPunto"]
 baybay_typecast = ["saBaybay"]
 titik_typecast = ["saTitik"]
 typecast_value = ["Identifier", "Punto Literal", "Titik Literal", "Baybay Literal", "Yunit Literal"]
 titik_typecast_value = ["Identifier", "Titik Literal", "Baybay Literal", "Yunit Literal"]
 func_dec = ["takda"]
-param = ["yunit", "punto", "baybay", "titik", "bool", "tala"]
-param_var_dec = ["yunit", "punto", "baybay", "titik", "bool", "tala"]
+param = ["yunit", "punto", "baybay", "titik", "bool"]
+param_var_dec = ["yunit", "punto", "baybay", "titik", "bool"]
 param_num_next = [",", "="]
 param_baybay_next = [",", "="]
 param_titik_next = [",", "="]
 param_bool_next = [",", "="]
-param_tala_next = [",", "="]
 param_default_continue = [","]
-param_var_dec_default = ["yunit", "punto", "baybay", "titik", "bool", "tala"]
+param_var_dec_default = ["yunit", "punto", "baybay", "titik", "bool"]
 global_call = ["global"]
 nickname = ["bilang"]
 func_content = ["yunit", "punto", "baybay", "titik", "bool", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili"]
@@ -787,20 +785,20 @@ class Parser:
             self.num_sub_expression()
             if self.first(cop):
                 self.cop()
-                if self.first(num_expression):
-                    self.num_expression()
+                if self.first(num_dec_expression):
+                    self.num_dec_expression()
                 else:
-                    self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~"')
+                    self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
             else:
                 self.err('">", "<", ">=", "<=", "==", "!="')
         elif self.first(baybay_sub_expression):
             self.baybay_sub_expression()
             if self.first(eop):
                 self.eop()
-                if self.first(baybay_expression):
-                    self.baybay_expression()
+                if self.first(baybay_dec_expression):
+                    self.baybay_dec_expression()
                 else:
-                    self.err('"Identifier", "Baybay Literal", "saBaybay"')
+                    self.err('"Identifier", "Baybay Literal", "saBaybay", "("')
             else:
                 self.err('"==", "!="')
         elif self.first(titik_sub_expression):
@@ -817,8 +815,8 @@ class Parser:
             self.math_tala_expression()
             if self.first(eop):
                 self.eop()
-                if self.first(math_tala_expression):
-                    self.math_tala_expression()
+                if self.first(math_tala_dec_expression):
+                    self.math_tala_dec_expression()
                 else:
                     self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
         elif self.match('Totoo'):
@@ -857,6 +855,19 @@ class Parser:
         elif self.match('Peke'):
             return
         
+    def math_tala_dec_expression(self):
+        if self.first(math_tala_expression):
+            self.math_tala_expression()
+        elif self.match('('):
+            if self.first(math_tala_dec_expression):
+                self.math_tala_dec_expression()
+                if self.match(')'):
+                    return
+                else:
+                    self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "(", ")"')
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
+
     def math_tala_expression(self):
         if self.first(math_tala):
             self.math_tala()
@@ -871,6 +882,8 @@ class Parser:
                 return  
             else:
                 self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "(", "]"')  
+        elif self.first(value_id):
+            self.value_id()
 
     def math_tala_content(self):
         if self.first(math):
@@ -1062,6 +1075,12 @@ class Parser:
             self.math_tala_expression()
             if self.first(math_tala_expression_continue):
                 self.math_tala_expression_continue()
+        elif self.match('Totoo'):
+            if self.first(condition_continue):
+                self.condition_continue()
+        elif self.match('Peke'):
+            if self.first(condition_continue):
+                self.condition_continue()
 
     def math_value_id_expression_continue(self):
         if self.first(cop):
@@ -1076,8 +1095,8 @@ class Parser:
     def math_num_expression_continue(self):
         if self.first(cop):
             self.cop()
-            if self.first(num_sub_expression):
-                self.num_sub_expression()
+            if self.first(num_dec_expression):
+                self.num_dec_expression()
                 if self.first(condition_continue):
                     self.condition_continue()
             else:
@@ -1086,8 +1105,8 @@ class Parser:
     def math_baybay_expression_continue(self):
         if self.first(eop):
             self.eop()
-            if self.first(baybay_sub_expression):
-                self.baybay_sub_expression()
+            if self.first(baybay_dec_expression):
+                self.baybay_dec_expression()
                 if self.first(condition_continue):
                     self.condition_continue()
             else:
@@ -1106,12 +1125,12 @@ class Parser:
     def math_tala_expression_continue(self):
         if self.first(eop):
             self.eop()
-            if self.first(math_tala_expression):
-                self.math_tala_expression()
+            if self.first(math_tala_dec_expression):
+                self.math_tala_dec_expression()
                 if self.first(condition_continue):
                     self.condition_continue()
             else:
-                self.err('"{", "saTala"')
+                self.err('"(", "[", "Identifier"')
 
     def inputting(self):
         if self.match('kuha'):
