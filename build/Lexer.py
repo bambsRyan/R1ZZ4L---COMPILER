@@ -8,50 +8,41 @@ digits = ['1','2','3','4','5','6','7','8','9']
 delim1 = [' ','']
 delim2 = [' ', '\n', '$','']
 delim3 = [' ', '(','']
-delim4 = [' ',',',')','']
+delim4 = ['(']
 delim5 = [' ', '{', '$', '\n','']
-delim6 = [' ',')', ']', '}', ',', '\n', '$','']
+delim6 = [' ', ')', ',', '\n', '$','']
 delim7 = [' ', ':', '']
-delim8 = [' ', '(', '[', '{', '\n', '$','']
+delim8 = [' ', '(', '[', '~', '\n', '$','']
 delim9 = [' ', '(', '~', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l','m', 'n', 'o', 'p', 'q', 'r', 's', 
           't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H','I', 'J', 'K', 'L', 'M', 'N', 'O', 
           'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3','4', '5', '6', '7', '8', '9','']
-delim10 = [' ', '+', '-', '*', '/', '%', '<', '>', '=', '!', ')', ']', '{', '}', ',', ';', '\n', '$','']
-delim11 = [' ', '+', '-', '*', '/', '%', '(', ')', '<', '>', '=', '!', '[', ']', '{','}', ',', ';', '\n', '$','|','']
-delim12 = [' ', ')', ']', '{', '}', ',', ';', '+', '=', '!', '\n', '$','']
-delim13 = []
+delim10 = [' ', '+', '-', '*', '/', '%', '<', '>', '=', '!', ')', ']', '{', ',', '\n', '$','']
+delim11 = [' ', '+', '-', '*', '/', '%', '(', ')', '<', '>', '=', '!', '[', ']', '{', ',', '\n', '$','|','']
+delim12 = [' ', ')', ']', '{', ',', '+', '=', '!', '\n', '$','']
+delim13 = ['\n']
 delim14 = [' ', '(', '[', '"', '~', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
            'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8',
            '9', '']
-delim15 = [' ', '(', '[', '{', '"', '~', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
+delim15 = [' ', '(', '[', '"', '~', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
            'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 
            'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', 
            '8', '9','\'' ,'']
-delim16 = [' ', ')', ']', '{' ,'}', ',', '=', '\n', '!', '$', '']
-delim17 = [' ', '"', '(', '[', ']', '{', '~', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k','l', 'm', 'n', 'o', 'p', 
+delim16 = [' ', ')', ']', '{', ',', '=', '\n', '!', '$', '']
+delim17 = [' ', '"', '(', '[', ']', '~', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k','l', 'm', 'n', 'o', 'p', 
            'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H','I', 'J', 'K', 'L', 'M', 
            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9','\'', '']
-delim18 = [' ', '$', ',', '+', ')', '[', ']', '{', '}', '!', '=', '\n', '|', '']
-delim19 = [' ', '~', '"', '}', '\n', '$', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l','m', 'n', 'o', 'p', 'q', 'r', 's', 
-           't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 
-           'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3','4', '5', '6', '7', '8', '9', '']
-delim20 = [' ', ']', ')', '{' , '}', '!', '=', 't', '\n', '$', ',', '|' ,'\t' ,'']
-delim21 = [' ', '"', '~', '(', ')', '[', '{', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 
+delim18 = [' ', '$', ',', '+', ')', '[', ']', '!', '=', '\n', '']
+delim19 = [' ', '\t', '\n', '$']
+delim20 = [' ', '"', '~', '(', ')', '[', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 
            's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 
            'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\'', '']
-delim22 = [' ', '+', '-', '*', '/', '%', '!', '=', '>', '<', '{', ')', ']', '}', ',', '\n', '$', '|', '']
-delim23 = [' ', '"', '(', '[', '{', '~', '\n', '$', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 
-           'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 
-           'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\'', '']
-delim24 = [' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
-           'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-           'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '']
-delim25 = ['\n','']
-delim26 = ['(','']
-delim27 = [' ', '+', '-', '*', '/', '%', '<', '>', '=', '!', ')', ']', '}', ',', '\n', '$', '']
-delim28 = [' ','(', '{' , 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 
-           'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z','']
+delim21 = [' ', '"', '~', '(', '[', '\n', '$', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 
+           's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 
+           'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\'', '']
+delim22 = [' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l','m', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 
+           'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H','I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '']
+delim23 = [' ', '+', '-', '*', '/', '%', '<', '>', '=', '!', ')', ']', ',', '\n', '$','']
 
 class Lexer:
     def __init__(self, code):   
@@ -256,38 +247,14 @@ class Lexer:
                         self.delim_next_check(delim7, 'bool')
                         return
             elif self.state('u'):
-                if self.state('k'):
-                    if self.state('o'):
-                        if self.final_state('d'):
-                            self.delim_next_check(delim3, 'bukod')
-                            return
-                elif self.state('r'):
+                if self.state('r'):
                     if self.final_state('a'):  
                         self.delim_next_check(delim1, 'bura')
                         return
         elif self.state('d'):
             if self.state('i'):
-                if self.current in alphanum or self.next == '_':
-                    if self.state('k'):
-                        if self.final_state('s'):
-                            self.delim_next_check(delim7, 'diks')
-                            return  
-                else:
-                    self.delim_current_check(delim3, 'di')
-                    return
-        elif self.state('E'):
-            if self.state('x'):
-                if self.state('c'):
-                    if self.state('e'):
-                        if self.state('s'):
-                            if self.state('s'):
-                                if self.state('E'):
-                                    if self.state('r'):
-                                        if self.state('r'):
-                                            if self.state('o'):
-                                                if self.final_state('r'):
-                                                    self.delim_next_check(delim4, 'ExcessError')
-                                                    return
+                self.delim_current_check(delim3, 'di')
+                return
         elif self.state('e'):
             if self.state('d'):
                 if self.final_state('i'):
@@ -322,28 +289,6 @@ class Lexer:
                             if self.final_state('g'):
                                 self.delim_next_check(delim3, 'habang')
                                 return
-        elif self.state('I'):
-            if self.state('n'):
-                if self.state('d'):
-                    if self.state('e'):
-                        if self.state('x'):
-                            if self.state('E'):
-                                if self.state('r'):
-                                    if self.state('r'):
-                                        if self.state('o'):
-                                            if self.final_state('r'):
-                                                self.delim_next_check(delim4, 'IndexError')
-                                                return        
-        elif self.state('K'):
-            if self.state('e'):
-                if self.state('y'):
-                    if self.state('E'):
-                        if self.state('r'):
-                            if self.state('r'):
-                                if self.state('o'):
-                                    if self.final_state('r'):
-                                        self.delim_next_check(delim4, 'KeyError')
-                                        return
         elif self.state('k'):
             if self.state('u'):
                 if self.state('h'):
@@ -383,17 +328,6 @@ class Lexer:
         elif self.final_state('o'):
             self.delim_next_check(delim1, 'o')
             return
-        elif self.state('N'):
-            if self.state('a'):
-                if self.state('m'):
-                    if self.state('e'):
-                        if self.state('E'):
-                            if self.state('r'):
-                                if self.state('r'):
-                                    if self.state('o'):
-                                        if self.final_state('r'):
-                                            self.delim_next_check(delim4, 'NameError')
-                                            return
         elif self.state('p'):
             if self.state('a'):
                 if self.state('r'):
@@ -456,22 +390,6 @@ class Lexer:
                         if self.final_state('t'):
                             self.delim_next_check(delim3, 'sulat')
                             return
-                elif self.state('b'):
-                    if self.state('o'):
-                        if self.final_state('k'):
-                            self.delim_next_check(delim5, 'subok')
-                            return
-        elif self.state('T'):
-            if self.state('y'):
-                if self.state('p'):
-                    if self.state('e'):
-                        if self.state('E'):
-                            if self.state('r'):
-                                if self.state('r'):
-                                    if self.state('o'):
-                                        if self.final_state('r'):
-                                            self.delim_next_check(delim4, 'TypeError')
-                                            return
             elif self.state('o'):
                 if self.state('t'):
                     if self.state('o'):
@@ -485,10 +403,6 @@ class Lexer:
                         if self.final_state('a'):
                             self.delim_next_check(delim1, 'takda')
                             return
-                elif self.state('l'):
-                    if self.final_state('a'):
-                        self.delim_next_check(delim7, 'tala')
-                        return
                 elif self.state('p'):
                     if self.state('o'):
                         if self.final_state('s'):
@@ -512,24 +426,6 @@ class Lexer:
                             if self.final_state('g'):
                                 self.delim_next_check(delim3, 'tuwing')
                                 return
-        elif self.state('V'):
-                if self.state('a'):
-                    if self.state('l'):
-                        if self.state('u'):
-                            if self.state('e'):
-                                if self.state('E'):
-                                    if self.state('r'):
-                                        if self.state('r'):
-                                            if self.state('o'):
-                                                if self.final_state('r'):
-                                                    self.delim_next_check(delim4, 'ValueError')
-                                                    return
-        elif self.state('W'):
-                if self.state('a'):
-                    if self.state('l'):
-                        if self.final_state('a'):
-                            self.delim_next_check(delim6, 'wala')
-                            return
         elif self.state('y'):
                 if self.state('u'):
                     if self.state('n'):
@@ -537,20 +433,6 @@ class Lexer:
                             if self.final_state('t'):
                                 self.delim_next_check(delim7, 'yunit')
                                 return
-        elif self.state('Z'):
-                if self.state('e'):
-                    if self.state('r'):
-                        if self.state('o'):
-                            if self.state('D'):
-                                if self.state('i'):
-                                    if self.state('v'):
-                                        if self.state('E'):
-                                            if self.state('r'):
-                                                if self.state('r'):
-                                                    if self.state('o'):
-                                                        if self.final_state('r'):
-                                                            self.delim_next_check(delim4, 'ZeroDivError')
-                                                            return
         elif self.state('='):
             if self.final_state('='):
                 self.delim_next_check_symbols(delim15, '==')
@@ -586,11 +468,8 @@ class Lexer:
         elif self.final_state('%'):
             self.delim_next_check_symbols(delim9, '%')
             return
-        elif self.final_state('|'):
-            self.delim_next_check_symbols(delim28, '|')
-            return
         elif self.final_state(':'):
-            self.delim_next_check_symbols(delim24, ':')
+            self.delim_next_check_symbols(delim22, ':')
             return
         elif self.state('!'):
             if self.final_state('='):
@@ -609,10 +488,10 @@ class Lexer:
                 self.delim_current_check_symbols(delim9, '>')
             return
         elif self.final_state('('):
-            self.delim_next_check_symbols(delim21, '(')
+            self.delim_next_check_symbols(delim20, '(')
             return
         elif self.final_state(')'):
-            self.delim_next_check_symbols(delim22, ')')
+            self.delim_next_check_symbols(delim10, ')')
             return
         elif self.final_state('['):
             self.delim_next_check_symbols(delim17, '[')
@@ -621,16 +500,13 @@ class Lexer:
             self.delim_next_check_symbols(delim18, ']')
             return
         elif self.final_state('{'):
-            self.delim_next_check_symbols(delim19, '{')
+            self.delim_next_check_symbols(delim2, '{')
             return
         elif self.final_state('}'):
-            self.delim_next_check_symbols(delim20, '}')
+            self.delim_next_check_symbols(delim19, '}')
             return
         elif self.final_state(','):
-            self.delim_next_check_symbols(delim23, ',')
-            return
-        elif self.final_state(';'):
-            self.delim_next_check_symbols(delim15, ';')
+            self.delim_next_check_symbols(delim21, ',')
             return
         elif self.state('$'):
             self.single_line()
@@ -646,7 +522,7 @@ class Lexer:
                 self.traverse()
                 self.numlit()
             else:
-                self.delim_next_check_symbols(delim26, '~')
+                self.delim_next_check_symbols(delim4, '~')
             return
         elif self.state('\"'):
             self.baybaylit()     
@@ -697,7 +573,7 @@ class Lexer:
             self.punto_index += 1
             self.traverse()
         if self.punto_index != 0:
-            if self.current in delim27:
+            if self.current in delim23:
                 self.addTokens('Punto Literal', self.string)
                 self.lexical_again()
             else:
@@ -752,4 +628,3 @@ class Lexer:
         if self.current != '':
             self.check_identifier() 
         return
-    

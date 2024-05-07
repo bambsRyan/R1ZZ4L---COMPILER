@@ -1,6 +1,142 @@
-x = True == 2>2
 
-print(x)
+
+print([1,2,3]< [1,1,2])
+# class GaleShapley:
+#     def __init__(self, men_preferences:dict, women_preferences:dict) -> None:
+#         self.men_preferences = men_preferences
+#         self.women_preferences = women_preferences
+#         self.matches = {}
+#         print("men: ",men_preferences)
+#         print("women: ",women_preferences)
+
+#     # def stable_matching(self):
+#     #     try:
+#     #         unengaged_men = list(self.men_preferences.keys())
+#     #         while unengaged_men:
+#     #             for man in unengaged_men:
+#     #                 women_list = list(self.men_preferences[man].preferences.keys())
+#     #                 best_choice = women_list.pop(0)
+#     #                 fiance = self.matches.get(best_choice)
+#     #                 if not fiance:
+#     #                     # She's free
+#     #                     print(f"{best_choice} is engaged to {man}")
+#     #                     self.matches[best_choice] = man
+#     #                     unengaged_men.remove(man)
+#     #                 else:
+#     #                     # She's engaged
+#     #                     if list(self.women_preferences[best_choice].preferences.keys()).index(man) > list(self.women_preferences[best_choice].preferences.keys()).index(fiance):
+#     #                         # She prefers new guy
+#     #                         print(f"{best_choice} dumps {fiance} for {man}")
+#     #                         self.matches[best_choice] = man
+#     #                         unengaged_men.remove(man)
+#     #                         unengaged_men.append(fiance)
+#     #                     else:
+#     #                         print(f"{best_choice} rejects {man}")
+#     #         return self.matches
+#     #     except Exception as e:
+#     #         print("Error: ",e)
+#     #         return None
+        
+#     def stable_matching(self):
+#         unengaged_men = list(self.men_preferences.keys())
+#         while unengaged_men:
+#             for man in unengaged_men:
+#                 women_list = list(self.men_preferences[man].preferences.keys())
+#                 while women_list:
+#                     best_choice = women_list.pop(0)
+#                     fiance = self.matches.get(best_choice)
+#                     if not fiance:
+#                         # She's free
+#                         print(f"{best_choice} is engaged to {man}")
+#                         self.matches[best_choice] = man
+#                         unengaged_men.remove(man)
+#                         break
+#                     else:
+#                         # She's engaged
+#                         if list(self.women_preferences[best_choice].preferences.keys()).index(man) > list(self.women_preferences[best_choice].preferences.keys()).index(fiance):
+#                             # She prefers new guy
+#                             print(f"{best_choice} dumps {fiance} for {man}")
+#                             self.matches[best_choice] = man
+#                             unengaged_men.remove(man)
+#                             unengaged_men.append(fiance)
+#                             break
+#                         else:
+#                             # She rejects him, he will propose to the next woman in his list
+#                             print(f"{best_choice} rejects {man}")
+#                             continue
+#         return self.matches
+
+#     def score(self):
+#         total_score = 0
+#         men_score = 0
+#         women_score=0
+#         for woman, man in self.matches.items():
+#             woman_score = self.women_preferences[woman].preferences[man]
+#             man_score = self.men_preferences[man].preferences[woman]
+
+#             men_score+=man_score
+#             women_score+=woman_score
+
+#             match_score = woman_score + man_score
+#             total_score += match_score
+            
+#             print(f"{woman}(ranked: {self.men_preferences[man][woman]}) is engaged to {man}(ranked: {self.women_preferences[woman][man]}): {match_score}")
+#         print(f"Men score: {men_score}")
+#         print(f"Women score: {women_score}")
+#         print(f"Total score: {total_score}")
+#         return total_score
+    
+# class Preferences:
+#     def __init__(self, preferences) -> None:
+#         self.preferences={}
+#         total=len(preferences)
+#         for rank,preference in enumerate(preferences):
+#             self.preferences[preference] = total-rank
+#         self.list=self.preferences.keys()
+
+#     def __getitem__(self, key):
+#         return self.preferences.get(key)
+
+#     def __str__(self) -> str:
+#         return str(self.preferences)
+    
+
+#     def __repr__(self) -> str:
+#         return str(self.preferences)
+    
+
+    
+
+# men={
+#     "a":Preferences(["z","y","x"]),
+#     "b":Preferences(["y","x","z"]), 
+#     "c":Preferences(["z","y","x"]),
+#     "d":Preferences(["z","y","x",]),
+#     "e":Preferences(["z","y","x"])
+# }
+
+# women={
+#     "x":Preferences(["b","a","c"]),
+#     "y":Preferences(["c","b","a"]),
+#     "z":Preferences(["a","c","b"])
+# }
+
+# gs=GaleShapley(men, women)
+# gs.stable_matching()
+# gs.score()
+
+
+# x = 
+# try:
+#     print(eval(x))
+# except SyntaxError as e:
+#     print(e)
+# except NameError as e:
+#     print(e)
+# except TypeError as e:
+#     print(e)
+
+
 # # Define temperature input (crisp value)
 # temperature = 22  # Can be replaced with sensor reading
 
