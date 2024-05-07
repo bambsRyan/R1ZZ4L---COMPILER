@@ -2646,20 +2646,20 @@ def syntax_analyzer():
     parser = syn.Parser(read.tokens)    
     parser.parse()
     update_lexical_errors_text(parser.errors[0])    
-    if parser.errors[0] == "Syntax Completed: No errors found":
-        update_lexical_errors_text("Syntax Completed: No errors found")
-        update_lexical_errors_text("")
-        update_lexical_errors_text("========================================  RUNNING  =======================================\n")
-        comp = Compilation(read.tokens)
-        comp.sem()
-        print(comp.variables)
-        print(comp.all_variables)
-        # if comp.cont == False:
-        #     update_lexical_errors_text(comp.semantic_error[0])
-        #     return
-        add_lexical_errors("\n=========================================  DONE  =========================================\n")
-        if len(comp.semantic_error) > 0:
-            update_lexical_errors_text(comp.semantic_error[0])
+    # if parser.errors[0] == "Syntax Completed: No errors found":
+    #     update_lexical_errors_text("Syntax Completed: No errors found")
+    #     update_lexical_errors_text("")
+    #     update_lexical_errors_text("========================================  RUNNING  =======================================\n")
+    #     comp = Compilation(read.tokens)
+    #     comp.sem()
+    #     print(comp.variables)
+    #     print(comp.all_variables)
+    #     # if comp.cont == False:
+    #     #     update_lexical_errors_text(comp.semantic_error[0])
+    #     #     return
+    #     add_lexical_errors("\n=========================================  DONE  =========================================\n")
+    #     if len(comp.semantic_error) > 0:
+    #         update_lexical_errors_text(comp.semantic_error[0])
         # semantic = sem.Semantic(read.tokens)
         # semantic.semantics()
         # if len(semantic.semantic_error) == 0:
