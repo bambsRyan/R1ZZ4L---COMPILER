@@ -178,13 +178,13 @@ class Parser:
             self.program()
             self.newline()
             if self.current == None:    
-                self.errors.append(f'Syntax Error on Line {self.line+1}: Unexpected End of line, expected: "yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "takda", "subok", "gg.ssSawa"')
+                self.errors.append(f'Syntax Error on Line {self.line+1}: Unexpected End of line, expected: "yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "takda", , "gg.ssSawa"')
                 return
             while self.current != None and self.current != 'gg.ssSawa':
                 self.body()
                 if self.current not in body and self.current != None:
                     if self.current != 'gg.ssSawa':
-                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "takda", "subok", "gg.ssSawa"')
+                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "takda", , "gg.ssSawa"')
                         self.end()
                         self.newline()
             self.newline()
@@ -231,7 +231,7 @@ class Parser:
             else:
                 self.err('"newline"')
         else:
-            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "takda", "subok"')
+            self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "takda", ')
         self.body()
     
     def statement_for_conditional(self):
@@ -240,7 +240,7 @@ class Parser:
         elif self.first(conditional):
             self.conditional()
         else:
-            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili"')
+            self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili"')
         
     def statement_for_looping(self):
         if self.first(statement_for_func_dec):
@@ -252,7 +252,7 @@ class Parser:
             else:
                 self.err('"newline"')
         else:
-            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin"')
+            self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin"')
 
     def statement_for_func_dec(self):
         if self.first(var_dec):
@@ -276,7 +276,7 @@ class Parser:
             else:
                 self.err('"newline"')
         else:
-            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura"')
+            self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura"')
 
     def var_dec(self):
         if self.match('yunit'):
@@ -616,10 +616,10 @@ class Parser:
         if self.match('Identifier'):
             if self.first(titik_Identifier_continue):
                 self.titik_Identifier_continue()
-                if self.first(titik_ext):
-                    self.titik_ext()
+            if self.first(titik_ext):
+                self.titik_ext()
         if self.current not in ["newline", ","]:
-            self.err('",", "newline"')
+            self.err('"[", ",", "newline"')
 
     def titik_Identifier_continue(self):
         if self.match('='):
@@ -746,7 +746,7 @@ class Parser:
                 if self.first(condition_continue):
                     self.condition_continue()
             else:
-                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "Totoo", "Peke", "("')
+                self.err('"di", "Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "Totoo", "Peke", "("')
 
     def cond(self):
         if self.first(condition_statement):
@@ -790,7 +790,7 @@ class Parser:
                 else:
                     self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
             else:
-                self.err('">", "<", ">=", "<=", "==", "!="')
+                self.err('+", "-", "*", "**", "%", ">", "<", ">=", "<=", "==", "!="')
         elif self.first(baybay_sub_expression):
             self.baybay_sub_expression()
             if self.first(eop):
@@ -819,6 +819,8 @@ class Parser:
                     self.math_tala_dec_expression()
                 else:
                     self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
+            else:
+                self.err('"==", "!="')
         elif self.match('Totoo'):
             return
         elif self.match('Peke'):
@@ -956,10 +958,14 @@ class Parser:
         elif self.match('tapos'):
             return
         elif self.match('bura'):
-            if self.first(del_val):
-                self.del_val()
+            if self.match('Identifier'):
+                if self.first(del_val):
+                    self.del_val()
+                else:
+                    self.err('"["')
             else:
                 self.err('"Identifier"')
+    
 
     def del_val(self):
         if self.first(value_index_continue):
@@ -1013,7 +1019,7 @@ class Parser:
             if self.first(math):
                 self.math()
             else:
-                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
+                self.err('"di", "Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
         elif self.first(inputting):
             self.inputting()
 
@@ -1377,9 +1383,9 @@ class Parser:
                                     if self.match('}'):
                                         return
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", , "}"')
                                 else:
-                                    self.err('"global", "yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok"')
+                                    self.err('"global", "yunit", "punto", "baybay", "titik", "bool", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", ')
                             else:
                                 self.err('newline')
                         else:
@@ -1461,7 +1467,7 @@ class Parser:
             if self.first(param_var_dec):
                 self.param_var_dec()
             else:
-                self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks"')
+                self.err('"yunit", "punto", "baybay", "titik", "bool", ')
         elif self.match('='):
             if self.first(baybay_dec_expression):
                 self.baybay_dec_expression()
@@ -1475,7 +1481,7 @@ class Parser:
             if self.first(param_var_dec):
                 self.param_var_dec()
             else:
-                self.err("yunit", "punto", "baybay", "titik", "bool", "tala", "diks"'')
+                self.err("yunit", "punto", "baybay", "titik", "bool", '')
         elif self.match('='):
             if self.first(titik_expression):
                 self.titik_expression()
@@ -1489,7 +1495,7 @@ class Parser:
             if self.first(param_var_dec):
                 self.param_var_dec()
             else:
-                self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks"')
+                self.err('"yunit", "punto", "baybay", "titik", "bool", ')
         elif self.match('='):
             if self.first(condition):
                 self.condition()
@@ -1505,7 +1511,7 @@ class Parser:
                 if self.first(param_default_continue):
                     self.param_default_continue()
             else:
-                self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks"')
+                self.err('"yunit", "punto", "baybay", "titik", "bool", ')
 
     def param_var_dec_default(self):
         if self.match('yunit'):
@@ -1652,9 +1658,9 @@ class Parser:
                                     if self.match('}'):
                                         return
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", , "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", ')
                             else:
                                 self.err('newline')
                         else:
@@ -1679,9 +1685,9 @@ class Parser:
                                     if self.match('}'):
                                         return
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", , "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", ')
                             else:
                                 self.err('newline')
                         else:
@@ -1705,13 +1711,13 @@ class Parser:
                                     if self.match(')'):
                                         return
                                     else:
-                                        self.err('"at", "o", ")"')
+                                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                                 elif self.first(cond):
                                     self.cond()
                                     if self.match(')'):
                                         return
                                     else:
-                                        self.err('"at", "o", ")"')
+                                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                                 else:
                                     self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
                             else:
@@ -1828,15 +1834,15 @@ class Parser:
                                         else:
                                             self.err('newline')
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "para", "habang", "gawin", "kung", "pili", "subok", "balik", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "para", "habang", "gawin", "kung", "pili", , "balik", "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "para", "habang", "gawin", "kung", "pili", "subok", "balik"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "para", "habang", "gawin", "kung", "pili", , "balik"')
                             else:
                                 self.err('newline')
                         else:   
                             self.err('{')
                     else:
-                        self.err('"at", "o", ")"')
+                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 elif self.first(cond):
                     self.cond()
                     if self.match(')'):
@@ -1860,13 +1866,13 @@ class Parser:
                                     else:
                                         self.err('"}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "para", "habang", "gawin", "kung", "pili", "subok", "balik"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "para", "habang", "gawin", "kung", "pili", , "balik"')
                             else:
                                 self.err('newline')
                         else:   
                             self.err('{')
                     else:
-                        self.err('"at", "o", ")"')
+                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 else:
                     self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
             else:
@@ -1900,9 +1906,9 @@ class Parser:
                                                         else:
                                                             self.err('newline')
                                                     else:
-                                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "para", "habang", "gawin", "kung", "pili", "subok", "balik", "}"')
+                                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "para", "habang", "gawin", "kung", "pili", , "balik", "}"')
                                                 else:
-                                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "para", "habang", "gawin", "kung", "pili", "subok", "balik"')
+                                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "para", "habang", "gawin", "kung", "pili", , "balik"')
                                             else:
                                                 self.err('newline')
                                         else:
@@ -1945,15 +1951,15 @@ class Parser:
                                         else:
                                             self.err('newline')
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "para", "habang", "gawin", "kung", "pili", "subok", "balik", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "para", "habang", "gawin", "kung", "pili", , "balik", "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "para", "habang", "gawin", "kung", "pili", "subok", "balik"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "para", "habang", "gawin", "kung", "pili", , "balik"')
                             else:
                                 self.err('newline')
                         else:   
                             self.err('{')
                     else:
-                        self.err('"at", "o", ")"')
+                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 elif self.first(cond):
                     self.cond()
                     if self.match(')'):
@@ -1975,15 +1981,15 @@ class Parser:
                                         else:
                                             self.err('newline')
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok", "balik", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", , "balik", "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok", "balik"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", , "balik"')
                             else:
                                 self.err('newline')
                         else:
                             self.err('{')
                     else:
-                        self.err('"at", "o", ")"')
+                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 else:
                     self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
             else:
@@ -2005,9 +2011,9 @@ class Parser:
                             else:
                                 self.err('newline')
                         else:
-                            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok", "balik", "}"')
+                            self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", , "balik", "}"')
                     else:
-                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok", "balik"')
+                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", , "balik"')
                 else:
                     self.err('newline')
             else:
@@ -2031,9 +2037,9 @@ class Parser:
                                 else:
                                     self.err('newline')
                             else:
-                                self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok", "}"')
+                                self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", , "}"')
                         else:
-                            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "subok"')
+                            self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", ')
                     else:
                         self.err('newline')
                 else:
@@ -2068,15 +2074,15 @@ class Parser:
                                         else:
                                             self.err('newline')
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", , "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", ')
                             else:
                                 self.err('newline')
                         else:
                             self.err('{')
                     else:
-                        self.err('"at", "o", ")"')
+                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 elif self.first(cond):
                     self.cond()
                     if self.match(')'):
@@ -2100,13 +2106,13 @@ class Parser:
                                     else:
                                         self.err('"}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", ')
                             else:
                                 self.err('newline')
                         else:
                             self.err('{')
                     else:
-                        self.err('"at", "o", ")"')
+                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 else:
                     self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
             else:
@@ -2142,7 +2148,7 @@ class Parser:
                                                     else:
                                                         self.err('"}"')
                                                 else:
-                                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok", "labas"')
+                                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", , "labas"')
                                             else:
                                                 self.err('"newline"')
                                         else:
@@ -2185,15 +2191,15 @@ class Parser:
                                         else:
                                             self.err('newline')
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", , "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", ')
                             else:
                                 self.err('newline')
                         else:
                             self.err('"{"')
                     else:
-                        self.err('"at", "o", ")"')
+                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 elif self.first(cond):
                     self.cond()
                     if self.match(')'):
@@ -2215,15 +2221,15 @@ class Parser:
                                         else:
                                             self.err('newline')
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", , "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", ')
                             else:
                                 self.err('newline')
                         else:
                             self.err('"{"')
                     else:
-                        self.err('"at", "o", ")"')
+                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 else:
                     self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
             else:
@@ -2245,9 +2251,9 @@ class Parser:
                             else:
                                 self.err('newline')
                         else:
-                            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok", "}"')
+                            self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", , "}"')
                     else:
-                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok"')
+                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", ')
                 else:
                     self.err('newline')
             else:
@@ -2279,9 +2285,9 @@ class Parser:
                                 else:
                                     self.err('newline')
                             else:
-                                self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok", "labas", "}"')
+                                self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", , "labas", "}"')
                         else:
-                            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "subok", "labas"')
+                            self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", , "labas"')
                     else:
                         self.err('newline')
                 else:
@@ -2341,15 +2347,15 @@ class Parser:
                                         else:
                                             self.err('newline')
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "subok", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", , "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "subok"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", ')
                             else:
                                 self.err('newline')
                         else:
                             self.err('"{"')
                     else:
-                        self.err('"at", "o", ")"')
+                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 elif self.first(cond):
                     self.cond()
                     if self.match(')'):
@@ -2369,15 +2375,15 @@ class Parser:
                                         else:
                                             self.err('"newline"')
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "subok", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", , "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "subok"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", ')
                             else:
                                 self.err('newline')
                         else:
                             self.err('"{"')
                     else:
-                        self.err('"at", "o", ")"')
+                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 else:
                     self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
             else:
@@ -2413,9 +2419,9 @@ class Parser:
                                                     else:
                                                         self.err('newline')
                                                 else:
-                                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "labas", "}"')
+                                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "labas", "}"')
                                             else:
-                                                self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "labas"')
+                                                self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "labas"')
                                         else:
                                             self.err('"{"')
                                     else:
@@ -2465,15 +2471,15 @@ class Parser:
                                         else:
                                             self.err('"newline"')
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "subok", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", , "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "subok"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", ')
                             else:
                                 self.err('newline')
                         else:
                             self.err('"{"')
                     else:
-                        self.err('"at", "o", ")"')
+                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 elif self.first(cond):
                     self.cond()
                     if self.match(')'):
@@ -2492,15 +2498,15 @@ class Parser:
                                         else:
                                             self.err('newline')
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "subok", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", , "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "subok"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", ')
                             else:
                                 self.err('newline')
                         else:
                             self.err('"{"')
                     else:
-                        self.err('"at", "o", ")"')
+                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 else:
                     self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
             else:
@@ -2520,9 +2526,9 @@ class Parser:
                             else:
                                 self.err('"newline"')
                         else:
-                            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "subok", "}"')
+                            self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", , "}"')
                     else:
-                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "subok"')
+                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", ')
                 else:
                     self.err('"newline"')
             else:
@@ -2546,9 +2552,9 @@ class Parser:
                                 else:
                                     self.err('"newline"')
                             else:
-                                self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "labas", "}"')
+                                self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "labas", "}"')
                         else:
-                            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "labas"')
+                            self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "labas"')
                     else:
                         self.err('"newline"')
                 else:
@@ -2596,9 +2602,9 @@ class Parser:
                                     if self.match('}'):
                                         return
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", , "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", ')
                             else:
                                 self.err('"newline"')
                         else:
@@ -2622,15 +2628,15 @@ class Parser:
                                     if self.match('}'):
                                         return
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", , "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", ')
                             else:
                                 self.err('newline')
                         else:
                             self.err('"{"')
                     else:
-                        self.err('"at", "o", ")"')
+                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 elif self.first(cond):
                     self.cond()
                     if self.match(')'):
@@ -2643,15 +2649,15 @@ class Parser:
                                     if self.match('}'):
                                         return
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", , "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", ')
                             else:
                                 self.err('newline')
                         else:
                             self.err('"{"')
                     else:
-                        self.err('"at", "o", ")"')
+                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 else:
                     self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
             else:
@@ -2671,13 +2677,13 @@ class Parser:
                                         if self.match(')'):
                                             return
                                         else:
-                                            self.err('"at", "o", ")"')
+                                            self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                                     elif self.first(cond):
                                         self.cond()
                                         if self.match(')'):
                                             return
                                         else:
-                                            self.err('"at", "o", ")"')
+                                            self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                                     else:
                                         self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
                                 else:
@@ -2685,9 +2691,9 @@ class Parser:
                             else:
                                 self.err('tuwing')
                         else:
-                            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok", "}"')
+                            self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", , "}"')
                     else:
-                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", ')
                 else:
                     self.err('"newline"')
             else:
@@ -2740,15 +2746,15 @@ class Parser:
                                         else:
                                             self.err('"newline"')
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", , "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", ')
                             else:
                                 self.err('"newline"')
                         else:
                             self.err('"{"')
                     else:
-                        self.err('"at", "o", ")"')
+                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 elif self.first(cond):
                     self.cond()
                     if self.match(')'):
@@ -2770,15 +2776,15 @@ class Parser:
                                         else:
                                             self.err('"newline"')
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", , "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", ')
                             else:
                                 self.err('"newline"')
                         else:
                             self.err('"{"')
                     else:
-                        self.err('"at", "o", ")"')
+                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 else:
                     self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
             else:
@@ -2815,9 +2821,9 @@ class Parser:
                                                         else:
                                                             self.err('"newline"')
                                                     else:
-                                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok", "}"')
+                                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", , "}"')
                                                 else:
-                                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", ')
                                             else:
                                                 self.err('newline')
                                         else:
@@ -2859,9 +2865,9 @@ class Parser:
                                         else:
                                             self.err('"newline"')
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", , "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", ')
                             else:
                                 self.err('"newline"')
                         else:
@@ -2887,15 +2893,15 @@ class Parser:
                                         else:
                                             self.err('"newline"')
                                     else:
-                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok", "}"')
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", , "}"')
                                 else:
-                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", ')
                             else:
                                 self.err('"newline"') 
                         else:
                             self.err('"{"')
                     else:
-                        self.err('"at", "o", ")"')
+                        self.err('"[", "(", "|", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 else:
                     self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "{", "Totoo", "Peke"')
             else:
@@ -2917,9 +2923,9 @@ class Parser:
                             else:
                                 self.err('"newline"')
                         else:
-                            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok", "}"')
+                            self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", , "}"')
                     else:
-                        self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                        self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", ')
                 else:
                     self.err('"newline"')
             else:
@@ -2943,9 +2949,9 @@ class Parser:
                                 else:
                                     self.err('"newline"')
                             else:
-                                self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok", "}"')
+                                self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", , "}"')
                         else:
-                            self.err('"yunit", "punto", "baybay", "titik", "bool", "tala", "diks", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", "subok"')
+                            self.err('"yunit", "punto", "baybay", "titik", "bool", , "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "labas", "tuloy", "kung", "pili", ')
                     else:
                         self.err('"newline"')
                 else:
