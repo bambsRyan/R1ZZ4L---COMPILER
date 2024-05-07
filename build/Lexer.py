@@ -390,7 +390,8 @@ class Lexer:
                         if self.final_state('t'):
                             self.delim_next_check(delim3, 'sulat')
                             return
-            elif self.state('o'):
+        elif self.state('T'):
+            if self.state('o'):
                 if self.state('t'):
                     if self.state('o'):
                         if self.final_state('o'):
