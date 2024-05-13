@@ -1000,7 +1000,7 @@ class Parser:
                 self.arg()
             if self.match(')'):
                 return
-            else:
+            else:   
                 self.err('"Identifi1er", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", ""Totoo", "Peke", "[", "(", ")"')
             return
         elif self.first(value_index_continue):
@@ -1239,7 +1239,7 @@ class Parser:
                 if self.match(')'):
                     return
                 else:
-                    self.err('",", ")"')      
+                    self.err('",", ")"')    
                 
     def allowed_value(self):
         if self.match('Yunit Literal'):
@@ -1272,7 +1272,7 @@ class Parser:
                 if self.first(arg_continue):
                     self.arg_continue()
             else:
-                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "("')
 
     def value_id_continue(self):
         if self.match('+'):
@@ -1415,6 +1415,8 @@ class Parser:
     def param(self):
         if self.first(param_var_dec):
             self.param_var_dec()
+        if self.current != ')':
+            self.err('")", "yunit", "punto", "baybay", "titik", "bool"')
 
     def param_var_dec(self):
         if self.match('yunit'):
@@ -1446,7 +1448,9 @@ class Parser:
                 if self.match('Identifier'):
                     if self.first(param_baybay_next):
                         self.param_baybay_next()
-                        
+                    else:
+                        if self.current not in [',', ')']:
+                            self.err('"=",",", ")"')
                 else:
                     self.err('"Identifier"')
             else:
