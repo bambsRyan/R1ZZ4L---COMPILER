@@ -1415,8 +1415,6 @@ class Parser:
     def param(self):
         if self.first(param_var_dec):
             self.param_var_dec()
-        if self.current != ')':
-            self.err('")", "yunit", "punto", "baybay", "titik", "bool"')
 
     def param_var_dec(self):
         if self.match('yunit'):
@@ -1424,6 +1422,9 @@ class Parser:
                 if self.match('Identifier'):
                     if self.first(param_num_next):
                         self.param_num_next()
+                    else:
+                        if self.current not in [',', ')']:
+                            self.err('"=",",", ")"')
                 else:
                     self.err('Identifier')
             else:
@@ -1433,8 +1434,11 @@ class Parser:
                 if self.match('Identifier'):
                     if self.first(param_num_next):
                         self.param_num_next()
+                    else:
+                        if self.current not in [',', ')']:
+                            self.err('"=",",", ")"')
                 else:
-                    self.err('Identifier')
+                    self.err('"Identifier"')
             else:
                 self.err('":"')
         elif self.match('baybay'):
@@ -1442,8 +1446,9 @@ class Parser:
                 if self.match('Identifier'):
                     if self.first(param_baybay_next):
                         self.param_baybay_next()
+                        
                 else:
-                    self.err('Identifier')
+                    self.err('"Identifier"')
             else:
                 self.err('":"')
         elif self.match('titik'):
@@ -1451,8 +1456,11 @@ class Parser:
                 if self.match('Identifier'):
                     if self.first(param_titik_next):
                         self.param_titik_next()
+                    else:
+                        if self.current not in [',', ')']:
+                            self.err('"=",",", ")"')
                 else:
-                    self.err('Identifier')
+                    self.err('"Identifier"')
             else:
                 self.err('":"')
         elif self.match('bool'):
@@ -1460,8 +1468,11 @@ class Parser:
                 if self.match('Identifier'):
                     if self.first(param_bool_next):
                         self.param_bool_next()
+                    else:
+                        if self.current not in [',', ')']:
+                            self.err('"=",",", ")"')
                 else:
-                    self.err('Identifier')
+                    self.err('"Identifier"')
             else:
                 self.err('":"')
 
