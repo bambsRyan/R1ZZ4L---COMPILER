@@ -192,7 +192,7 @@ class Lexer:
         return
 
     def Identifier(self):
-        x = 15 - len(self.string)-1
+        x = 15 - len(self.string)
         while (self.current in alphanum or self.current == '_') and x > 0:
             self.string += self.current
             self.traverse()
