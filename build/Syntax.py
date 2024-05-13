@@ -263,7 +263,7 @@ class Parser:
             if self.match('newline'):
                 self.newline() 
             else:
-                self.err('"newline"')
+                self.err('"=", "," ,"newline"')
         elif self.first(id):
             self.id()
             if self.match('newline'):
@@ -406,7 +406,6 @@ class Parser:
     
     def num_tala_content_continue(self):
         if self.match(','):
-            self.newline()
             if self.first(num_tala_content):
                 self.num_tala_content()
             else:
@@ -487,8 +486,6 @@ class Parser:
                 self.baybay_Identifier_continue()
             elif self.first(baybay_ext):
                 self.baybay_ext()
-            else:
-                self.err('"=", "["')
     
     def baybay_Identifier_continue(self):
         if self.match('='):
@@ -561,7 +558,6 @@ class Parser:
 
     def baybay_tala_content_continue(self):
         if self.match(','):
-            self.newline()
             if self.first(baybay_tala_content):
                 self.baybay_tala_content()
             else:
@@ -1387,8 +1383,7 @@ class Parser:
         if self.match('takda'):
             if self.match('Identifier'):
                 if self.match('('):
-                    if self.first(param):
-                        self.param()
+                    self.param()
                     if self.match(')'):
                         self.newline()
                         if self.match('{'):
@@ -1420,6 +1415,8 @@ class Parser:
     def param(self):
         if self.first(param_var_dec):
             self.param_var_dec()
+        if self.current != ')':
+            self.err('")", "yunit", "punto", "baybay", "titik", "bool"')
 
     def param_var_dec(self):
         if self.match('yunit'):
@@ -1473,7 +1470,7 @@ class Parser:
             if self.first(param_var_dec):
                 self.param_var_dec()
             else:
-                self.err('yunit, punto, baybay, titik, bool, tala, diks')
+                self.err('yunit, punto, baybay, titik, bool')
         elif self.match('='):
             if self.first(num_dec_expression):
                 self.num_dec_expression()
@@ -1714,8 +1711,31 @@ class Parser:
                             self.err('{')
                     else:
                         self.err('")"')
+                elif self.first(cond):
+                    self.cond()
+                    if self.match(')'):
+                        self.newline()
+                        if self.match('{'):
+                            if self.match('newline'):
+                                self.newline()
+                                if self.first(func_loop_body):
+                                    self.func_loop_body()
+                                    if self.match('}'):
+                                        return
+                                    else:
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", "}"')
+                                else:
+                                    self.err('"yunit", "punto", "baybay", "titik", "bool", "Identifier", "sulat", "laktaw", "tapos", "bura", "labas", "tuloy", "kung", "pili", ')
+                            else:
+                                self.err('newline')
+                        else:
+                            self.err('{')
+                    else:
+                        self.err('")"')
                 else:
                     self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", "Totoo", "Peke"')
+            else:
+                self.err('"("')
         elif self.match('gawin'):
             self.newline()
             if self.match('{'):
@@ -1752,7 +1772,7 @@ class Parser:
                 self.err('{')
 
     def iterable(self):
-        if self.match('Baybay Identifier'):
+        if self.match('Baybay Literal'):
             return 
         elif self.first(value_id):
             self.value_id()
@@ -1821,7 +1841,7 @@ class Parser:
             
     def loop_jumps(self):
         if self.match('labas'):
-            return  
+            return
         if self.match('tuloy'):
             return
 
