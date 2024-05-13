@@ -96,7 +96,7 @@ class Lexer:
         self.string = ''
     
     def invalid_delim(self):
-        self.error.append(['Line '+ str(self.line) + f':Lexical Error: {self.string} Invalid delimeter'])
+        self.error.append(['Line '+ str(self.line) + f':Lexical Error: {self.string} Invalid delimiter'])
         self.string = ''
         return
     
