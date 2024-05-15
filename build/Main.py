@@ -43,10 +43,15 @@ class Compilation:
         self.semantic_error = []
         self.cont = True
         self.nested_for = {}
+        self.isFunc = False
+        self.index = 0
+        self.isReturn = False
+        self.return_value = None
+        self.isContinue = False
 
     def sem(self):
         self.semantic()
-        self.check_takda()
+        self.check_takda()  # function = ["function_name": "function_index number"]
         self.num = -1
         self.semantic()
         self.match()
@@ -61,6 +66,16 @@ class Compilation:
             self.current = None
         if self.current in ['space', 'Line Comment', 'tab']:
             self.semantic()
+
+    def find(self, token):
+        while self.current != token and self.num < self.max:
+            self.semantic()
+
+    def jump(self, num):
+        ctr = 0
+        while ctr != num and self.num < self.max:
+            self.semantic()
+            ctr += 1
 
     def declare(self, d_type, name):
         variable = {}
@@ -86,14 +101,6 @@ class Compilation:
         self.variables[d_type].update(value)
         variable[name] = d_type
         self.all_variables.update(variable)
-
-    def check_takda(self):
-        while self.current != None:
-            if self.current == 'takda':
-                self.semantic()
-                self.functions[self.val] = [self.num, self.line]
-                self.all_variables[self.val] = 'function'
-            self.semantic()
 
     def newline(self):
         while self.current == 'newline':
@@ -133,20 +140,817 @@ class Compilation:
                 self.pili()
                 self.newline()
             elif self.current == 'habang':
+                self.index += 1
                 self.habang()
+                self.index -= 1
                 self.newline()
             elif self.current == 'gawin':
+                self.index += 1
                 self.gawin()
+                self.index -= 1
                 self.newline()
             elif self.current == 'para':
+                self.index += 1
                 self.para()
+                self.index -= 1
                 self.newline()
             elif self.current == 'takda':
                 self.takda()
                 self.newline()
+            elif self.current == 'tapos':
+                self.cont = False
             elif self.current == 'gg.ssSawa':
                 self.semantic()
                 self.newline()
+
+#=================FUNCTION=========================
+    def check_takda(self):
+        while self.current != None:
+            if self.current == 'takda':
+                self.semantic()
+                self.functions[self.val] = [self.num, self.line]
+                self.all_variables[self.val] = 'function'
+            self.semantic()
+
+    def func_Identifier(self):
+        name = self.val
+        z = ''
+        x = ''
+        try:
+            x = self.func_variables[self.val]
+            if not self.isFunc:
+                z = 'self.variables[x][name]'
+            else:
+                z = 'self.variables_for_function[x][name]'
+        except (KeyError, NameError, SyntaxError, TypeError) as e :
+            self.semantic_error.append(f"NameError on line {self.line}: Variable '{self.val}' is not defined")
+            self.y = None
+            self.cont = False
+            return
+        if x not in ['yunit_list', 'punto_list', 'baybay_list', 'titik_list', 'bool_list','function']:
+            self.semantic()
+            if self.current =='[':
+                self.semantic_error.append(f"TypeError on line {self.line}: {name} is not subscriptable")
+                self.cont = False
+                return
+            return self.variables_for_function[x][name]
+        else:
+            self.semantic()
+            if x == 'function':
+                parameters = []
+                self.semantic()
+                ctr = 1
+                cop = 0
+                specific = ''
+                z = ''
+                while ctr != 0:
+                    while self.current != ',' and ctr != 0:
+                        if self.current == 'Identifier':
+                            try: 
+                                z = self.all_variables[self.val]
+                            except:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
+                                self.cont = False
+                                return
+                            if z == 'yunit_list' and z == 'punto_list' and z == 'baybay_list' and z == 'titik_list':
+                                self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid parameter")
+                                self.cont = False
+                                return
+                            parameters.append(z)
+                            specific += str(z)
+                            continue
+                        elif self.current == '(':
+                            ctr += 1
+                        elif self.current == ')':
+                            ctr -= 1
+                        elif self.current in ['>', '<', '==', '>=', '<=', '!=', '==']:
+                            cop += 1
+                            if cop > 1:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: multiple comparison operators")
+                                self.cont = False
+                                return
+                        elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
+                            z += self.val.replace('~', '-')
+                            self.semantic()
+                            continue
+                        elif self.current == 'at':
+                            z += 'and'
+                            self.semantic()
+                            continue
+                        elif self.current == 'o':
+                            z += 'or'
+                            self.semantic()
+                            continue
+                        elif self.current == 'Totoo':
+                            z += 'True'
+                            self.semantic()
+                            continue
+                        elif self.current == 'Peke':
+                            z += 'False'
+                            self.semantic()
+                            continue
+                        if ctr != 0:
+                            z += self.val
+                            specific += self.val
+                            self.semantic()
+                    if self.current == ',':
+                        self.semantic()
+                    if z != '':
+                        try:
+                            parameters.append(eval(z))
+                            z = ''
+                        except:
+                            self.semantic_error.append(f"TypeError on line {self.line}: {specific} is not a valid parameter")
+                            self.cont = False
+                            return
+                line = self.line
+                num = self.num
+                answer = self.run(self.functions[name][0], self.functions[name][1], parameters)
+                self.line = line
+                self.num = num
+                self.semantic()
+                return answer
+            while self.current not in ['+', '-', '*', '/', '%', '**','newline',',', ')','{']:
+                if self.current == 'Identifier':
+                    x = self.Identifier()
+                    z += str(x)
+                    continue
+                z += self.val.replace('~', '-')
+                self.semantic()
+        try:
+            return eval(z)
+        except (IndexError) as e:
+            self.semantic_error.append(f"IndexError on ine {self.line}: {e}")
+            self.cont = False
+        except (TypeError) as e:
+            self.semantic_error.append(f"TypeError on line {self.line}: {str(e).replace('int', 'yunit').replace('float', 'punto')}")
+            self.cont = False
+            return
+    
+    def func_dec(self, d_type, name):
+        variable = {}
+        value = {}
+        if d_type == 'yunit':
+            value[name] = 0
+        elif d_type == 'punto':
+            value[name] = 0.0
+        elif d_type == 'baybay' or d_type == 'titik':
+            value[name] = ''
+        elif d_type == 'yunit_list':
+            value[name] = []
+        elif d_type == 'punto_list':
+            value[name] = []
+        elif d_type == 'baybay_list':
+            value[name] = []
+        elif d_type == 'titik_list':
+            value[name] = []
+        elif d_type == 'bool_list':
+            value[name] = []
+        elif d_type == 'bool':
+            value[name] = True
+        self.variables_for_function[d_type].update(value)
+        variable[name] = d_type
+        self.func_variables.update(variable)
+
+    def yunit_param(self, name, param_name):
+        y = ''
+        if self.current == "=":
+            self.semantic()
+            self.func_var.append(param_name)
+            self.func_dec('yunit', param_name)
+            ctr = 0
+            while self.current != ',' and self.current != ')':
+                if self.current == 'Identifier':
+                    z = self.val
+                    x = self.all_variables[self.val]
+                    if x == 'function':
+                        holder = self.Identifier()
+                    else:
+                        self.semantic_error.append(f"TypeError on line {self.line}: {z} is not a valid parameter for {param_name}")
+                    if type(holder) != int and type(holder) != float:
+                        self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Yunit Literal")
+                        self.cont = False
+                        return
+                    if type(holder) == float:
+                        holder = int(holder)
+                    y += str(holder)
+                    continue
+                elif self.current == 'saYunit':
+                    y += str(self.saYunit())
+                    self.semantic()
+                    continue
+                elif self.current == 'saPunto':
+                    y += str(int(self.saPunto()))
+                    self.semantic()
+                    continue
+                elif self.current == 'Punto Literal':
+                    y += str(int(eval(self.val.replace('~', '-'))))
+                elif self.current == 'Yunit Literal':
+                    y += str(eval(self.val.replace('~', '-')))
+                elif self.current in ['+', '-', '*', '/', '**']:
+                    y += self.val
+                elif self.current == '(':
+                    y += '('
+                    ctr += 1
+                elif self.current == ')':
+                    y += ')'
+                    ctr -= 1
+                else:
+                    self.semantic_error.append(f'Semantic Error on Line {self.line}: {self.current} is not a valid value for Yunit')
+                    self.cont = False
+                    return
+                self.semantic()
+                if ctr == 0 and self.current in [',',')']:
+                    break
+            if self.cont == False:
+                return
+            try:
+                self.variables_for_function['yunit'][param_name] = eval(y)
+            except SyntaxError as e:
+                self.cont = False
+                return
+        else:
+            self.semantic_error.append(f"Semantic Error on line: Too few argument for {name}")
+            self.cont = False
+            return
+
+    def punto_param(self, name, param_name):
+        y = ''
+        if self.current == "=":
+            self.semantic()
+            self.func_var.append(param_name)
+            self.func_dec('baybay', param_name)
+            ctr = 0
+            while self.current != ',' and self.current != ')':
+                if self.current == 'Identifier':
+                    z = self.val
+                    x = self.all_variables[self.val]
+                    if x == 'function':
+                        holder = self.Identifier()
+                    else:
+                        self.semantic_error.append(f"TypeError on line {self.line}: {z} is not a valid parameter for {param_name}")
+                    if type(holder) != int and type(holder) != float:
+                        self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Punto Literal")
+                        self.cont = False
+                        return
+                    if type(holder) == int:
+                        holder = float(holder)
+                    y += str(holder)
+                    continue
+                elif self.current == 'saYunit':
+                    y += str(float(self.saYunit()))
+                    self.semantic()
+                    continue
+                elif self.current == 'saPunto':
+                    y += str(self.saPunto())
+                    self.semantic()
+                    continue
+                elif self.current == 'Punto Literal':
+                    y += str(eval(self.val.replace('~', '-')))
+                elif self.current == 'Yunit Literal':
+                    y += str(float(eval(self.val.replace('~', '-'))))
+                elif self.current in ['+', '-', '*', '/', '**']:
+                    y += self.val
+                elif self.current == '(':
+                    y += '('
+                    ctr += 1
+                elif self.current == ')':
+                    y += ')'
+                    ctr -= 1
+                else:
+                    self.semantic_error.append(f'Semantic Error on Line {self.line}: {self.current} is not a valid value for Punto')
+                    self.cont = False
+                    return
+                self.semantic()
+                if ctr == 0 and self.current in [',',')']:
+                    break
+            if self.cont == False:
+                return
+            try:
+                self.variables_for_function['punto'][param_name] = eval(y)
+            except SyntaxError as e:
+                self.cont = False
+                return
+        else:
+            self.semantic_error.append(f"Semantic Error on line: Too few argument for {name}")
+            self.cont = False
+            return
+
+    def baybay_param(self, name, param_name):
+        y = ''
+        if self.current == "=":
+            self.semantic()
+            self.func_var.append(param_name)
+            self.func_dec('baybay', param_name)
+            ctr = 0
+            while self.current != ',' and self.current != ')':
+                if self.current == 'Identifier':
+                    z = self.val
+                    x = self.all_variables[self.val]
+                    if x == 'function':
+                        holder = self.Identifier()
+                    else:
+                        self.semantic_error.append(f"TypeError on line {self.line}: {z} is not a valid parameter for {param_name}")
+                    if type(holder) != str:
+                        self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Baybay Literal")
+                        self.cont = False
+                        return
+                    y += "\"" + str(holder) + "\""
+                    continue
+                elif self.current == 'saBaybay':
+                    y += str(self.saBaybay())
+                    continue
+                elif self.current == 'Baybay Literal':
+                    y += str(self.val)
+                elif self.current == '+':
+                    y += self.val
+                else:   
+                    self.semantic_error.append(f'Semantic Error on Line {self.line}: {self.current} is not a valid value for Baybay')
+                    self.cont = False
+                    return
+                self.semantic()
+            if self.cont == False:
+                return
+            try:
+                self.variables_for_function['baybay'][param_name] = eval(y)
+                if self.current == ',':
+                    self.semantic()
+                    self.baybay_continue()
+                    return
+                self.newline()
+            except SyntaxError as e:
+                self.cont = False
+                return
+        else:
+            self.semantic_error.append(f"Semantic Error on line: Too few argument for {name}")
+            self.cont = False
+            return
+
+    def titik_param(self, name, param_name):
+        y = ''
+        if self.current == "=":
+            self.semantic()
+            self.func_var.append(param_name)
+            self.func_dec('titik', param_name)
+            ctr = 0
+            while self.current != ',' and self.current != ')':
+                if self.current == 'Identifier':
+                    z = self.val
+                    x = self.all_variables[self.val]
+                    if x == 'function':
+                        holder = self.Identifier()
+                    else:
+                        self.semantic_error.append(f"TypeError on line {self.line}: {z} is not a valid parameter for {param_name}")
+                    if type(holder) != str:
+                        self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Titik Literal")
+                        self.cont = False
+                        return
+                    y += "\"" + str(holder) + "\""
+                    continue
+                elif self.current == 'saTitik':
+                    y += str(self.saTitik())
+                    continue
+
+                elif self.current == 'Titik Literal':
+                    y += str(self.val)
+                elif self.current == '+':
+                    y += self.val
+                else:
+                    self.semantic_error.append(f'Semantic Error on Line {self.line}: {self.current} is not a valid value for Titik')
+                    self.cont = False
+                    return
+                self.semantic()
+            if self.cont == False:
+                return
+            try:
+                self.variables['baybay'][param_name] = eval(y)
+                if self.current == ',':
+                    self.semantic()
+                    self.baybay_continue()
+                    return
+                self.newline()
+            except SyntaxError as e:
+                self.cont = False
+                return
+        else:
+            self.semantic_error.append(f"Semantic Error on line: Too few argument for {name}")
+            self.cont = False
+            return
+
+    def bool_param(self, name, param_name):
+        y = ''
+        isBool = False
+        if self.current == "=":
+            self.semantic()
+            self.func_var.append(param_name)
+            self.func_dec('bool', param_name)
+            ctr = 0
+            while self.current != ',' and self.current != ')':
+                if self.current == 'Identifier':
+                    z = self.val
+                    x = self.all_variables[self.val]
+                    if x == 'function':
+                        holder = self.Identifier()
+                    else:
+                        self.semantic_error.append(f"TypeError on line {self.line}: {z} is not a valid parameter for {param_name}")
+                    if type(holder) != str:
+                        self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Titik Literal")
+                        self.cont = False
+                        return
+                    y += "\"" + str(holder) + "\""
+                    continue
+                elif self.current == 'Totoo':
+                    y += 'True'+ ' '
+                    isBool = True
+                elif self.current == 'Peke':
+                    y += 'False'+ ' '
+                    isBool = True
+                elif self.current == 'saBaybay':
+                    y += str(self.saBaybay())+ ' '
+                    isBool = False
+                    continue
+                elif self.current == 'saPunto':
+                    y += str(self.saPunto())+ ' '
+                    isBool = False
+                    continue
+                elif self.current == 'saTitik':
+                    y += str(self.saTitik()) + ' '
+                    isBool = False
+                    continue
+                elif self.current == 'saYunit':
+                    y += str(self.saYunit()) + ' '
+                    isBool = False
+                    continue
+                elif self.current == 'Baybay Literal' or self.current == 'Titik Literal':
+                    y += str(self.val[1:-1]) + ' '
+                    isBool = False
+                elif self.current == 'at':
+                    y += 'and' + ' '
+                    isBool = False
+                elif self.current == 'o':
+                    y += 'and' + ' '
+                    isBool = False
+                elif self.current == '[':
+                    self.semantic()
+                    if self.current == 'Yunit Literal' or self.current == 'saYunit':
+                        y += str(self.yunit_list()) + ' '   
+                        isBool = False
+                    elif self.current == 'Punto Literal' or self.current == 'saPunto':
+                        y += str(self.punto_list()) + ' '
+                        isBool = False
+                    elif self.current == 'Baybay Literal' or self.current == 'saBaybay':
+                        y += str(self.baybay_list()) + ' '
+                        isBool = False
+                    elif self.current == 'Titik' or self.current == 'saTitik':
+                        y += str(self.titik_list()) + ' '
+                        isBool = False
+                    continue
+                elif self.current in ['>', '<', '>=', '<=', '+', '-', '*', '/', '%', '**']:
+                    y += self.current + ' '
+                    if isBool == True:
+                        self.semantic_error.append(f"TypeError on line {self.line}: Invalid operator for Boolean")
+                        self.cont = False
+                        return 
+                else:
+                    y += self.val + ' '
+                    isBool = False
+                self.semantic()
+                if self.cont == False:
+                    return
+            if self.cont == False:
+                return
+            try:
+                self.variables['bool'][param_name] = eval(y)
+                if self.current == ',':
+                    self.semantic()
+                    self.baybay_continue()
+                    return
+                self.newline()
+            except SyntaxError as e:
+                self.cont = False
+                return
+        else:
+            self.semantic_error.append(f"Semantic Error on line: Too few argument for {name}")
+            self.cont = False
+            return
+
+    def return_val(self):
+        isBool = False
+        isCond = False
+        y = ''
+        z = ''
+        while self.current != 'newline':
+            if self.current == 'Identifier':
+                try:
+                    if not self.isFunc:
+                        x = self.all_variables[self.val]
+                    else:
+                        x = self.func_variables[self.val]
+                except:
+                    self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                    self.cont = False
+                    return
+                if not self.isFunc:
+                    z = self.Identifier()
+                else:
+                    z = self.func_Identifier()
+                if self.cont == False:
+                    return  
+                if type(z) == bool:
+                    y += str(z)+ ' '
+                    isBool = True
+                elif type(z) == str:
+                    y +='\''+ z+ '\' '
+                    isBool = False
+                else:
+                    y += str(z)+ ' '
+                    isBool = False
+                continue
+            elif self.current == 'di':
+                y+= 'not'
+                isBool = False
+            elif self.current == 'Totoo':
+                y += 'True'+ ' '
+                isBool = True
+            elif self.current == 'Peke':
+                y += 'False'+ ' '
+                isBool = True
+            elif self.current == 'saBaybay':
+                y +='\''+ str(self.saBaybay())+ '\' '
+                isBool = False
+                continue
+            elif self.current == 'saPunto':
+                y += str(self.saPunto())+ ' '
+                isBool = False
+                continue
+            elif self.current == 'saTitik':
+                y +='\'' +str(self.saTitik()) + '\' '
+                isBool = False
+                continue
+            elif self.current == 'saYunit':
+                y += str(self.saYunit()) + ' '
+                isBool = False
+                continue
+            elif self.current == 'Baybay Literal' or self.current == 'Titik Literal':
+                y += str(self.val) + ' '
+                isBool = False
+            elif self.current == 'at':
+                y += 'and' + ' '
+                isBool = False
+            elif self.current == 'o':
+                y += 'or' + ' '
+                isBool = False
+            elif self.current == '[':
+                self.semantic()
+                if self.current == 'Yunit Literal' or self.current == 'saYunit':
+                    y += str(self.yunit_list()) + ' '
+                    isBool = False
+                elif self.current == 'Punto Literal' or self.current == 'saPunto':
+                    y += str(self.punto_list()) + ' '
+                    isBool = False
+                elif self.current == 'Baybay Literal' or self.current == 'saBaybay':
+                    y += str(self.baybay_list()) + ' '
+                    isBool = False
+                elif self.current == 'Titik Literal' or self.current == 'saTitik':
+                    y += str(self.titik_list()) + ' '
+                    isBool = False
+                continue
+            elif self.current in ['>', '<', '>=', '<=', '+', '-', '*', '/', '%', '**']:
+                if self.current in ['>', '<', '>=', '<=']:
+                    isCond = True
+                y += self.current + ' '
+                if isBool == True:
+                    self.semantic_error.append(f"TypeError on line {self.line}: Invalid operator for Boolean")
+                    self.cont = False
+                    return
+            elif self.current in ['==', '!=']:
+                y += self.current + ' '
+                isBool = True
+            else:
+                y += self.val + ' '
+                isBool = False
+            self.semantic()
+        return eval(y)
+            
+    def run(self, num, line, parameters,var_name):
+        self.num = num -1 
+        self.line = line
+        self.semantic()
+        self.jump(2)
+        while self.current != ')':
+            if self.current == 'yunit':
+                self.jump(2)
+                name = self.val
+                self.semantic()
+                if len(parameters) != 0:
+                    try:
+                        if type(parameters[0]) != int and type(parameters[0]) != float:
+                            self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                            self.cont = False
+                            return
+                        self.func_var.append(name)
+                        self.variables_for_function['yunit'][name] = parameters[0]
+                        parameters = parameters[1:]
+                        if self.current == '=':
+                            self.semantic()
+                            ctr = 1
+                            while self.current != ',' and self.current != ')':
+                                self.semantic()
+                                if self.current == '(':
+                                    ctr += 1
+                                elif self.current == ')':
+                                    ctr -= 1
+                                if ctr == 0:
+                                    break
+                    except:
+                        self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                        self.cont = False
+                        return
+                else:
+                    self.yunit_param(var_name,name)
+                    parameters = parameters[1:]
+                    if self.cont == False:
+                        return
+            elif self.current == 'punto':
+                self.jump(2)
+                name = self.val
+                self.semantic()
+                if len(parameters) != 0:
+                    try:
+                        if type(parameters[0]) != int and type(parameters[0]) != float:
+                            self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                            self.cont = False
+                            return
+                        self.func_var.append(name)
+                        self.variables_for_function['punto'][name] = parameters[0]
+                        parameters = parameters[1:]
+                        if self.current == '=':
+                            self.semantic()
+                            ctr = 1
+                            while self.current != ',' and self.current != ')':
+                                self.semantic()
+                                if self.current == '(':
+                                    ctr += 1
+                                elif self.current == ')':
+                                    ctr -= 1
+                                if ctr == 0:
+                                    break
+                    except:
+                        self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                        self.cont = False
+                        return
+                else:
+                    self.punto_param(var_name,name)
+                    parameters = parameters[1:]
+                    if self.cont == False:
+                        return
+            elif self.current == 'baybay':
+                self.jump(2)
+                name = self.val
+                self.semantic()
+                if len(parameters) != 0:
+                    try:
+                        if type(parameters[0]) != str:
+                            self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                            self.cont = False
+                            return
+                        self.func_var.append(name)
+                        self.variables_for_function['baybay'][name] = parameters[0]
+                        print(self.variables_for_function)
+                        parameters = parameters[1:]
+                        if self.current == '=':
+                            self.semantic()
+                            ctr = 1
+                            while self.current != ',' and self.current != ')':
+                                self.semantic()
+                                if self.current == '(':
+                                    ctr += 1
+                                elif self.current == ')':
+                                    ctr -= 1
+                                if ctr == 0:
+                                    break
+                    except:
+                        self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                        self.cont = False
+                        return
+                else:
+                    self.baybay_param(var_name,name)
+                    parameters = parameters[1:]
+                    if self.cont == False:
+                        return
+            elif self.current == 'titik':
+                self.jump(2)
+                name = self.val
+                self.semantic()
+                if len(parameters) != 0:
+                    try:
+                        if type(parameters[0]) != str:
+                            self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                            self.cont = False
+                            return
+                        self.func_var.append(name)
+                        self.variables_for_function['titik'][name] = parameters[0]
+                        parameters = parameters[1:]
+                        if self.current == '=':
+                            self.semantic()
+                            ctr = 1
+                            while self.current != ',' and self.current != ')':
+                                self.semantic()
+                                if self.current == '(':
+                                    ctr += 1
+                                elif self.current == ')':
+                                    ctr -= 1
+                                if ctr == 0:
+                                    break
+                    except:
+                        self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                        self.cont = False
+                        return
+                else:
+                    self.titik_param(var_name,name)
+                    parameters = parameters[1:]
+                    if self.cont == False:
+                        return
+            elif self.current == 'bool':
+                self.jump(2)
+                name = self.val
+                self.semantic()
+                if len(parameters) != 0:
+                    try:
+                        if type(parameters[0]) != bool:
+                            self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                            self.cont = False
+                            return
+                        self.func_var.append(name)
+                        self.variables_for_function['bool'][name] = parameters[0]
+                        parameters = parameters[1:]
+                        if self.current == '=':
+                            self.semantic()
+                            ctr = 1
+                            while self.current != ',' and self.current != ')':
+                                self.semantic()
+                                if self.current == '(':
+                                    ctr += 1
+                                elif self.current == ')':
+                                    ctr -= 1
+                                if ctr == 0:
+                                    break
+                    except:
+                        self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                        self.cont = False
+                        return
+                else:
+                    self.bool_param(var_name,name)
+                    parameters = parameters[1:]
+                    if self.cont == False:
+                        return
+            if self.current == ',':
+                self.semantic()
+        if parameters != []:
+            self.semantic_error.append(f"TypeError on line {self.line}: too many parameters for {var_name}")
+            self.cont = False
+            return
+        self.semantic()
+        self.newline()
+        self.semantic()
+        self.newline()
+        while self.current != '}' and self.cont and self.isReturn == False:
+            if self.current == 'sulat':
+                self.sulat()
+                self.newline()
+            elif self.current == 'yunit':
+                self.yunit()
+                self.newline()
+            elif self.current == 'baybay':
+                self.baybay()
+            elif self.current == 'Identifier':
+                self.expression()
+                self.newline()   
+            elif self.current == 'kung':
+                self.kung()
+                self.newline()
+            elif self.current == 'balik':
+                self.isReturn = True
+                self.semantic()
+                self.return_value = self.return_val()
+                self.newline()
+                break   
+        self.semantic()
+        return self.return_value
+
+    def takda(self):
+        self.find('{')
+        self.semantic()
+        open_ctr = 1
+        close_ctr = 0
+        while open_ctr != close_ctr:
+            if self.current == '{':
+                open_ctr += 1
+            elif self.current == '}':
+                close_ctr += 1
+            self.semantic()
+
+#================STATEMENTS=========================
 
     def Identifier(self):
         name = self.val
@@ -154,7 +958,10 @@ class Compilation:
         x = ''
         try:
             x = self.all_variables[self.val]
-            z = 'self.variables[x][name]'
+            if not self.isFunc:
+                z = 'self.variables[x][name]'
+            else:
+                z = 'self.variables_for_function[x][name]'
         except (KeyError, NameError, SyntaxError, TypeError) as e :
             self.semantic_error.append(f"NameError on line {self.line}: Variable '{self.val}' is not defined")
             self.y = None
@@ -214,10 +1021,18 @@ class Compilation:
                             z += 'or'
                             self.semantic()
                             continue
+                        elif self.current == 'Totoo':
+                            z += 'True'
+                            self.semantic()
+                            continue
+                        elif self.current == 'Peke':
+                            z += 'False'
+                            self.semantic()
+                            continue
                         if ctr != 0:
                             z += self.val
                             specific += self.val
-                        self.semantic()
+                            self.semantic()
                     if self.current == ',':
                         self.semantic()
                     if z != '':
@@ -230,9 +1045,11 @@ class Compilation:
                             return
                 line = self.line
                 num = self.num
-                answer = self.run(self.functions[name][0], self.functions[name][1], parameters)
+                self.isFunc = True
+                answer = self.run(self.functions[name][0], self.functions[name][1], parameters,name)
+                self.isFunc = False
                 self.line = line
-                num = self.num
+                self.num = num
                 self.semantic()
                 return answer
             while self.current not in ['+', '-', '*', '/', '%', '**','newline',',', ')','{']:
@@ -251,122 +1068,7 @@ class Compilation:
             self.semantic_error.append(f"TypeError on line {self.line}: {str(e).replace('int', 'yunit').replace('float', 'punto')}")
             self.cont = False
             return
-    
-    def func_dec(self, d_type, name):
-        variable = {}
-        value = {}
-        if d_type == 'yunit':
-            value[name] = 0
-        elif d_type == 'punto':
-            value[name] = 0.0
-        elif d_type == 'baybay' or d_type == 'titik':
-            value[name] = ''
-        elif d_type == 'yunit_list':
-            value[name] = []
-        elif d_type == 'punto_list':
-            value[name] = []
-        elif d_type == 'baybay_list':
-            value[name] = []
-        elif d_type == 'titik_list':
-            value[name] = []
-        elif d_type == 'bool_list':
-            value[name] = []
-        elif d_type == 'bool':
-            value[name] = True
-        self.variables[d_type].update(value)
-        variable[name] = d_type
-        self.all_variables.update(variable)
-
-    def yunit_param(self):
-        val = self.val
-        self.semantic()
-        if self.current == "=":
-            self.semantic()
-            self.func_var.append(val)
-            self.func_dec('yunit', val)
-            ctr = 1
-            while self.current != ',' and self.current != ')':
-                if self.current == 'Identifier':    
-                    z = self.val
-                    holder = self.Identifier()
-                    if self.cont == False:
-                        return
-                    if type(holder) != int and type(holder) != float:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Yunit Literal")
-                        self.cont = False
-                        return
-                    if type(holder) == float:
-                        holder = int(holder)
-                    y += str(holder)
-                    continue
-                elif self.current == 'saYunit':
-                    y += str(self.saYunit())
-                    self.semantic()
-                    continue
-                elif self.current == 'saPunto':
-                    y += str(int(self.saPunto()))
-                    self.semantic()
-                    continue
-                elif self.current == 'Punto Literal':
-                    y += str(int(eval(self.val.replace('~', '-'))))
-                elif self.current == 'Yunit Literal':
-                    y += str(eval(self.val.replace('~', '-')))
-                elif self.current in ['+', '-', '*', '/', '**']:
-                    y += self.val
-                elif self.current == '(':
-                    y += '('
-                    ctr += 1
-                elif self.current == ')':
-                    y += ')'
-                    ctr -= 1
-                else:
-                    self.semantic_error.append(f'Semantic Error on Line {self.line}: {self.current} is not a valid value for Yunit')
-                    self.cont = False
-                    return
-                self.semantic()
-            if self.cont == False:
-                return
-            self.variables['yunit'][val] = eval(y)
-            try:
-                self.variables['yunit'][val] = eval(y)
-            except SyntaxError as e:
-                self.cont = False
-                return
-        else:
-            self.var.append(val)
-            self.declare('yunit', val)
-
-    def run(self, num, line, parameters):
-        self.num = num -1 
-        self.line = num
-        self.semantic()
-        self.jump(2)
-        if self.current == 'yunit':
-            self.jump(2)
-            self.yunit_param()
-            
-    def find(self, token):
-        while self.current != token and self.num < self.max:
-            self.semantic()
-
-    def jump(self, num):
-        ctr = 0
-        while ctr != num and self.num < self.max:
-            self.semantic()
-            ctr += 1
-
-    def takda(self):
-        self.find('{')
-        self.semantic()
-        open_ctr = 1
-        close_ctr = 0
-        while open_ctr != close_ctr:
-            if self.current == '{':
-                open_ctr += 1
-            elif self.current == '}':
-                close_ctr += 1
-            self.semantic()
-
+        
     def yunit_list(self, ctr = 0):
         x = []
         y = ''
@@ -382,7 +1084,10 @@ class Compilation:
                         return x
                 elif self.current == 'Identifier':
                     try: 
-                        z = self.all_variables[self.val]
+                        if not self.isFunc:
+                            z = self.all_variables[self.val]
+                        else:
+                            z = self.func_variables[self.val]
                     except:
                         self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                         self.cont = False
@@ -393,9 +1098,15 @@ class Compilation:
                         return
                     else:
                         if z == 'yunit_list':
-                            x.append(self.variables[z][self.val])
+                            if not self.isFunc:
+                                x.append(self.variables[z][self.val])
+                            else:
+                                x.append(self.variables_for_function[z][self.val])
                         else:
-                            y+=str(self.variables[z][self.val])
+                            if not self.isFunc:
+                                y+=str(self.variables[z][self.val])
+                            else:
+                                y+=str(self.variables_for_function[z][self.val])
                 elif self.current in ['+', '-', '*', '/', '**', '(', ')']:
                     y += self.val
                 elif self.current == 'saYunit':
@@ -425,16 +1136,19 @@ class Compilation:
             try:
                 self.semantic() 
                 self.semantic()
-                return f'\"{eval(y)}\"'
+                return eval(y)
             except:
                 self.semantic_error.append(f"Type Error on line {self.line}: invalid literal for Baybay() : \"{self.current}\"")
                 self.cont = False
                 return
         elif self.current == 'Identifier':
-            y = f"int({self.Identifier()})"
+            if not self.isFunc:
+                y = f"int({self.Identifier()})"
+            else:
+                y = f"int({self.func_Identifier()})"
             try:
                 self.semantic() 
-                return f'\"{eval(y)}\"'
+                return eval(y)
             except:
                 self.semantic_error.append(f"Type Error on line {self.line}: invalid literal for Baybay() : \"{self.current}\"")
                 self.cont = False
@@ -444,7 +1158,7 @@ class Compilation:
             try:
                 self.semantic() 
                 self.semantic()
-                return f'\"{eval(y)}\"'
+                return eval(y)
             except:
                 self.semantic_error.append(f"Type Error on line {self.line}: invalid literal for Baybay() : \"{self.current}\"")
                 self.cont = False
@@ -457,14 +1171,24 @@ class Compilation:
         y = ''
         self.find('Identifier')
         val = self.val
-        if val in self.var:
-            self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
-            self.cont = False
-            return
+        if not self.isFunc:
+            if val in self.var:
+                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.cont = False
+                return
+        else:
+            if val in self.func_var:
+                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.cont = False
+                return
         self.semantic()
         if self.current == '[':
-            self.var.append(val)
-            self.declare('yunit_list', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('yunit_list', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('yunit_list', val)
             self.jump(2)
             if self.current == '=':
                 self.semantic()
@@ -474,21 +1198,45 @@ class Compilation:
                         valuelist = self.yunit_list()
                         if self.cont:
                             for i in valuelist:
-                                self.variables['yunit_list'][val].append(i)
+                                if not self.isFunc:
+                                    self.variables['yunit_list'][val].append(i)
+                                else:
+                                    self.variables_for_function['yunit_list'][val].append(i)
                     elif self.current == 'Identifier':
-                        valuelist = self.Identifier()
+                        if not self.isFunc:
+                            x = self.all_variables[self.val]
+                        else:
+                            x = self.func_variables[self.val]
+                        if x != 'yunit_list':
+                            self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid parameter for {val}")
+                            self.cont = False
+                            return
+                        if not self.isFunc:
+                            valuelist = self.Identifier()
+                        else:
+                            valuelist = self.func_Identifier()
                         if type(valuelist) == list:
                             for i in valuelist:
                                 if type(i) == int:
-                                    self.variables['yunit_list'][val].append(i)
+                                    if not self.isFunc:
+                                        self.variables['yunit_list'][val].append(i)
+                                    else:
+                                        self.variables_for_function['yunit_list'][val].append(i)
                                     continue
                                 elif type(i) == float:
-                                    self.variables['yunit_list'][val].append(int(i))
+                                    if not self.isFunc:
+                                        self.variables['yunit_list'][val].append(int(i))
+                                    else:
+                                        self.variables_for_function['yunit_list'][val].append(int(i))
+                                elif type(i) == list:
+                                    if not self.isFunc:
+                                        self.variables['yunit_list'][val].append(i)
+                                    else:
+                                        self.variables_for_function['yunit_list'][val].append(i)
                                 else:
                                     self.semantic_error.append(f"Semantic Error on line {self.line}: {val} have values that is not a Yunit Literal")
                                     self.cont = False
                                     return
-                            self.semantic()
                         else:
                             self.semantic_error.append(f"Semantic on line {self.line}: {val} is not a list")
                             self.cont = False
@@ -501,12 +1249,19 @@ class Compilation:
                         return
         elif self.current == "=":
             self.semantic()
-            self.var.append(val)
-            self.declare('yunit', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('yunit', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('yunit', val)
             while self.current != ',' and self.current != 'newline':
                 if self.current == 'Identifier':    
                     z = self.val
-                    holder = self.Identifier()
+                    if not self.isFunc:
+                        holder = self.Identifier()
+                    else:
+                        holder = self.func_Identifier()
                     if self.cont == False:
                         return
                     if type(holder) != int and type(holder) != float:
@@ -538,15 +1293,21 @@ class Compilation:
                 self.semantic()
             if self.cont == False:
                 return
-            self.variables['yunit'][val] = eval(y)
             try:
-                self.variables['yunit'][val] = eval(y)
+                if not self.isFunc:
+                    self.variables['yunit'][val] = eval(y)
+                else:
+                    self.variables_for_function['yunit'][val] = eval(y)
             except SyntaxError as e:
                 self.cont = False
                 return
         else:
-            self.var.append(val)
-            self.declare('yunit', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('yunit', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('yunit', val)
         if self.current == ',':
             self.semantic()
             self.yunit_continue()
@@ -564,8 +1325,12 @@ class Compilation:
             return
         self.semantic()
         if self.current == '[':
-            self.var.append(val)
-            self.declare('yunit_list', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('yunit_list', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('yunit_list', val)
             self.jump(2)
             if self.current == '=':
                 self.semantic()
@@ -574,21 +1339,40 @@ class Compilation:
                         self.semantic() 
                         valuelist = self.yunit_list()
                         for i in valuelist:
-                            self.variables['yunit_list'][val].append(i)
+                            if not self.isFunc:
+                                self.variables['yunit_list'][val].append(i)
+                            else:
+                                self.variables_for_function['yunit_list'][val].append(i)
                     elif self.current == 'Identifier':
-                        valuelist = self.Identifier()
+                        if not self.isFunc:
+                            x = self.all_variables[self.val]
+                        else:
+                            x = self.func_variables[self.val]
+                        if x != 'yunit_list':
+                            self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid value for {val}")
+                            self.cont = False
+                            return
+                        if not self.isFunc:
+                            valuelist = self.Identifier()
+                        else:
+                            valuelist = self.func_Identifier()
                         if type(valuelist) == list:
                             for i in valuelist:
                                 if type(i) == int:
-                                    self.variables['yunit_list'][val].append(i)
+                                    if not self.isFunc:
+                                        self.variables['yunit_list'][val].append(i)
+                                    else:
+                                        self.variables_for_function['yunit_list'][val].append(i)
                                     continue
                                 elif type(i) == float:
-                                    self.variables['yunit_list'][val].append(int(i))
+                                    if not self.isFunc:
+                                        self.variables['yunit_list'][val].append(int(i))
+                                    else:
+                                        self.variables_for_function['yunit_list'][val].append(int(i))
                                 else:
                                     self.semantic_error.append(f"Semantic Error on line {self.line}: {val} have values that is not a Yunit Literal")
                                     self.cont = False
                                     return
-                            self.semantic()
                         else:
                             self.semantic_error.append(f"Semantic on line {self.line}: {val} is not a list")
                             self.cont = False
@@ -600,13 +1384,19 @@ class Compilation:
                         self.cont = False
                         return
         elif self.current == "=":
-            self.semantic()
-            self.var.append(val)
-            self.declare('yunit', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('yunit', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('yunit', val)
             while self.current != ',' and self.current != 'newline':
                 if self.current == 'Identifier':    
                     z = self.val
-                    holder = self.Identifier()
+                    if not self.isFunc:
+                        holder = self.Identifier()
+                    else:
+                        holder = self.func_Identifier()
                     if self.cont == False:
                         return
                     if type(holder) != int and type(holder) != float:
@@ -626,9 +1416,9 @@ class Compilation:
                     self.semantic()
                     continue
                 elif self.current == 'Punto Literal':
-                    y += str(int(eval(self.val.replace('~', '-'))))
+                    y += str(int(eval(f'{self.val.replace('~', '-')}')))
                 elif self.current == 'Yunit Literal':
-                    y += str(eval(self.val.replace('~', '-')))
+                    y += str(eval(f'{self.val.replace('~', '-')}'))
                 elif self.current in ['+', '-', '*', '/', '**', '(', ')']:
                     y += self.val
                 else:
@@ -639,13 +1429,20 @@ class Compilation:
             if self.cont == False:
                 return
             try:
-                self.variables['yunit'][val] = eval(y)
+                if not self.isFunc:
+                    self.variables['yunit'][val] = eval(y)
+                else:
+                    self.variables_for_function['yunit'][val] = eval(y)
             except SyntaxError as e:
                 self.cont = False
                 return
         else:
-            self.var.append(val)
-            self.declare('yunit', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('yunit', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('yunit', val)
         if self.current == ',':
             self.semantic()
             self.yunit_continue()
@@ -666,7 +1463,10 @@ class Compilation:
                         return x
                 elif self.current == 'Identifier':
                     try: 
-                        z = self.all_variables[self.val]
+                        if not self.isFunc:
+                            z = self.all_variables[self.val]
+                        else:
+                            z = self.func_variables[self.val]
                     except:
                         self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                         self.cont = False
@@ -677,9 +1477,15 @@ class Compilation:
                         return
                     else:
                         if z == 'punto_list':
-                            x.append(self.variables[z][self.val])
+                            if not self.isFunc:
+                                x.append(self.variables[z][self.val])
+                            else:
+                                x.append(self.variables_for_function[z][self.val])
                         else:
-                            y+=str(self.variables[z][self.val])
+                            if not self.isFunc:
+                                y+=str(self.variables[z][self.val])
+                            else:
+                                y+=str(self.variables_for_function[z][self.val])
                 elif self.current in ['+', '-', '*', '/', '**', '(', ')']:
                     y += self.val
                 elif self.current == 'saYunit':
@@ -709,16 +1515,19 @@ class Compilation:
             try:
                 self.semantic() 
                 self.semantic()
-                return f'\"{eval(y)}\"'
+                return eval(y)
             except:
                 self.semantic_error.append(f"Type Error on line {self.line}: invalid literal for saPunto : \"{self.current}\"")
                 self.cont = False
                 return
         elif self.current == 'Identifier':
-            y = f"float({self.Identifier()})"
+            if not self.isFunc:
+                y = f"float({self.Identifier()})"
+            else:
+                y = f"float({self.func_Identifier()})"
             try:
                 self.semantic() 
-                return f'\"{eval(y)}\"'
+                return eval(y)
             except:
                 self.semantic_error.append(f"Type Error on line {self.line}: invalid literal for saPunto : \"{self.current}\"")
                 self.cont = False
@@ -728,7 +1537,7 @@ class Compilation:
             try:
                 self.semantic() 
                 self.semantic()
-                return f'\"{eval(y)}\"'
+                return eval(y)
             except:
                 self.semantic_error.append(f"Type Error on line {self.line}: invalid literal for saPunto : \"{self.current}\"")
                 self.cont = False
@@ -741,38 +1550,72 @@ class Compilation:
         y = ''
         self.find('Identifier')
         val = self.val
-        if val in self.var:
-            self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
-            self.cont = False
-            return
+        if not self.isFunc:
+            if val in self.var:
+                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.cont = False
+                return
+        else:
+            if val in self.func_var:
+                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.cont = False
+                return
         self.semantic()
         if self.current == '[':
-            self.var.append(val)
-            self.declare('punto_list', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('punto_list', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('punto_list', val)
             self.jump(2)
             if self.current == '=':
                 self.semantic()
                 while self.current != 'newline':
                     if self.current == '[':
-                        self.semantic() 
+                        self.semantic()
                         valuelist = self.punto_list()
                         if self.cont:
                             for i in valuelist:
-                                self.variables['punto_list'][val].append(i)
+                                if not self.isFunc:
+                                    self.variables['punto_list'][val].append(i)
+                                else:
+                                    self.variables_for_function['punto_list'][val].append(i)
                     elif self.current == 'Identifier':
-                        valuelist = self.Identifier()
+                        if not self.isFunc:
+                            x = self.all_variables[self.val]
+                        else:
+                            x = self.func_variables[self.val]
+                        if x != 'punto_list':
+                            self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid value for {val}")
+                            self.cont = False
+                            return
+                        if not self.isFunc:
+                            valuelist = self.Identifier()
+                        else:
+                            valuelist = self.func_Identifier()
                         if type(valuelist) == list:
                             for i in valuelist:
                                 if type(i) == int:
-                                    self.variables['punto_list'][val].append(i)
+                                    if not self.isFunc:
+                                        self.variables['punto_list'][val].append(float(i))
+                                    else:
+                                        self.variables_for_function['punto_list'][val].append(float(i))
                                     continue
                                 elif type(i) == float:
-                                    self.variables['punto_list'][val].append(int(i))
+                                    if not self.isFunc:
+                                        self.variables['punto_list'][val].append(i)
+                                    else:
+                                        self.variables_for_function['punto_list'][val].append(i)
+                                elif type(i) == list:
+                                    if not self.isFunc:
+                                        self.variables['punto_list'][val].append(i)
+                                    else:
+                                        self.variables_for_function['punto_list'][val].append(i)
                                 else:
                                     self.semantic_error.append(f"Semantic Error on line {self.line}: {val} have values that is not a Punto Literal")
                                     self.cont = False
                                     return
-                            self.semantic()
                         else:
                             self.semantic_error.append(f"Semantic on line {self.line}: {val} is not a list")
                             self.cont = False
@@ -785,12 +1628,19 @@ class Compilation:
                         return
         elif self.current == "=":
             self.semantic()
-            self.var.append(val)
-            self.declare('punto', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('punto', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('punto', val)
             while self.current != ',' and self.current != 'newline':
                 if self.current == 'Identifier':    
                     z = self.val
-                    holder = self.Identifier()
+                    if not self.isFunc:
+                        holder = self.Identifier()
+                    else:
+                        holder = self.func_Identifier()
                     if self.cont == False:
                         return
                     if type(holder) != int and type(holder) != float:
@@ -810,9 +1660,9 @@ class Compilation:
                     self.semantic()
                     continue
                 elif self.current == 'Punto Literal':
-                    y += str(eval(self.val.replace('~', '-')))
+                    y += str(eval(f'{self.val.replace('~', '-')}'))
                 elif self.current == 'Yunit Literal':
-                    y += str(float(eval(self.val.replace('~', '-'))))
+                    y += str(float(eval(f'{self.val.replace('~', '-')}')))
                 elif self.current in ['+', '-', '*', '/', '**', '(', ')']:
                     y += self.val
                 else:
@@ -823,13 +1673,20 @@ class Compilation:
             if self.cont == False:
                 return
             try:
-                self.variables['punto'][val] = eval(y)
+                if not self.isFunc:
+                    self.variables['punto'][val] = eval(y)
+                else:
+                    self.variables_for_function['punto'][val] = eval(y)
             except SyntaxError as e:
                 self.cont = False
                 return
         else:
-            self.var.append(val)
-            self.declare('punto', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('punto', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('punto', val)
         if self.current == ',':
             self.semantic()
             self.punto_continue()
@@ -841,14 +1698,24 @@ class Compilation:
         string = ''
         y = ''
         val = self.val
-        if val in self.var:
-            self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
-            self.cont = False
-            return
+        if not self.isFunc:
+            if val in self.var:
+                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.cont = False
+                return
+        else:
+            if val in self.func_var:
+                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.cont = False
+                return
         self.semantic()
         if self.current == '[':
-            self.var.append(val)
-            self.declare('punto_list', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('punto_list', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('punto_list', val)
             self.jump(2)
             if self.current == '=':
                 self.semantic()
@@ -858,21 +1725,45 @@ class Compilation:
                         valuelist = self.punto_list()
                         if self.cont:
                             for i in valuelist:
-                                self.variables['punto_list'][val].append(i)
+                                if not self.isFunc:
+                                    self.variables['punto_list'][val].append(i)
+                                else:
+                                    self.variables_for_function['punto_list'][val].append(i)
                     elif self.current == 'Identifier':
-                        valuelist = self.Identifier()
+                        if not self.isFunc:
+                            x = self.all_variables[self.val]
+                        else:
+                            x = self.func_variables[self.val]
+                        if x != 'punto_list':
+                            self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid value for {val}")
+                            self.cont = False
+                            return
+                        if not self.isFunc:
+                            valuelist = self.Identifier()
+                        else:
+                            valuelist = self.func_Identifier()
                         if type(valuelist) == list:
                             for i in valuelist:
                                 if type(i) == int:
-                                    self.variables['punto_list'][val].append(i)
+                                    if not self.isFunc:
+                                        self.variables['punto_list'][val].append(float(i))
+                                    else:
+                                        self.variables_for_function['punto_list'][val].append(float(i))
                                     continue
                                 elif type(i) == float:
-                                    self.variables['punto_list'][val].append(int(i))
+                                    if not self.isFunc:
+                                        self.variables['punto_list'][val].append(i)
+                                    else:
+                                        self.variables_for_function['punto_list'][val].append(i)
+                                elif type(i) == list:
+                                    if not self.isFunc:
+                                        self.variables['punto_list'][val].append(i)
+                                    else:
+                                        self.variables_for_function['punto_list'][val].append(i)
                                 else:
                                     self.semantic_error.append(f"Semantic Error on line {self.line}: {val} have values that is not a Punto Literal")
                                     self.cont = False
                                     return
-                            self.semantic()
                         else:
                             self.semantic_error.append(f"Semantic on line {self.line}: {val} is not a list")
                             self.cont = False
@@ -885,8 +1776,12 @@ class Compilation:
                         return
         elif self.current == "=":
             self.semantic()
-            self.var.append(val)
-            self.declare('punto', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('punto', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('punto', val)
             while self.current != ',' and self.current != 'newline':
                 if self.current == 'Identifier':    
                     z = self.val
@@ -910,9 +1805,9 @@ class Compilation:
                     self.semantic()
                     continue
                 elif self.current == 'Punto Literal':
-                    y += str(eval(self.val.replace('~', '-')))
+                    y += str(eval(f'{self.val.replace('~', '-')}'))
                 elif self.current == 'Yunit Literal':
-                    y += str(eval(float(self.val.replace('~', '-'))))
+                    y += str(eval(f'float({self.val.replace('~', '-')})'))
                 elif self.current in ['+', '-', '*', '/', '**', '(', ')']:
                     y += self.val
                 else:
@@ -923,13 +1818,20 @@ class Compilation:
             if self.cont == False:
                 return
             try:
-                self.variables['punto'][val] = eval(y)
+                if not self.isFunc:
+                    self.variables['punto'][val] = eval(y)
+                else:
+                    self.variables_for_function['punto'][val] = eval(y)
             except SyntaxError as e:
                 self.cont = False
                 return
         else:
-            self.var.append(val)
-            self.declare('punto', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('punto', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('punto', val)
         if self.current == ',':
             self.semantic()
             self.punto_continue()
@@ -950,7 +1852,10 @@ class Compilation:
                         return x
                 elif self.current == 'Identifier':
                     try: 
-                        z = self.all_variables[self.val]
+                        if not self.isFunc:
+                            z = self.all_variables[self.val]
+                        else:
+                            z = self.func_variables[self.val]
                     except:
                         self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                         self.cont = False
@@ -961,9 +1866,15 @@ class Compilation:
                         return
                     else:
                         if z == 'baybay_list':
-                            x.append(self.variables[z][self.val])
+                            if not self.isFunc:
+                                x.append(self.variables[z][self.val])
+                            else:
+                                x.append(self.variables_for_function[z][self.val])
                         else:
-                            y+=str(self.variables[z][self.val])
+                            if not self.isFunc:
+                                y+=str(self.variables[z][self.val])
+                            else:
+                                y += str(self.variables_for_function[z][self.val])
                 elif self.current in ['+', '(', ')']:
                     y += self.val
                 elif self.current in ['-', '*', '/', '**']:
@@ -990,7 +1901,10 @@ class Compilation:
         self.semantic()
         self.semantic()
         if self.current == 'Identifier':
-            y = f'str({self.Identifier()})'
+            if not self.isFunc:
+                y = f'str({self.Identifier()})'
+            else: 
+                y = f'str({self.func_Identifier()})'
             try:
                 self.semantic() 
                 return f'\"{eval(y)}\"'
@@ -1016,14 +1930,24 @@ class Compilation:
         y = ''
         self.find('Identifier')
         val = self.val
-        if val in self.var:
-            self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
-            self.cont = False
-            return
+        if not self.isFunc:
+            if val in self.var:
+                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.cont = False
+                return
+        else:
+            if val in self.func_var:
+                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.cont = False
+                return
         self.semantic()
         if self.current == '[':
-            self.var.append(val)
-            self.declare('baybay_list', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('baybay_list', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('baybay_list', val)
             self.jump(2)
             if self.current == '=':
                 self.semantic()
@@ -1033,14 +1957,36 @@ class Compilation:
                         valuelist = self.baybay_list()
                         if self.cont:
                             for i in valuelist:
-                                self.variables['baybay_list'][val].append(i)
+                                if not self.isFunc:
+                                    self.variables['baybay_list'][val].append(i)
+                                else:
+                                    self.variables_for_function['baybay_list'][val].append(i)
                     elif self.current == 'Identifier':
-                        valuelist = self.Identifier()
+                        if not self.isFunc:
+                            x = self.all_variables[self.val]
+                        else:
+                            x = self.func_variables[self.val]
+                        if x != 'baybay_list':
+                            self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid value for {val}")
+                            self.cont = False
+                            return
+                        if not self.isFunc:
+                            valuelist = self.Identifier()
+                        else:
+                            valuelist = self.func_Identifier()
                         if type(valuelist) == list:
                             for i in valuelist:
                                 if type(i) == str:
-                                    self.variables['baybay_list'][val].append(i)
+                                    if not self.isFunc:
+                                        self.variables['baybay_list'][val].append(i)
+                                    else:
+                                        self.variables_for_function['baybay_list'][val].append(i)
                                     continue
+                                elif type(i) == list:
+                                    if not self.isFunc:
+                                        self.variables['baybay_list'][val].append(i)
+                                    else:
+                                        self.variables_for_function['baybay_list'][val].append(i)
                                 else:
                                     self.semantic_error.append(f"Semantic Error on line {self.line}: {val} have values that is not a Baybay Literal")
                                     self.cont = False
@@ -1058,12 +2004,19 @@ class Compilation:
                         return
         elif self.current == "=":
             self.semantic()
-            self.var.append(val)
-            self.declare('baybay', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('baybay', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('baybay', val)
             while self.current != 'newline' and self.current != ',':
                 if self.current == 'Identifier':
                     z = self.val
-                    holder = self.Identifier()
+                    if not self.isFunc:
+                        holder = self.Identifier()
+                    else:
+                        holder = self.func_Identifier()
                     if self.cont == False:
                         return
                     if type(holder) != str:
@@ -1087,7 +2040,10 @@ class Compilation:
             if self.cont == False:
                 return
             try:
-                self.variables['baybay'][val] = eval(y)
+                if not self.isFunc:
+                    self.variables['baybay'][val] = eval(y)
+                else:
+                    self.variables_for_function['baybay'][val] = eval(y)
                 if self.current == ',':
                     self.semantic()
                     self.baybay_continue()
@@ -1096,9 +2052,14 @@ class Compilation:
             except SyntaxError as e:
                 self.cont = False
                 return
-        elif self.current == ',':
-            self.var.append(val)
-            self.declare('baybay', val)
+        else:
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('baybay', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('baybay', val)
+        if self.current == ',':
             self.semantic()
             self.baybay_continue()  
 
@@ -1108,14 +2069,24 @@ class Compilation:
         string = ''
         y = ''
         val = self.val
-        if val in self.var:
-            self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
-            self.cont = False
-            return
+        if not self.isFunc:
+            if val in self.var:
+                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.cont = False
+                return
+        else:
+            if val in self.func_var:
+                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.cont = False
+                return
         self.semantic()
         if self.current == '[':
-            self.var.append(val)
-            self.declare('baybay_list', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('baybay_list', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('baybay_list', val)
             self.jump(2)
             if self.current == '=':
                 self.semantic()
@@ -1125,14 +2096,36 @@ class Compilation:
                         valuelist = self.baybay_list()
                         if self.cont:
                             for i in valuelist:
-                                self.variables['baybay_list'][val].append(i)
+                                if not self.isFunc:
+                                    self.variables['baybay_list'][val].append(i)
+                                else:
+                                    self.variables_for_function['baybay_list'][val].append(i)
                     elif self.current == 'Identifier':
-                        valuelist = self.Identifier()
+                        if not self.isFunc:
+                            x = self.all_variables[self.val]
+                        else:
+                            x = self.func_variables[self.val]
+                        if x != 'baybay_list':
+                            self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid value for {val}")
+                            self.cont = False
+                            return
+                        if not self.isFunc:
+                            valuelist = self.Identifier()
+                        else:
+                            valuelist = self.func_Identifier()
                         if type(valuelist) == list:
                             for i in valuelist:
                                 if type(i) == str:
-                                    self.variables['baybay_list'][val].append(i)
+                                    if not self.isFunc:
+                                        self.variables['baybay_list'][val].append(i)
+                                    else:
+                                        self.variables_for_function['baybay_list'][val].append(i)
                                     continue
+                                elif type(i) == list:
+                                    if not self.isFunc:
+                                        self.variables['baybay_list'][val].append(i)
+                                    else:
+                                        self.variables_for_function['baybay_list'][val].append(i)
                                 else:
                                     self.semantic_error.append(f"Semantic Error on line {self.line}: {val} have values that is not a Baybay Literal")
                                     self.cont = False
@@ -1150,12 +2143,19 @@ class Compilation:
                         return
         elif self.current == "=":
             self.semantic()
-            self.var.append(val)
-            self.declare('baybay', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('baybay', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('baybay', val)
             while self.current != 'newline' and self.current != ',':
                 if self.current == 'Identifier':
                     z = self.val
-                    holder = self.Identifier()
+                    if not self.isFunc:
+                        holder = self.Identifier()
+                    else:
+                        holder = self.func_Identifier()
                     if self.cont == False:
                         return
                     if type(holder) != str:
@@ -1179,7 +2179,10 @@ class Compilation:
             if self.cont == False:
                 return
             try:
-                self.variables['baybay'][val] = eval(y)
+                if not self.isFunc:
+                    self.variables['baybay'][val] = eval(y)
+                else:
+                    self.variables_for_function['baybay'][val] = eval(y)
                 if self.current == ',': 
                     self.semantic()
                     self.baybay_continue()
@@ -1188,18 +2191,26 @@ class Compilation:
             except SyntaxError as e:
                 self.cont = False
                 return
-        elif self.current == ',':
-            self.var.append(val)
-            self.declare('baybay', val)
+        else:
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('baybay', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('baybay', val)
+        if self.current == ',':
             self.semantic()
-            self.baybay_continue()
+            self.baybay_continue() 
     
     def saTitik(self):
         y = ''
         self.semantic()
         self.semantic()
         if self.current == 'Identifier':
-            y = f'str({self.Identifier()})'
+            if not self.isFunc:
+                y = f'str(\'{self.Identifier()})\''
+            else:
+                y = f'str(\'{self.func_Identifier()})\''
             try:
                 self.semantic() 
                 return f'\"{eval(y)}\"'
@@ -1233,7 +2244,10 @@ class Compilation:
                         return x
                 elif self.current == 'Identifier':
                     try: 
-                        z = self.all_variables[self.val]
+                        if not self.isFunc:
+                            z = self.all_variables[self.val]
+                        else:
+                            z = self.func_variables[self.val]
                     except:
                         self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                         self.cont = False
@@ -1244,17 +2258,23 @@ class Compilation:
                         return
                     else:
                         if z == 'titik_list':
-                            x.append(self.variables[z][self.val])
+                            if not self.isFunc:
+                                x.append(self.variables[z][self.val])
+                            else:
+                                x.append(self.variables_for_function[z][self.val])
                         else:
-                            y+=str(self.variables[z][self.val])
+                            if not self.isFunc:
+                                y+=str(self.variables[z][self.val])
+                            else:
+                                y+=str(self.variables_for_function[z][self.val])
                 elif self.current in ['+', '(', ')']:
                     y += self.val
                 elif self.current in ['-', '*', '/', '**']:
                     self.semantic_error.append(f"Semantic Error on line {self.line}: {self.current} is not a valid value for Titik List")
                     self.cont = False
                     return
-                elif self.current == 'saBaybay':
-                    y += str(self.saBaybay())
+                elif self.current == 'saTitik':
+                    y += str(self.saTitik())
                 else:
                     self.semantic_error.append(f"Semantic Error on line {self.line}: {self.current} is not a Titik literal or Titik list")
                     self.cont = False
@@ -1275,14 +2295,24 @@ class Compilation:
         y = ''
         self.find('Identifier')
         val = self.val
-        if val in self.var:
-            self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
-            self.cont = False
-            return
+        if not self.isFunc:
+            if val in self.var:
+                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.cont = False
+                return
+        else:
+            if val in self.func_var:
+                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.cont = False
+                return
         self.semantic()
         if self.current == '[':
-            self.var.append(val)
-            self.declare('titik_list', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('titik_list', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('titik_list', val)
             self.jump(2)
             if self.current == '=':
                 self.semantic()
@@ -1292,14 +2322,36 @@ class Compilation:
                         valuelist = self.titik_list()
                         if self.cont:
                             for i in valuelist:
-                                self.variables['titik_list'][val].append(i)
+                                if not self.isFunc:
+                                    self.variables['titik_list'][val].append(i)
+                                else:
+                                    self.variables_for_function['titik_list'][val].append(i)
                     elif self.current == 'Identifier':
-                        valuelist = self.Identifier()
+                        if not self.isFunc:
+                            x = self.all_variables[self.val]
+                        else:
+                            x = self.func_variables[self.val]
+                        if x != 'titik_list':
+                            self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid parameter for {val}")
+                            self.cont = False
+                            return
+                        if not self.isFunc:
+                            valuelist = self.Identifier()
+                        else:
+                            valuelist = self.func_Identifier()
                         if type(valuelist) == list:
                             for i in valuelist:
                                 if type(i) == str:
-                                    self.variables['titik_list'][val].append(i)
+                                    if not self.isFunc:
+                                        self.variables['titik_list'][val].append(i)
+                                    else:
+                                        self.variables_for_function['titik_list'][val].append(i)
                                     continue
+                                elif type(i) == list:
+                                    if not self.isFunc:
+                                        self.variables['titik_list'][val].append(i)
+                                    else:
+                                        self.variables_for_function['titik_list'][val].append(i)
                                 else:
                                     self.semantic_error.append(f"Semantic Error on line {self.line}: {val} have values that is not a Titik Literal")
                                     self.cont = False
@@ -1316,12 +2368,19 @@ class Compilation:
                         self.cont = False
                         return
         elif self.current == '=':
-            self.var.append(val)
-            self.declare('titik', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('titik', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('titik', val)
             self.semantic()
             if self.current == 'Identifier':
                 z = self.val
-                holder = self.Identifier()
+                if not self.isFunc:
+                    holder = self.Identifier()
+                else:
+                    holder = self.func_Identifier()
                 if self.cont == False:
                     return
                 if type(holder) != str and len(holder) != 1:
@@ -1345,7 +2404,10 @@ class Compilation:
             if self.cont == False:
                 return
             try:
-                self.variables['titik'][val] = eval(y)
+                if not self.isFunc:
+                    self.variables['titik'][val] = eval(y)
+                else:
+                    self.variables_for_function['titik'][val] = eval(y)
                 if self.current == ',':
                     self.titik_continue()
                     return
@@ -1353,11 +2415,16 @@ class Compilation:
             except SyntaxError as e:
                 self.cont = False
                 return
-        elif self.current == ',':
-            self.var.append(val)
-            self.declare('titik', val)
+        else:
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('titik', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('titik', val)
+        if self.current == ',':
             self.semantic()
-            self.titik_continue()
+            self.titik_continue()  
         
     def titik_continue(self):
         valuelist = []
@@ -1366,14 +2433,24 @@ class Compilation:
         y = ''
         self.find('Identifier')
         val = self.val
-        if val in self.var:
-            self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
-            self.cont = False
-            return
+        if not self.isFunc:
+            if val in self.var:
+                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.cont = False
+                return
+        else:
+            if val in self.func_var:
+                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.cont = False
+                return
         self.semantic()
         if self.current == '[':
-            self.var.append(val)
-            self.declare('titik_list', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('titik_list', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('titik_list', val)
             self.jump(2)
             if self.current == '=':
                 self.semantic()
@@ -1383,14 +2460,36 @@ class Compilation:
                         valuelist = self.titik_list()
                         if self.cont:
                             for i in valuelist:
-                                self.variables['titik_list'][val].append(i)
+                                if not self.isFunc:
+                                    self.variables['titik_list'][val].append(i)
+                                else:
+                                    self.variables_for_function['titik_list'][val].append(i)
                     elif self.current == 'Identifier':
-                        valuelist = self.Identifier()
+                        if not self.isFunc:
+                            x = self.all_variables[self.val]
+                        else:
+                            x = self.func_variables[self.val]
+                        if x != 'titik_list':
+                            self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid parameter for {val}")
+                            self.cont = False
+                            return
+                        if not self.isFunc:
+                            valuelist = self.Identifier()
+                        else:
+                            valuelist = self.func_Identifier()
                         if type(valuelist) == list:
                             for i in valuelist:
                                 if type(i) == str:
-                                    self.variables['titik_list'][val].append(i)
+                                    if not self.isFunc:
+                                        self.variables['titik_list'][val].append(i)
+                                    else:
+                                        self.variables_for_function['titik_list'][val].append(i)
                                     continue
+                                elif type(i) == list:
+                                    if not self.isFunc:
+                                        self.variables['titik_list'][val].append(i)
+                                    else:
+                                        self.variables_for_function['titik_list'][val].append(i)
                                 else:
                                     self.semantic_error.append(f"Semantic Error on line {self.line}: {val} have values that is not a Titik Literal")
                                     self.cont = False
@@ -1407,12 +2506,19 @@ class Compilation:
                         self.cont = False
                         return
         if self.current == '=':
-            self.var.append(val)
-            self.declare('titik', val)
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('titik', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('titik', val)
             self.semantic()
             if self.current == 'Identifier':
                 z = self.val
-                holder = self.Identifier()
+                if not self.isFunc:
+                    holder = self.Identifier()
+                else:
+                    holder = self.func_Identifier()
                 if self.cont == False:
                     return
                 if type(holder) != str and len(holder) != 1:
@@ -1436,7 +2542,10 @@ class Compilation:
             if self.cont == False:
                 return
             try:
-                self.variables['titik'][val] = eval(y)
+                if not self.isFunc:
+                    self.variables['titik'][val] = eval(y)
+                else:
+                    self.variables_for_function['titik'][val] = eval(y)
                 if self.current == ',':
                     self.titik_continue()
                     return
@@ -1444,11 +2553,16 @@ class Compilation:
             except SyntaxError as e:
                 self.cont = False
                 return
-        elif self.current == ',':
-            self.var.append(val)
-            self.declare('titik', val)
+        else:
+            if not self.isFunc:
+                self.var.append(val)
+                self.declare('titik', val)
+            else:
+                self.func_var.append(val)
+                self.func_dec('titik', val)
+        if self.current == ',':
             self.semantic()
-            self.titik_continue()
+            self.titik_continue()  
 
     def sulat(self):
         x = ''
@@ -1464,18 +2578,30 @@ class Compilation:
                 if self.current == 'Identifier':
                     x = ''
                     try:
-                        a = self.all_variables[self.val]
+                        if not self.isFunc:
+                            a = self.all_variables[self.val]
+                        else:
+                            a = self.func_variables[self.val]
                     except:
                         self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
                         self.cont = False
                         return
                     if a == 'titik':
                         titik_ctr = True
-                        x += str('\'' +self.Identifier() +'\'')
+                        if not self.isFunc:
+                            x += str('\'' +self.Identifier() +'\'')
+                        else:
+                            x += str('\'' +self.func_Identifier() +'\'')
                     elif a == 'baybay':
-                        x += str('\''+ self.Identifier() +'\'')
+                        if not self.isFunc:
+                            x += str('\'' +self.Identifier() +'\'')
+                        else:
+                            x += str('\'' +self.func_Identifier() +'\'')
                     else:
-                        x += str(self.Identifier())
+                        if not self.isFunc:
+                            x += str(self.Identifier())
+                        else:
+                            x += str(self.func_Identifier())
                     if not self.cont:
                         return
                     if x == '':
@@ -1501,6 +2627,14 @@ class Compilation:
                     titik_ctr = True
                 elif self.current == 'Yunit Literal':
                     y += str(self.val.replace('~', '-'))
+                    self.semantic()
+                    continue
+                elif self.current == 'Totoo':
+                    y += str(True)
+                    self.semantic()
+                    continue
+                elif self.current == 'Peke':
+                    y += str(False)
                     self.semantic()
                     continue
                 elif self.current == 'Punto Literal':
@@ -1544,13 +2678,27 @@ class Compilation:
             except:
                 pass
             y = ''
-        add_lexical_errors(z.replace('-', '~'))
+        add_lexical_errors(z.replace('-', '~').replace('True', 'Totoo').replace('False', 'Peke'))
         self.semantic()
         self.newline()
 
     def expression(self):
+        holder = ''
         name = self.val
-        x = self.all_variables[name]
+        if not self.isFunc:
+            try:
+                x = self.all_variables[name]
+            except:
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {name} not defined")
+                self.cont = False
+                return
+        else:
+            try:
+                x = self.func_variables[name]
+            except:
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {name} not defined")
+                self.cont = False
+                return
         y = ''
         z = ''
         baybay_val= ''  
@@ -1564,7 +2712,10 @@ class Compilation:
                     self.semantic()
                     x = self.val
                     baybay_val = input(x[1:-1])
-                    self.variables['baybay'][name] = baybay_val 
+                    if not self.isFunc:
+                        self.variables['baybay'][name] = baybay_val
+                    else:
+                        self.variables_for_function['baybay'][name] = baybay_val
                     self.semantic()
                     self.semantic()
                     self.newline()
@@ -1572,9 +2723,47 @@ class Compilation:
                 else:
                     while self.current != 'newline':
                         if self.current == 'Identifier':
-                            z = self.all_variables[self.val]
+                            if not self.isFunc:
+                                try:
+                                    z = self.all_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
+                            else:
+                                try:
+                                    z = self.func_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
                             if z == 'baybay' or z == 'function':
-                                y += str(self.Identifier())
+                                if not self.isFunc:
+                                    holder = self.Identifier()
+                                    if type(holder) == str:
+                                        y += str(holder)
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                                else:
+                                    holder = self.func_Identifier()
+                                    if type(holder) == str:
+                                        y += str(holder)
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
                             else:
                                 self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
                                 self.cont = False
@@ -1595,7 +2784,10 @@ class Compilation:
                                 self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Baybay variable')
                             self.cont = False
                             return
-                    self.variables['baybay'][name] = eval(y)
+                    if not self.isFunc:
+                        self.variables['baybay'][name] = eval(y)
+                    else:
+                        self.variables_for_function['baybay'][name] = eval(y)
                     return
             elif self.current == '+=':
                 self.semantic()
@@ -1604,7 +2796,10 @@ class Compilation:
                     self.semantic()
                     x = self.val
                     baybay_val = input(x[1:-1])
-                    self.variables['baybay'][name] = baybay_val 
+                    if not self.isFunc:
+                        self.variables['baybay'][name] = baybay_val 
+                    else:
+                        self.variables_for_function['baybay'][name] += baybay_val
                     self.semantic()
                     self.semantic()
                     self.newline()
@@ -1612,13 +2807,47 @@ class Compilation:
                 else:
                     while self.current != 'newline':
                         if self.current == 'Identifier':
-                            z = self.all_variables[self.val]
-                            if z == 'baybay':
-                                y += str(self.Identifier())
+                            if not self.isFunc:
+                                try:
+                                    z = self.all_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
                             else:
-                                self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
-                                self.cont = False
-                                return
+                                try:
+                                    z = self.func_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
+                            if z == 'baybay'or z == 'function':
+                                if not self.isFunc:
+                                    holder = self.Identifier()
+                                    if type(holder) == str:
+                                        y += str(holder)
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                                else:
+                                    holder = self.func_Identifier()
+                                    if type(holder) == str:
+                                        y += str(holder)
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
                             continue
                         elif self.current == 'saBaybay':
                             y += str(self.saBaybay())
@@ -1634,10 +2863,15 @@ class Compilation:
                                 self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Baybay variable')
                             self.cont = False
                             return
-                    self.variables['baybay'][name] += eval(y)
+                    if not self.isFunc:
+                        self.variables['baybay'][name] += eval(y)
+                    else:
+                        self.variables_for_function['baybay'][name] += eval(y)
                     return
             else:
                 self.semantic_error.append(f'TypeError on line {self.line}: Invalid Assignment operator on baybay variable')
+                self.cont = False
+                return
         elif x == 'yunit':
             self.semantic()
             if self.current == '=':
@@ -1647,15 +2881,13 @@ class Compilation:
                     self.semantic()
                     x = self.val
                     try:
-                        num_val = input(x[1:-1])
-                        if num_val.find('.') == -1:
-                            num_val = int(num_val)
-                        else:
-                            num_val = float(num_val)
-                            num_val = int(num_val)
+                        num_val = int(input(x[1:-1]))
                     except TypeError:
                         self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Yunit variable')
-                    self.variables['yunit'][name] = num_val
+                    if not self.isFunc:
+                        self.variables['yunit'][name] = num_val
+                    else:
+                        self.variables_for_function['yunit'][name] = num_val
                     self.semantic()
                     self.semantic()
                     self.newline()
@@ -1663,16 +2895,54 @@ class Compilation:
                 else:
                     while self.current != 'newline':
                         if self.current == 'Identifier':
-                            z = self.all_variables[self.val]
-                            if z == 'yunit' or z == 'punto':
-                                y += str(self.Identifier())
+                            if not self.isFunc:
+                                try:
+                                    z = self.all_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
+                            else:
+                                try:
+                                    z = self.func_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
+                            if z == 'yunit' or z == 'punto' or z == 'function':
+                                if not self.isFunc:
+                                    holder = self.Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(int(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                                else:
+                                    holder = self.func_Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(int(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
                             else:   
                                 self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
                             continue
                         elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
-                            y += str(self.val)
+                            y += str(self.val.replace('~','-'))
                             self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
@@ -1685,7 +2955,10 @@ class Compilation:
                             self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable')
                             self.cont = False
                             return
-                    self.variables['yunit'][name] = int(eval(y))
+                    if not self.isFunc:
+                        self.variables['yunit'][name] = int(eval(y))
+                    else:
+                        self.variables_for_function['yunit'][name] = int(eval(y))
                     self.newline()
                     return
             elif self.current == '+=':
@@ -1695,15 +2968,13 @@ class Compilation:
                     self.semantic()
                     x = self.val
                     try:
-                        num_val = input(x[1:-1])
-                        if num_val.find('.') == -1:
-                            num_val = int(num_val)
-                        else:
-                            num_val = float(num_val)
-                            num_val = int(num_val)
+                        num_val = int(input(x[1:-1]))
                     except TypeError:
                         self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Yunit variable')
-                    self.variables['yunit'][name] += num_val
+                    if not self.isFunc:
+                        self.variables['yunit'][name] += num_val
+                    else:
+                        self.variables_for_function['yunit'][name] += num_val
                     self.semantic()
                     self.semantic()
                     self.newline()
@@ -1711,16 +2982,54 @@ class Compilation:
                 else:
                     while self.current != 'newline':
                         if self.current == 'Identifier':
-                            z = self.all_variables[self.val]
-                            if z == 'yunit' or z == 'punto':
-                                y += str(self.Identifier())
+                            if not self.isFunc:
+                                try:
+                                    z = self.all_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
                             else:
+                                try:
+                                    z = self.func_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
+                            if z == 'yunit' or z == 'punto' or z == 'function':
+                                if not self.isFunc:
+                                    holder = self.Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(int(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                                else:
+                                    holder = self.func_Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(int(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                            else:   
                                 self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
                             continue
                         elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
-                            y += str(self.val)
+                            y += str(self.val.replace('~','-'))
                             self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
@@ -1733,7 +3042,10 @@ class Compilation:
                             self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable')
                             self.cont = False
                             return
-                    self.variables['yunit'][name] += int(eval(y))
+                    if not self.isFunc:
+                        self.variables['yunit'][name] += int(eval(y))
+                    else:
+                        self.variables_for_function['yunit'][name] += int(eval(y))
                     self.newline()
                     return
             elif self.current == '-=':
@@ -1743,61 +3055,13 @@ class Compilation:
                     self.semantic()
                     x = self.val
                     try:
-                        num_val = input(x[1:-1])
-                        if num_val.find('.') == -1:
-                            num_val = int(num_val)
-                        else:
-                            num_val = float(num_val)
-                            num_val = int(num_val)
+                        num_val = int(input(x[1:-1]))
                     except TypeError:
-                        self.semantic_error.append('TypeError on Line {self.line}: Invalid input for Yunit variable')
-                    self.variables['yunit'][name] -= num_val
-                    self.semantic()
-                    self.semantic()
-                    self.newline()
-                    return
-                while self.current != 'newline':
-                    if self.current == 'Identifier':
-                        z = self.all_variables[self.val]
-                        if z == 'yunit' or z == 'punto':
-                            y += str(self.Identifier())
-                        else:
-                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
-                            self.cont = False
-                            return
-                        continue
-                    elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
-                        y += str(self.val)
-                    elif self.current == 'saYunit':
-                        y += str(self.saYunit())
-                    elif self.current == 'saPunto':
-                        y += str(self.punto())
-                    elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
-                        y += self.current
-                        self.semantic()
+                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Yunit variable')
+                    if not self.isFunc:
+                        self.variables['yunit'][name] = num_val
                     else:
-                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable')
-                        self.cont = False
-                        return
-                self.variables['yunit'][name] -= int(eval(y))
-                self.newline()
-                return
-            elif self.current == '*=':
-                self.semantic()
-                if self.current == 'kuha':
-                    self.semantic()
-                    self.semantic()
-                    x = self.val
-                    try:
-                        num_val = input(x[1:-1])
-                        if num_val.find('.') == -1:
-                            num_val = int(num_val)
-                        else:
-                            num_val = float(num_val)
-                            num_val = int(num_val)
-                    except TypeError:
-                        self.semantic_error.append('TypeError on Line {self.line}: Invalid input for Yunit variable')
-                    self.variables['yunit'][name] = num_val
+                        self.variables_for_function['yunit'][name] = num_val
                     self.semantic()
                     self.semantic()
                     self.newline()
@@ -1805,16 +3069,54 @@ class Compilation:
                 else:
                     while self.current != 'newline':
                         if self.current == 'Identifier':
-                            z = self.all_variables[self.val]
-                            if z == 'yunit' or z == 'punto':
-                                y += str(self.Identifier())
+                            if not self.isFunc:
+                                try:
+                                    z = self.all_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
                             else:
+                                try:
+                                    z = self.func_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
+                            if z == 'yunit' or z == 'punto' or z == 'function':
+                                if not self.isFunc:
+                                    holder = self.Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(int(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                                else:
+                                    holder = self.func_Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(int(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                            else:   
                                 self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
                             continue
                         elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
-                            y += str(self.val)
+                            y += str(self.val.replace('~','-'))
                             self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
@@ -1827,7 +3129,97 @@ class Compilation:
                             self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable')
                             self.cont = False
                             return
-                    self.variables['yunit'][name] *= int(eval(y))
+                    if not self.isFunc:
+                        self.variables['yunit'][name] = int(eval(y))
+                    else:
+                        self.variables_for_function['yunit'][name] -= int(eval(y))
+                    self.newline()
+                    return
+            elif self.current == '*=':
+                self.semantic()
+                if self.current == 'kuha':
+                    self.semantic()
+                    self.semantic()
+                    x = self.val
+                    try:
+                        num_val = int(input(x[1:-1]))
+                    except TypeError:
+                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Yunit variable')
+                    if not self.isFunc:
+                        self.variables['yunit'][name] = num_val
+                    else:
+                        self.variables_for_function['yunit'][name] /= num_val
+                    self.semantic()
+                    self.semantic()
+                    self.newline()
+                    return
+                else:
+                    while self.current != 'newline':
+                        if self.current == 'Identifier':
+                            if not self.isFunc:
+                                try:
+                                    z = self.all_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
+                            else:
+                                try:
+                                    z = self.func_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
+                            if z == 'yunit' or z == 'punto' or z == 'function':
+                                if not self.isFunc:
+                                    holder = self.Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(int(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                                else:
+                                    holder = self.func_Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(int(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                            else:   
+                                self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.cont = False
+                                return
+                            continue
+                        elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
+                            y += str(self.val.replace('~','-'))
+                            self.semantic()
+                        elif self.current == 'saYunit':
+                            y += str(self.saYunit())
+                        elif self.current == 'saPunto':
+                            y += str(self.punto())
+                        elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
+                            y += self.current
+                            self.semantic()
+                        else:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable')
+                            self.cont = False
+                            return
+                    if not self.isFunc:
+                        self.variables['yunit'][name] *= int(eval(y))
+                    else:
+                        self.variables_for_function['yunit'][name] *= int(eval(y))
                     self.newline()
                     return
             elif self.current == '/=':
@@ -1839,8 +3231,11 @@ class Compilation:
                     try:
                         num_val = int(input(x[1:-1]))
                     except TypeError:
-                        self.semantic_error.append('TypeError on Line {self.line}: Invalid input for Yunit variable')
-                    self.variables['yunit'][name] /= num_val
+                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Yunit variable')
+                    if not self.isFunc:
+                        self.variables['yunit'][name] = num_val
+                    else:
+                        self.variables_for_function['yunit'][name] /= num_val
                     self.semantic()
                     self.semantic()
                     self.newline()
@@ -1848,16 +3243,54 @@ class Compilation:
                 else:
                     while self.current != 'newline':
                         if self.current == 'Identifier':
-                            z = self.all_variables[self.val]
-                            if z == 'yunit' or z == 'punto':
-                                y += str(self.Identifier())
+                            if not self.isFunc:
+                                try:
+                                    z = self.all_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
                             else:
+                                try:
+                                    z = self.func_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
+                            if z == 'yunit' or z == 'punto' or z == 'function':
+                                if not self.isFunc:
+                                    holder = self.Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(int(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                                else:
+                                    holder = self.func_Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(int(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                            else:   
                                 self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
                             continue
                         elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
-                            y += str(self.val)
+                            y += str(self.val.replace('~','-'))
                             self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
@@ -1870,9 +3303,12 @@ class Compilation:
                             self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit Variable variable')
                             self.cont = False
                             return
-                    self.variables['yunit'][name] *= int(eval(y))
+                    if not self.isFunc:
+                        self.variables['yunit'][name] /= int(eval(y))
+                    else:
+                        self.variables_for_function['yunit'][name] /= int(eval(y))
                     self.newline()
-                    return   
+                    return
         elif x == 'punto':
             self.semantic()
             if self.current == '=':
@@ -1885,7 +3321,10 @@ class Compilation:
                         num_val = float(input(x[1:-1]))
                     except TypeError:
                         self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Punto variable')
-                    self.variables['punto'][name] = num_val
+                    if not self.isFunc:
+                        self.variables['punto'][name] = num_val
+                    else:
+                        self.variables_for_function['punto'][name] = num_val
                     self.semantic()
                     self.semantic()
                     self.newline()
@@ -1893,29 +3332,70 @@ class Compilation:
                 else:
                     while self.current != 'newline':
                         if self.current == 'Identifier':
-                            z = self.all_variables[self.val]
-                            if z == 'yunit' or z == 'punto':
-                                y += str(self.Identifier())
+                            if not self.isFunc:
+                                try:
+                                    z = self.all_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
                             else:
+                                try:
+                                    z = self.func_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
+                            if z == 'yunit' or z == 'punto' or z == 'function':
+                                if not self.isFunc:
+                                    holder = self.Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(float(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                                else:
+                                    holder = self.func_Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(float(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                            else:   
                                 self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
                             continue
                         elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
-                            y += str(self.val)
+                            y += str(self.val.replace('~','-'))
                             self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
                         elif self.current == 'saPunto':
-                            y += str(self.punto())
+                            y += str(self.saPunto())
                         elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
                             y += self.current
                             self.semantic()
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto Variable variable')
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto variable')
                             self.cont = False
                             return
-                    self.variables['punto'][name] = float(eval(y))
+                    if not self.isFunc:
+                        self.variables['punto'][name] = float(eval(y))
+                    else:
+                        self.variables_for_function['punto'][name] = float(eval(y))
                     self.newline()
                     return
             elif self.current == '+=':
@@ -1927,8 +3407,11 @@ class Compilation:
                     try:
                         num_val = float(input(x[1:-1]))
                     except TypeError:
-                        self.semantic_error.append('TypeError on Line {self.line}: Invalid input for Punto variable')
-                    self.variables['punto'][name] += num_val
+                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Punto variable')
+                    if not self.isFunc:
+                        self.variables['punto'][name] += num_val
+                    else:
+                        self.variables_for_function['punto'][name] += num_val
                     self.semantic()
                     self.semantic()
                     self.newline()
@@ -1936,29 +3419,70 @@ class Compilation:
                 else:
                     while self.current != 'newline':
                         if self.current == 'Identifier':
-                            z = self.all_variables[self.val]
-                            if z == 'yunit' or z == 'punto':
-                                y += str(self.Identifier())
+                            if not self.isFunc:
+                                try:
+                                    z = self.all_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
                             else:
+                                try:
+                                    z = self.func_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
+                            if z == 'yunit' or z == 'punto' or z == 'function':
+                                if not self.isFunc:
+                                    holder = self.Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(float(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                                else:
+                                    holder = self.func_Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(float(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                            else:   
                                 self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
                             continue
                         elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
-                            y += str(self.val)
+                            y += str(self.val.replace('~','-'))
                             self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
                         elif self.current == 'saPunto':
-                            y += str(self.punto())
+                            y += str(self.saPunto())
                         elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
                             y += self.current
                             self.semantic()
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto Variable variable')
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto variable')
                             self.cont = False
                             return
-                    self.variables['punto'][name] += float(eval(y))
+                    if not self.isFunc:
+                        self.variables['punto'][name] += float(eval(y))
+                    else:
+                        self.variables_for_function['punto'][name] += float(eval(y))
                     self.newline()
                     return
             elif self.current == '-=':
@@ -1970,8 +3494,11 @@ class Compilation:
                     try:
                         num_val = float(input(x[1:-1]))
                     except TypeError:
-                        self.semantic_error.append('TypeError on Line {self.line}: Invalid input for Punto variable')
-                    self.variables['punto'][name] -= num_val
+                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Punto variable')
+                    if not self.isFunc:
+                        self.variables['punto'][name] -= num_val
+                    else:
+                        self.variables_for_function['punto'][name] -= num_val
                     self.semantic()
                     self.semantic()
                     self.newline()
@@ -1979,29 +3506,70 @@ class Compilation:
                 else:
                     while self.current != 'newline':
                         if self.current == 'Identifier':
-                            z = self.all_variables[self.val]
-                            if z == 'yunit' or z == 'punto':
-                                y += str(self.Identifier())
+                            if not self.isFunc:
+                                try:
+                                    z = self.all_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
                             else:
+                                try:
+                                    z = self.func_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
+                            if z == 'yunit' or z == 'punto' or z == 'function':
+                                if not self.isFunc:
+                                    holder = self.Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(float(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                                else:
+                                    holder = self.func_Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(float(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                            else:   
                                 self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
                             continue
                         elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
-                            y += str(self.val)
+                            y += str(self.val.replace('~','-'))
                             self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
                         elif self.current == 'saPunto':
-                            y += str(self.punto())
+                            y += str(self.saPunto())
                         elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
                             y += self.current
                             self.semantic()
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto Variable variable')
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto variable')
                             self.cont = False
                             return
-                    self.variables['punto'][name] -= float(eval(y))
+                    if not self.isFunc:
+                        self.variables['punto'][name] -= float(eval(y))
+                    else:
+                        self.variables_for_function['punto'][name] -= float(eval(y))
                     self.newline()
                     return
             elif self.current == '*=':
@@ -2013,8 +3581,11 @@ class Compilation:
                     try:
                         num_val = float(input(x[1:-1]))
                     except TypeError:
-                        self.semantic_error.append('TypeError on Line {self.line}: Invalid input for Punto variable')
-                    self.variables['punto'][name] *= num_val
+                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Punto variable')
+                    if not self.isFunc:
+                        self.variables['punto'][name] *= num_val
+                    else:
+                        self.variables_for_function['punto'][name] *= num_val
                     self.semantic()
                     self.semantic()
                     self.newline()
@@ -2022,29 +3593,70 @@ class Compilation:
                 else:
                     while self.current != 'newline':
                         if self.current == 'Identifier':
-                            z = self.all_variables[self.val]
-                            if z == 'yunit' or z == 'punto':
-                                y += str(self.Identifier())
+                            if not self.isFunc:
+                                try:
+                                    z = self.all_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
                             else:
+                                try:
+                                    z = self.func_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
+                            if z == 'yunit' or z == 'punto' or z == 'function':
+                                if not self.isFunc:
+                                    holder = self.Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(float(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                                else:
+                                    holder = self.func_Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(float(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                            else:   
                                 self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
                             continue
                         elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
-                            y += str(self.val)
+                            y += str(self.val.replace('~','-'))
                             self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
                         elif self.current == 'saPunto':
-                            y += str(self.punto())
+                            y += str(self.saPunto())
                         elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
                             y += self.current
                             self.semantic()
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto Variable variable')
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto variable')
                             self.cont = False
                             return
-                    self.variables['punto'][name] *= float(eval(y))
+                    if not self.isFunc:
+                        self.variables['punto'][name] *= float(eval(y))
+                    else:
+                        self.variables_for_function['punto'][name] *= float(eval(y))
                     self.newline()
                     return
             elif self.current == '/=':
@@ -2056,8 +3668,11 @@ class Compilation:
                     try:
                         num_val = float(input(x[1:-1]))
                     except TypeError:
-                        self.semantic_error.append('TypeError on Line {self.line}: Invalid input for Punto variable')
-                    self.variables['punto'][name] /= num_val
+                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Punto variable')
+                    if not self.isFunc:
+                        self.variables['punto'][name] /= num_val
+                    else:
+                        self.variables_for_function['punto'][name] /= num_val
                     self.semantic()
                     self.semantic()
                     self.newline()
@@ -2065,31 +3680,72 @@ class Compilation:
                 else:
                     while self.current != 'newline':
                         if self.current == 'Identifier':
-                            z = self.all_variables[self.val]
-                            if z == 'yunit' or z == 'punto':
-                                y += str(self.Identifier())
+                            if not self.isFunc:
+                                try:
+                                    z = self.all_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
                             else:
+                                try:
+                                    z = self.func_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
+                            if z == 'yunit' or z == 'punto' or z == 'function':
+                                if not self.isFunc:
+                                    holder = self.Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(float(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                                else:
+                                    holder = self.func_Identifier()
+                                    if type(holder) == int or type(holder) == float:
+                                        y += str(float(holder))
+                                    else:
+                                        if z == 'function':
+                                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                            self.cont = False
+                                            return
+                                        else:
+                                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                            self.cont = False
+                                            return
+                            else:   
                                 self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
                             continue
                         elif self.current == 'Yunit Literal' or self.current == 'Punto Literal':
-                            y += str(self.val)
+                            y += str(self.val.replace('~','-'))
                             self.semantic()
                         elif self.current == 'saYunit':
                             y += str(self.saYunit())
                         elif self.current == 'saPunto':
-                            y += str(self.punto())
+                            y += str(self.saPunto())
                         elif self.current in ['+', '-', '*', '**', '/', '%', '(', ')']:
                             y += self.current
                             self.semantic()
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto Variable variable')
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto variable')
                             self.cont = False
                             return
-                    self.variables['punto'][name] *= float(eval(y))
+                    if not self.isFunc:
+                        self.variables['punto'][name] /= float(eval(y))
+                    else:
+                        self.variables_for_function['punto'][name] /= float(eval(y))
                     self.newline()
-                    return   
+                    return
         elif x == 'titik':
             self.semantic()
             if self.current == '=':
@@ -2098,8 +3754,20 @@ class Compilation:
                     self.semantic()
                     self.semantic()
                     x = self.val
-                    titik_val = input(x[1:-1])
-                    self.variables['baybay'][name] = titik_val 
+                    try:
+                        titik_val = input(x[1:-1])
+                    except:
+                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Titik variable')
+                        self.cont = False
+                        return
+                    if len(titik_val) != 0:
+                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Titik variable')
+                        self.cont = False
+                        return
+                    if not self.isFunc:
+                        self.variables['titik'][name] = titik_val
+                    else:
+                        self.variables_for_function['titik'][name] = titik_val
                     self.semantic()
                     self.semantic()
                     self.newline()
@@ -2107,9 +3775,36 @@ class Compilation:
                 else:
                     while self.current != 'newline':
                         if self.current == 'Identifier':
-                            z = self.all_variables[self.val]
-                            if z == 'titik':
-                                y += str(self.Identifier())
+                            if not self.isFunc:
+                                try:
+                                    z = self.all_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
+                            else:
+                                try:
+                                    z = self.func_variables[self.val]
+                                except:
+                                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                    self.cont = False
+                                    return
+                            if z == 'titik' or z == 'function':
+                                if not self.isFunc:
+                                    holder = self.Identifier()
+                                else:
+                                    holder = self.func_Identifier()
+                                if type(holder) == str and len(holder) == 1:
+                                    y += str(holder)
+                                else:
+                                    if z == 'function':
+                                        self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                        self.cont = False
+                                        return
+                                    else:
+                                        self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                        self.cont = False
+                                        return
                             else:
                                 self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
                                 self.cont = False
@@ -2120,17 +3815,20 @@ class Compilation:
                         elif self.current == 'Titik Literal':
                             y += str(self.val)
                             self.semantic()
-                        elif self.current in ['+', '(', ')']:
+                        elif self.current in ['(', ')']:
                             y += self.current
                             self.semantic()
                         else:
-                            if self.current in ['-', '*', '**','/', '%' ]:
+                            if self.current in ['+', '-', '*', '**','/', '%' ]:
                                 self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
                             else:
                                 self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik variable')
                             self.cont = False
                             return
-                    self.variables['titik'][name] = eval(y)
+                    if not self.isFunc:
+                        self.variables['titik'][name] = eval(y)
+                    else:
+                        self.variables_for_function['titik'][name] = eval(y)
                     return
             else:
                 self.semantic_error.append(f'TypeError on line {self.line}: Invalid Assignment operator on Titik variable')
@@ -2143,7 +3841,10 @@ class Compilation:
                     self.cont = False
                     return
                 else:
-                    self.variables[x][name] = self.condition()
+                    if not self.isFunc:
+                        self.variables[x][name] = self.condition()
+                    else:
+                        self.variables_for_function[x][name] = self.condition()
         elif x == 'titik_list':
             self.semantic()
             if self.current == '=':
@@ -2153,9 +3854,34 @@ class Compilation:
                         self.semantic()
                         y += str(self.titik_list())
                     elif self.current == 'Identifier':
-                        z = self.all_variables[self.val]
-                        if z == 'titik_list':
-                            y += str(self.Identifier())
+                        if not self.isFunc:
+                            try:
+                                z = self.all_variables[self.val]
+                            except:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                self.cont = False
+                                return
+                        else:
+                            try:
+                                z = self.func_variables[self.val]
+                            except:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                self.cont = False
+                                return
+                        if z == 'titik_list' or z == 'function':
+                            if not self.isFunc:
+                                holder += str(self.Identifier())
+                            else:
+                                holder += str(self.func_Identifier())
+                            if type(holder) == list:
+                                if len(holder) == 0:
+                                    y += str(holder)
+                                elif holder[0] == str and len(holder[0]) == 1:
+                                    y += str(holder)
+                                else:
+                                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid return value for function')
+                                    self.cont = False
+                                    return
                         else:
                             self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
                             self.cont = False
@@ -2170,6 +3896,65 @@ class Compilation:
                             self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik array variable')
                         self.cont = False
                         return
+                if not self.isFunc:
+                    self.variables['titk_list'][name] = eval(y)
+                else:
+                    self.variables_for_function['titik_list'][name] = eval(y)
+                    return
+            elif self.current == '+=':
+                self.semantic()
+                while self.current != 'newline':
+                    if self.current == '[':
+                        self.semantic()
+                        y += str(self.titik_list())
+                    elif self.current == 'Identifier':
+                        if not self.isFunc:
+                            try:
+                                z = self.all_variables[self.val]
+                            except:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                self.cont = False
+                                return
+                        else:
+                            try:
+                                z = self.func_variables[self.val]
+                            except:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                self.cont = False
+                                return
+                        if z == 'titik_list' or z == list:
+                            if not self.isFunc:
+                                holder += str(self.Identifier())
+                            else:
+                                holder += str(self.func_Identifier())
+                            if type(holder) == list:
+                                if len(holder) == 0:
+                                    y += str(holder)
+                                elif holder[0] == str and len(holder[0]) == 1:
+                                    y += str(holder)
+                                else:
+                                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid return value for function')
+                                    self.cont = False
+                                    return
+                        else:
+                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                            self.cont = False
+                            return
+                    elif self.current in ["(,", ")", "+"]:
+                        y += self.current
+                        self.semantic()
+                    else:
+                        if self.current in ['-', '*', '**','/', '%' ]:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
+                        else:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik array variable')
+                        self.cont = False
+                        return
+                if not self.isFunc:
+                    self.variables['titk_list'][name] += eval(y)
+                else:
+                    self.variables_for_function['titik_list'][name] += eval(y)
+                    return
             else:
                 self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not a valid Assignment operator")
                 self.cont = False
@@ -2183,9 +3968,34 @@ class Compilation:
                         self.semantic()
                         y += str(self.baybay_list())
                     elif self.current == 'Identifier':
-                        z = self.all_variables[self.val]
+                        if not self.isFunc:
+                            try:
+                                z = self.all_variables[self.val]
+                            except:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                self.cont = False
+                                return
+                        else:
+                            try:
+                                z = self.func_variables[self.val]
+                            except:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                self.cont = False
+                                return
                         if z == 'baybay_list':
-                            y += str(self.Identifier())
+                            if not self.isFunc:
+                                holder += str(self.Identifier())
+                            else:
+                                holder += str(self.func_Identifier())
+                            if type(holder) == list:
+                                if len(holder) == 0:
+                                    y += str(holder)
+                                elif holder[0] == str:
+                                    y += str(holder)
+                                else:
+                                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid return value for function')
+                                    self.cont = False
+                                    return
                         else:
                             self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
                             self.cont = False
@@ -2197,9 +4007,68 @@ class Compilation:
                         if self.current in ['-', '*', '**','/', '%' ]:
                             self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Baybay array variable')
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik array variable')
                         self.cont = False
                         return
+                if not self.isFunc:
+                    self.variables['baybay_list'][name] = eval(y)
+                else:
+                    self.variables_for_function['baybay_list'][name] = eval(y)
+                    return
+            elif self.current == '+=':
+                self.semantic()
+                while self.current != 'newline':
+                    if self.current == '[':
+                        self.semantic()
+                        y += str(self.baybay_list())
+                    elif self.current == 'Identifier':
+                        if not self.isFunc:
+                            try:
+                                z = self.all_variables[self.val]
+                            except:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                self.cont = False
+                                return
+                        else:
+                            try:
+                                z = self.func_variables[self.val]
+                            except:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                self.cont = False
+                                return
+                        if z == 'baybay_list' or z == 'function':
+                            if not self.isFunc:
+                                holder += str(self.Identifier())
+                            else:
+                                holder += str(self.func_Identifier())
+                            if type(holder) == list:
+                                if len(holder) == 0:
+                                    y += str(holder)
+                                elif holder[0] == str :
+                                    y += str(holder)
+                                else:
+                                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid return value for function')
+                                    self.cont = False
+                                    return
+                        else:
+                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                            self.cont = False
+                            return
+                    elif self.current in ["(,", ")", "+"]:
+                        y += self.current
+                        self.semantic()
+                    else:
+                        if self.current in ['-', '*', '**','/', '%' ]:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
+                        else:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik array variable')
+                        self.cont = False
+                        return
+                if not self.isFunc:
+                    self.variables['baybay_list'][name] += eval(y)
+                else:
+                    self.variables_for_function['baybay_list'][name] += eval(y)
+                    return
             else:
                 self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not a valid Assignment operator")
                 self.cont = False
@@ -2213,9 +4082,34 @@ class Compilation:
                         self.semantic()
                         y += str(self.yunit_list())
                     elif self.current == 'Identifier':
-                        z = self.all_variables[self.val]
-                        if z == 'yunit_list':
-                            y += str(self.Identifier())
+                        if not self.isFunc:
+                            try:
+                                z = self.all_variables[self.val]
+                            except:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                self.cont = False
+                                return
+                        else:
+                            try:
+                                z = self.func_variables[self.val]
+                            except:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                self.cont = False
+                                return
+                        if z == 'yunit_list' or z == 'function':
+                            if not self.isFunc:
+                                holder += str(self.Identifier())
+                            else:
+                                holder += str(self.func_Identifier())
+                            if type(holder) == list:
+                                if len(holder) == 0:
+                                    y += str(holder)
+                                elif type(holder[0]) == int:
+                                    y += str(holder)
+                                else:
+                                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid return value for function')
+                                    self.cont = False
+                                    return
                         else:
                             self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
                             self.cont = False
@@ -2227,9 +4121,68 @@ class Compilation:
                         if self.current in ['-', '*', '**','/', '%' ]:
                             self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit array variable')
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik array variable')
                         self.cont = False
                         return
+                if not self.isFunc:
+                    self.variables['yunit_list'][name] = eval(y)
+                else:
+                    self.variables_for_function['yunit_list'][name] = eval(y)
+                    return
+            elif self.current == '+=':
+                self.semantic()
+                while self.current != 'newline':
+                    if self.current == '[':
+                        self.semantic()
+                        y += str(self.yunit_list())
+                    elif self.current == 'Identifier':
+                        if not self.isFunc:
+                            try:
+                                z = self.all_variables[self.val]
+                            except:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                self.cont = False
+                                return
+                        else:
+                            try:
+                                z = self.func_variables[self.val]
+                            except:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                self.cont = False
+                                return
+                        if z == 'yunit_list' or z == 'function':
+                            if not self.isFunc:
+                                holder += str(self.Identifier())
+                            else:
+                                holder += str(self.func_Identifier())
+                            if type(holder) == list:
+                                if len(holder) == 0:
+                                    y += str(holder)
+                                elif type(holder[0]) == int:
+                                    y += str(holder)
+                                else:
+                                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid return value for function')
+                                    self.cont = False
+                                    return
+                        else:
+                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                            self.cont = False
+                            return
+                    elif self.current in ["(,", ")", "+"]:
+                        y += self.current
+                        self.semantic()
+                    else:
+                        if self.current in ['-', '*', '**','/', '%' ]:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
+                        else:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik array variable')
+                        self.cont = False
+                        return
+                if not self.isFunc:
+                    self.variables['yunit_list'][name] += eval(y)
+                else:
+                    self.variables_for_function['yunit_list'][name] += eval(y)
+                    return
             else:
                 self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not a valid Assignment operator")
                 self.cont = False
@@ -2243,9 +4196,34 @@ class Compilation:
                         self.semantic()
                         y += str(self.punto_list())
                     elif self.current == 'Identifier':
-                        z = self.all_variables[self.val]
+                        if not self.isFunc:
+                            try:
+                                z = self.all_variables[self.val]
+                            except:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                self.cont = False
+                                return
+                        else:
+                            try:
+                                z = self.func_variables[self.val]
+                            except:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                self.cont = False
+                                return
                         if z == 'punto_list':
-                            y += str(self.Identifier())
+                            if not self.isFunc:
+                                holder += str(self.Identifier())
+                            else:
+                                holder += str(self.func_Identifier())
+                            if type(holder) == list:
+                                if len(holder) == 0:
+                                    y += str(holder)
+                                elif type(holder[0]) == float:
+                                    y += str(holder)
+                                else:
+                                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid return value for function')
+                                    self.cont = False
+                                    return
                         else:
                             self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
                             self.cont = False
@@ -2257,13 +4235,75 @@ class Compilation:
                         if self.current in ['-', '*', '**','/', '%' ]:
                             self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto array variable')
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik array variable')
                         self.cont = False
                         return
+                if not self.isFunc:
+                    self.variables['punto_list'][name] = eval(y)
+                else:
+                    self.variables_for_function['punto_list'][name] = eval(y)
+                    return
+            elif self.current == '+=':
+                self.semantic()
+                while self.current != 'newline':
+                    if self.current == '[':
+                        self.semantic()
+                        y += str(self.punto_list())
+                    elif self.current == 'Identifier':
+                        if not self.isFunc:
+                            try:
+                                z = self.all_variables[self.val]
+                            except:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                self.cont = False
+                                return
+                        else:
+                            try:
+                                z = self.func_variables[self.val]
+                            except:
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
+                                self.cont = False
+                                return
+                        if z == 'punto_list'or z== 'function':
+                            if not self.isFunc:
+                                holder += str(self.Identifier())
+                            else:
+                                holder += str(self.func_Identifier())
+                            if type(holder) == list:
+                                if len(holder) == 0:
+                                    y += str(holder)
+                                elif type(holder[0]) == float:
+                                    y += str(holder)
+                                else:
+                                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid return value for function')
+                                    self.cont = False
+                                    return
+                        else:
+                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                            self.cont = False
+                            return
+                    elif self.current in ["(,", ")", "+"]:
+                        y += self.current
+                        self.semantic()
+                    else:
+                        if self.current in ['-', '*', '**','/', '%' ]:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
+                        else:
+                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik array variable')
+                        self.cont = False
+                        return
+                if not self.isFunc:
+                    self.variables['punto_list'][name] += eval(y)
+                else:
+                    self.variables_for_function['punto_list'][name] += eval(y)
+                    return
             else:
                 self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not a valid Assignment operator")
                 self.cont = False
                 return
+        elif x == 'function':
+            self.Identifier()
+            self.semantic()
         else:
             self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
             self.cont = False
@@ -2279,127 +4319,189 @@ class Compilation:
         self.semantic()
         self.semantic()
         s_name = self.val
-        if s_name in self.var:
-            self.semantic_error.append(f"NameError on line {self.line}: {s_name} is already defined")
-            self.cont = False
-            return
+        if not self.isFunc:
+            if s_name in self.var:
+                self.semantic_error.append(f"NameError on line {self.line}: {s_name} is already defined")
+                self.cont = False
+                return
         else:
+            if s_name in self.var:
+                self.semantic_error.append(f"NameError on line {self.line}: {s_name} is already defined")
+                self.cont = False
+                return
+        if not self.isFunc:
             self.var.append(s_name)
             self.declare('bool', self.val)
+        else:
+            self.func_var.append(s_name)
+            self.func_dec+('bool', self.val)
+        self.semantic()
+        if self.current == '=':
             self.semantic()
-            if self.current == '=':
-                self.semantic()
-                while self.current != 'newline' and self.current != ',':
-                    if self.current == 'Identifier':
-                        z = self.Identifier()
-                        if self.cont == False:
-                            return  
-                        if type(z) == bool:
-                            y += str(z)+ ' '
-                            isBool = True
-                        elif type(z) == str:
-                            y += z[1:-1]+ ' '
-                            isBool = False
-                        else:
-                            y += str(z)+ ' '
-                            isBool = False
-                        continue
-                    elif self.current == 'Totoo':
-                        y += 'True'+ ' '
-                        isBool = True
-                    elif self.current == 'Peke':
-                        y += 'False'+ ' '
-                        isBool = True
-                    elif self.current == 'saBaybay':
-                        y += str(self.saBaybay())+ ' '
-                        isBool = False
-                        continue
-                    elif self.current == 'saPunto':
-                        y += str(self.saPunto())+ ' '
-                        isBool = False
-                        continue
-                    elif self.current == 'saTitik':
-                        y += str(self.saTitik()) + ' '
-                        isBool = False
-                        continue
-                    elif self.current == 'saYunit':
-                        y += str(self.saYunit()) + ' '
-                        isBool = False
-                        continue
-                    elif self.current == 'Baybay Literal' or self.current == 'Titik Literal':
-                        y += str(self.val[1:-1]) + ' '
-                        isBool = False
-                    elif self.current == 'at':
-                        y += 'and' + ' '
-                        isBool = False
-                    elif self.current == 'o':
-                        y += 'and' + ' '
-                        isBool = False
-                    elif self.current == '[':
-                        self.semantic()
-                        if self.current == 'Yunit Literal' or self.current == 'saYunit':
-                            y += str(self.yunit_list()) + ' '   
-                            isBool = False
-                        elif self.current == 'Punto Literal' or self.current == 'saPunto':
-                            y += str(self.punto_list()) + ' '
-                            isBool = False
-                        elif self.current == 'Baybay Literal' or self.current == 'saBaybay':
-                            y += str(self.baybay_list()) + ' '
-                            isBool = False
-                        elif self.current == 'Titik' or self.current == 'saTitik':
-                            y += str(self.titik_list()) + ' '
-                            isBool = False
-                        continue
-                    elif self.current in ['>', '<', '>=', '<=', '+', '-', '*', '/', '%', '**']:
-                        y += self.current + ' '
-                        if isBool == True:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid operator for Boolean")
-                            self.cont = False
-                            return 
-                    else:
-                        y += self.val + ' '
-                        isBool = False
-                    self.semantic()
-                if self.cont == False:
-                    return
-                try:
-                    self.variables['bool'][s_name] = eval(y)
-                    if self.current == ',':
-                        self.bool_continue()
-                        return
-                    self.newline()
-                except SyntaxError as e:
-                    self.cont = False
-                    return
-            elif self.current == ',':
-                self.bool_continue()    
-    
-    def condition(self):
-        isBool = False
-        isCond = False
-        ctr = False
-        enter = 1
-        y = ''
-        z = ''
-        if enter != 0:
-            while self.current != 'newline' and self.current != ')':
+            while self.current != 'newline' and self.current != ',':
                 if self.current == 'Identifier':
-                    z = self.Identifier()
+                    if not self.isFunc:
+                        try:
+                            x = self.all_variables[self.val]
+                        except:
+                            self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                            self.cont = False
+                            return
+                    else:
+                        try:
+                            x = self.func_variables[self.val]
+                        except:
+                            self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                            self.cont = False
+                            return
+                    if not self.isFunc:
+                        z = self.Identifier()
+                    else:
+                        z = self.func_Identifier()
                     if self.cont == False:
                         return  
                     if type(z) == bool:
                         y += str(z)+ ' '
                         isBool = True
                     elif type(z) == str:
-                        y += z[1:-1]+ ' '
+                        y += '\'' + z+ '\' '
                         isBool = False
                     else:
                         y += str(z)+ ' '
                         isBool = False
                     continue
-                elif self.current == 'di':
-                    y+= 'not'
+                elif self.current == 'Totoo':
+                    y += 'True'+ ' '
+                    isBool = True
+                elif self.current == 'Peke':
+                    y += 'False'+ ' '
+                    isBool = True
+                elif self.current == 'saBaybay':
+                    y += '\'' + str(self.saBaybay())+ '\' '
                     isBool = False
+                    continue
+                elif self.current == 'saPunto':
+                    y += str(self.saPunto())+ ' '
+                    isBool = False
+                    continue
+                elif self.current == 'saTitik':
+                    y += '\'' + str(self.saTitik()) + '\' '
+                    isBool = False
+                    continue
+                elif self.current == 'saYunit':
+                    y += str(self.saYunit()) + ' '
+                    isBool = False
+                    continue
+                elif self.current == 'Baybay Literal' or self.current == 'Titik Literal':
+                    y += str(self.val) + ' '
+                    isBool = False
+                elif self.current == 'at':
+                    y += 'and' + ' '
+                    isBool = False
+                elif self.current == 'o':
+                    y += 'and' + ' '
+                    isBool = False
+                elif self.current == '[':
+                    self.semantic()
+                    if self.current == 'Yunit Literal' or self.current == 'saYunit':
+                        y += str(self.yunit_list()) + ' '   
+                        isBool = False
+                    elif self.current == 'Punto Literal' or self.current == 'saPunto':
+                        y += str(self.punto_list()) + ' '
+                        isBool = False
+                    elif self.current == 'Baybay Literal' or self.current == 'saBaybay':
+                        y += str(self.baybay_list()) + ' '
+                        isBool = False
+                    elif self.current == 'Titik' or self.current == 'saTitik':
+                        y += str(self.titik_list()) + ' '
+                        isBool = False
+                    continue
+                elif self.current in ['>', '<', '>=', '<=', '+', '-', '*', '/', '%', '**']:
+                    y += self.current + ' '
+                    if isBool == True:
+                        self.semantic_error.append(f"TypeError on line {self.line}: Invalid operator for Boolean")
+                        self.cont = False
+                        return 
+                else:
+                    y += self.val + ' '
+                    isBool = False
+                self.semantic()
+            if self.cont == False:
+                return
+            try:
+                if not self.isFunc:
+                    self.variables['bool'][s_name] = eval(y)
+                else:
+                    self.variables_for_function['bool'][s_name] = eval(y)
+                if self.current == ',':
+                    self.bool_continue()
+                    return
+                self.newline()
+            except SyntaxError as e:
+                self.cont = False
+                return
+        elif self.current == ',':
+            self.bool_continue()    
+
+    def bool_continue(self):
+        x = ''
+        y = ''
+        z = ''
+        holder = ''
+        isBool = False
+        self.semantic()
+        s_name = self.val
+        if not self.isFunc:
+            if s_name in self.var:
+                self.semantic_error.append(f"NameError on line {self.line}: {s_name} is already defined")
+                self.cont = False
+                return
+        else:
+            if s_name in self.var:
+                self.semantic_error.append(f"NameError on line {self.line}: {s_name} is already defined")
+                self.cont = False
+                return
+        if not self.isFunc:
+            self.var.append(s_name)
+            self.declare('bool', self.val)
+        else:
+            self.func_var.append(s_name)
+            self.func_dec+('bool', self.val)
+        self.semantic()
+        if self.current == '=':
+            self.semantic()
+            while self.current != 'newline' and self.current != ',':
+                if self.current == 'Identifier':
+                    if not self.isFunc:
+                        try:
+                            x = self.all_variables[self.val]
+                        except:
+                            self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                            self.cont = False
+                            return
+                    else:
+                        try:
+                            x = self.func_variables[self.val]
+                        except:
+                            self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                            self.cont = False
+                            return
+                    if not self.isFunc:
+                        z = self.Identifier()
+                    else:
+                        z = self.func_Identifier()
+                    if self.cont == False:
+                        return
+                    if type(z) == bool:
+                        y += str(z)+ ' '
+                        isBool = True
+                    elif type(z) == str:
+                        y += '\'' + z+ '\' '
+                        isBool = False
+                    else:
+                        y += str(z)+ ' '
+                        isBool = False
+                    continue
                 elif self.current == 'Totoo':
                     y += 'True'+ ' '
                     isBool = True
@@ -2423,7 +4525,103 @@ class Compilation:
                     isBool = False
                     continue
                 elif self.current == 'Baybay Literal' or self.current == 'Titik Literal':
-                    y += str(self.val[1:-1]) + ' '
+                    y += str(self.val) + ' '
+                    isBool = False
+                elif self.current == 'at':
+                    y += 'and' + ' '
+                    isBool = False
+                elif self.current == 'o':
+                    y += 'and' + ' '
+                    isBool = False
+                elif self.current in ['>', '<', '>=', '<=', '+', '-', '*', '/', '%', '**']:
+                    y += self.current + ' '
+                    if isBool == True:
+                        self.semantic_error.append(f"TypeError on line {self.line}: Invalid operator for Boolean")
+                        self.cont = False
+                        return 
+                else:
+                    y += self.val + ' '
+                    isBool = False
+                self.semantic()
+            if self.cont == False:
+                return
+            try:
+                if not self.isFunc:
+                    self.variables['bool'][s_name] = eval(y)
+                else:
+                    self.variables_for_function['bool'][s_name] = eval(y)
+                if self.current == ',':
+                    self.bool_continue()
+                    return
+                self.newline()
+            except SyntaxError as e:
+                self.cont = False
+                return
+        elif self.current == ',':
+            self.bool_continue()    
+
+    def condition(self):
+        isBool = False
+        isCond = False
+        ctr = False
+        enter = 1
+        y = ''
+        z = ''
+        if enter != 0:
+            while self.current != 'newline' and self.current != ')':
+                if self.current == 'Identifier':
+                    try:
+                        if not self.isFunc:
+                            x = self.all_variables[self.val]
+                        else:
+                            x = self.func_variables[self.val]
+                    except:
+                        self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                        self.cont = False
+                        return
+                    if not self.isFunc:
+                        z = self.Identifier()
+                    else:
+                        z = self.func_Identifier()
+                    if self.cont == False:
+                        return  
+                    if type(z) == bool:
+                        y += str(z)+ ' '
+                        isBool = True
+                    elif type(z) == str:
+                        y +='\''+ z+ '\' '
+                        isBool = False
+                    else:
+                        y += str(z)+ ' '
+                        isBool = False
+                    continue
+                elif self.current == 'di':
+                    y+= 'not'
+                    isBool = False
+                elif self.current == 'Totoo':
+                    y += 'True'+ ' '
+                    isBool = True
+                elif self.current == 'Peke':
+                    y += 'False'+ ' '
+                    isBool = True
+                elif self.current == 'saBaybay':
+                    y +='\''+ str(self.saBaybay())+ '\' '
+                    isBool = False
+                    continue
+                elif self.current == 'saPunto':
+                    y += str(self.saPunto())+ ' '
+                    isBool = False
+                    continue
+                elif self.current == 'saTitik':
+                    y +='\'' +str(self.saTitik()) + '\' '
+                    isBool = False
+                    continue
+                elif self.current == 'saYunit':
+                    y += str(self.saYunit()) + ' '
+                    isBool = False
+                    continue
+                elif self.current == 'Baybay Literal' or self.current == 'Titik Literal':
+                    y += str(self.val) + ' '
                     isBool = False
                 elif self.current == 'at':
                     y += 'and' + ' '
@@ -2435,7 +4633,7 @@ class Compilation:
                     y += self.current + ' '
                     enter += 1
                 elif self.current == ')':
-                    enter -= 1
+                    enter -= 1  
                 elif self.current == '[':
                     self.semantic()
                     if self.current == 'Yunit Literal' or self.current == 'saYunit':
@@ -2481,94 +4679,6 @@ class Compilation:
                 self.cont = False
                 return
 
-    def bool_continue(self):
-        x = ''
-        y = ''
-        z = ''
-        holder = ''
-        isBool = False
-        self.semantic()
-        s_name = self.val
-        if s_name in self.var:
-            self.semantic_error.append(f"NameError on line {self.line}: {s_name} is already defined")
-            self.cont = False
-            return
-        else:
-            self.var.append(s_name)
-            self.declare('bool', self.val)
-            self.semantic()
-            if self.current == '=':
-                self.semantic()
-                while self.current != 'newline' and self.current != ',':
-                    if self.current == 'Identifier':
-                        z = self.Identifier()
-                        if self.cont == False:
-                            return  
-                        if type(z) == bool:
-                            y += str(z)+ ' '
-                            isBool = True
-                        elif type(z) == str:
-                            y += z[1:-1]+ ' '
-                            isBool = False
-                        else:
-                            y += str(z)+ ' '
-                            isBool = False
-                        continue
-                    elif self.current == 'Totoo':
-                        y += 'True'+ ' '
-                        isBool = True
-                    elif self.current == 'Peke':
-                        y += 'False'+ ' '
-                        isBool = True
-                    elif self.current == 'saBaybay':
-                        y += str(self.saBaybay())+ ' '
-                        isBool = False
-                        continue
-                    elif self.current == 'saPunto':
-                        y += str(self.saPunto())+ ' '
-                        isBool = False
-                        continue
-                    elif self.current == 'saTitik':
-                        y += str(self.saTitik()) + ' '
-                        isBool = False
-                        continue
-                    elif self.current == 'saYunit':
-                        y += str(self.saYunit()) + ' '
-                        isBool = False
-                        continue
-                    elif self.current == 'Baybay Literal' or self.current == 'Titik Literal':
-                        y += str(self.val[1:-1]) + ' '
-                        isBool = False
-                    elif self.current == 'at':
-                        y += 'and' + ' '
-                        isBool = False
-                    elif self.current == 'o':
-                        y += 'and' + ' '
-                        isBool = False
-                    elif self.current in ['>', '<', '>=', '<=', '+', '-', '*', '/', '%', '**']:
-                        y += self.current + ' '
-                        if isBool == True:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid operator for Boolean")
-                            self.cont = False
-                            return 
-                    else:
-                        y += self.val + ' '
-                        isBool = False
-                    self.semantic()
-                if self.cont == False:
-                    return
-                try:
-                    self.variables['bool'][s_name] = eval(y)
-                    if self.current == ',':
-                        self.bool_continue()
-                        return
-                    self.newline()
-                except SyntaxError as e:
-                    self.cont = False
-                    return
-            elif self.current == ',':
-                self.bool_continue()    
-
     def kung(self):
         openctr = 1
         closectr = 0
@@ -2576,21 +4686,72 @@ class Compilation:
         self.semantic()
         x = ''
         x = self.condition()
+        if not self.cont:
+            return
         self.semantic()
         self.newline()
         self.semantic()
         self.newline()
         if x == True:
-            while self.current != '}' and self.cont != False:
-                if self.current == 'sulat':
+            while self.current != '}' and self.cont != False and self.isReturn == False:
+                if self.current == 'yunit':
+                    self.yunit()
+                    self.newline()
+                elif self.current == 'punto':
+                    self.punto()
+                    self.newline()
+                elif self.current == 'baybay':
+                    self.baybay()
+                    self.newline()
+                elif self.current == 'titik':
+                    self.titik()
+                    self.newline()
+                elif self.current == 'bool':
+                    self.boolean()
+                    self.newline()
+                elif self.current == 'sulat':
                     self.sulat()
                     self.newline()
-                if self.current == 'kung':
+                elif self.current == 'kung':
                     self.kung()
+                    self.newline()
+                elif self.current == 'pili':
+                    self.pili()
                     self.newline()
                 elif self.current == 'Identifier':
                     self.expression()
                     self.newline()
+                elif self.current == 'habang':
+                    self.index += 1
+                    self.habang()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'para':
+                    self.index += 1
+                    self.para()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'gawin':
+                    self.index += 1
+                    self.gawin()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'laktaw':
+                    self.semantic()
+                    self.newline()
+                elif self.current == 'tapos':
+                    self.cont == False
+                if self.index == 1:
+                    if self.current == 'tuloy':
+                        self.isContinue = True
+                        return
+                if self.isFunc:
+                    if self.current == 'balik':
+                        self.isReturn = True
+                        self.semantic()
+                        self.return_value = self.return_val()
+                        self.newline()
+                        break
             self.semantic()
             self.newline()
             while self.current == 'kundi':
@@ -2642,6 +4803,8 @@ class Compilation:
                             self.semantic()
                             self.semantic()
                             x = self.condition()
+                            if not self.cont:
+                                return
                             self.semantic()
                             self.newline()
                             self.semantic()
@@ -2684,13 +4847,65 @@ class Compilation:
         self.semantic()
         self.newline()
         if x == True:
-            while self.current != '}' and self.cont != False:
-                if self.current == 'sulat':
+            while self.current != '}' and self.cont != False and self.isReturn == False:
+                if self.current == 'yunit':
+                    self.yunit()
+                    self.newline()
+                elif self.current == 'punto':
+                    self.punto()
+                    self.newline()
+                elif self.current == 'baybay':
+                    self.baybay()
+                    self.newline()
+                elif self.current == 'titik':
+                    self.titik()
+                    self.newline()
+                elif self.current == 'bool':
+                    self.boolean()
+                    self.newline()
+                elif self.current == 'sulat':
                     self.sulat()
                     self.newline()
-                if self.current == 'kung':
+                elif self.current == 'kung':
                     self.kung()
                     self.newline()
+                elif self.current == 'pili':
+                    self.pili()
+                    self.newline()
+                elif self.current == 'Identifier':
+                    self.expression()
+                    self.newline()
+                elif self.current == 'habang':
+                    self.index += 1
+                    self.habang()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'para':
+                    self.index += 1
+                    self.para()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'gawin':
+                    self.index += 1
+                    self.gawin()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'tapos':
+                    self.cont == False
+                elif self.current == 'laktaw':
+                    self.semantic()
+                    self.newline()
+                if self.index == 1:
+                    if self.current == 'tuloy':
+                        self.isContinue = True
+                        return
+                if self.isFunc:
+                    if self.current == 'balik':
+                        self.isReturn = True
+                        self.semantic()
+                        self.return_value = self.return_val()
+                        self.newline()
+                        break
             self.semantic()
         else:
             while openctr != closectr:
@@ -2708,15 +4923,61 @@ class Compilation:
         self.semantic()
         self.newline()
         while self.current != '}' and self.cont != False:
-            if self.current == 'sulat':
-                self.sulat()
-                self.newline()
-            if self.current == 'kung':
-                self.kung()
-                self.newline()
-            if self.current == 'Identifier':
-                self.expression()
-                self.newline()
+                if self.current == 'yunit':
+                    self.yunit()
+                    self.newline()
+                elif self.current == 'punto':
+                    self.punto()
+                    self.newline()
+                elif self.current == 'baybay':
+                    self.baybay()
+                    self.newline()
+                elif self.current == 'titik':
+                    self.titik()
+                    self.newline()
+                elif self.current == 'bool':
+                    self.boolean()
+                    self.newline()
+                elif self.current == 'sulat':
+                    self.sulat()
+                    self.newline()
+                elif self.current == 'kung':
+                    self.kung()
+                    self.newline()
+                elif self.current == 'pili':
+                    self.pili()
+                    self.newline()
+                elif self.current == 'Identifier':
+                    self.expression()
+                    self.newline()
+                elif self.current == 'habang':
+                    self.index += 1
+                    self.habang()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'para':
+                    self.index += 1
+                    self.para()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'gawin':
+                    self.index += 1
+                    self.gawin()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'laktaw':
+                    self.semantic()
+                    self.newline()
+                if self.index == 1:
+                    if self.current == 'tuloy':
+                        break
+                if self.isFunc:
+                    if self.current == 'balik':
+                        self.isReturn = True
+                        self.semantic()
+                        self.return_value = self.return_val()
+                        self.newline()
+                        break
         self.semantic()
 
     def pili(self):
@@ -2739,7 +5000,7 @@ class Compilation:
         self.semantic()
         self.newline()
         self.pag(x, y)
-                
+
     def pag(self, x,y):
         while self.current == 'pag' and self.cont != False and self.current != 'kusa':
             self.semantic()
@@ -2753,12 +5014,64 @@ class Compilation:
                 self.semantic()
                 self.newline()
                 while self.current != '}' and self.cont != False:
-                    if self.current == 'sulat':
+                    if self.current == 'yunit':
+                        self.yunit()
+                        self.newline()
+                    elif self.current == 'punto':
+                        self.punto()
+                        self.newline()
+                    elif self.current == 'baybay':
+                        self.baybay()
+                        self.newline()
+                    elif self.current == 'titik':
+                        self.titik()
+                        self.newline()
+                    elif self.current == 'bool':
+                        self.boolean()
+                        self.newline()
+                    elif self.current == 'sulat':
                         self.sulat()
                         self.newline()
                     elif self.current == 'kung':
                         self.kung()
                         self.newline()
+                    elif self.current == 'pili':
+                        self.pili()
+                        self.newline()
+                    elif self.current == 'Identifier':
+                        self.expression()
+                        self.newline()
+                    elif self.current == 'habang':
+                        self.index += 1
+                        self.habang()
+                        self.index -= 1
+                        self.newline()
+                    elif self.current == 'para':
+                        self.index += 1
+                        self.para()
+                        self.index -= 1
+                        self.newline()
+                    elif self.current == 'gawin':
+                        self.index += 1
+                        self.gawin()
+                        self.index -= 1
+                        self.newline()
+                    elif self.current == 'laktaw':
+                        self.semantic()
+                        self.newline()
+                    elif self.current == 'tapos':
+                        self.cont == False
+                    if self.index == 1:
+                        if self.current == 'tuloy':
+                            self.isContinue = True
+                            return
+                    if self.isFunc:
+                        if self.current == 'balik':
+                            self.isReturn = True
+                            self.semantic()
+                            self.return_value = self.return_val()
+                            self.newline()
+                            break
                 self.semantic()
                 while self.current == 'pag':
                     self.semantic()
@@ -2799,12 +5112,64 @@ class Compilation:
             self.semantic()
             self.newline()
             while self.current != '}' and self.cont != False:
-                if self.current == 'sulat':
+                if self.current == 'yunit':
+                    self.yunit()
+                    self.newline()
+                elif self.current == 'punto':
+                    self.punto()
+                    self.newline()
+                elif self.current == 'baybay':
+                    self.baybay()
+                    self.newline()
+                elif self.current == 'titik':
+                    self.titik()
+                    self.newline()
+                elif self.current == 'bool':
+                    self.boolean()
+                    self.newline()
+                elif self.current == 'sulat':
                     self.sulat()
                     self.newline()
-                if self.current == 'kung':
+                elif self.current == 'kung':
                     self.kung()
                     self.newline()
+                elif self.current == 'pili':
+                    self.pili()
+                    self.newline()
+                elif self.current == 'Identifier':
+                    self.expression()
+                    self.newline()
+                elif self.current == 'habang':
+                    self.index += 1
+                    self.habang()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'para':
+                    self.index += 1
+                    self.para()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'gawin':
+                    self.index += 1
+                    self.gawin()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'laktaw':
+                    self.semantic()
+                    self.newline()
+                elif self.current == 'tapos':
+                    self.cont == False
+                if self.index == 1:
+                    if self.current == 'tuloy':
+                        self.isContinue = True
+                        return
+                if self.isFunc:
+                    if self.current == 'balik':
+                        self.isReturn = True
+                        self.semantic()
+                        self.return_value = self.return_val()
+                        self.newline()
+                        break
             self.semantic()
             self.newline()
             self.semantic()
@@ -2819,34 +5184,84 @@ class Compilation:
         self.newline()
         self.semantic()
         self.newline()
-        try:
-            while x == True:
-                while self.current != '}' and self.cont != False:
-                    if self.current == 'sulat':
-                        self.sulat()
+        while x == True:
+            while self.current != '}' and self.cont != False and self.isReturn == False and self.isContinue == False:
+                if self.current == 'yunit':
+                    self.yunit()
+                    self.newline()
+                elif self.current == 'punto':
+                    self.punto()
+                    self.newline()
+                elif self.current == 'baybay':
+                    self.baybay()
+                    self.newline()
+                elif self.current == 'titik':
+                    self.titik()
+                    self.newline()
+                elif self.current == 'bool':
+                    self.boolean()
+                    self.newline()
+                elif self.current == 'sulat':
+                    self.sulat()
+                    self.newline()
+                elif self.current == 'kung':
+                    self.kung()
+                    self.newline()
+                elif self.current == 'pili':
+                    self.pili()
+                    self.newline()
+                elif self.current == 'Identifier':
+                    self.expression()
+                    self.newline()
+                elif self.current == 'habang':
+                    self.index += 1
+                    self.habang()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'para':
+                    self.index += 1
+                    self.para()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'gawin':
+                    self.index += 1
+                    self.gawin()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'tapos':
+                    self.cont == False
+                elif self.current == 'laktaw':
+                    self.semantic()
+                    self.newline()
+                if self.index == 1:
+                    if self.current == 'tuloy':
+                        self.isContinue = True
+                        break
+                if self.isFunc:
+                    if self.current == 'balik':
+                        self.isReturn = True
+                        self.semantic()
+                        self.return_value = self.return_val()
                         self.newline()
-                    elif self.current == 'kung':
-                        self.kung()
-                        self.newline()
-                    elif self.current == 'Identifier':
-                        self.expression()
-                        self.newline()
-                    elif self.current == 'habang':
-                        self.habang()
-                        self.newline()
-                    elif self.current == 'gawin':
-                        self.gawin()
-                        self.newline()
-                z = self.num
-                self.num = y-1
-                self.semantic()
-                x = self.condition()
-                self.semantic()
-                self.newline()
-                self.semantic()
-                self.newline()
-        except MemoryError:
-            self.semantic_error.append(f"Semantic Error on line {self.line}: Infinite Loop ")
+                        break
+            if self.isContinue:
+                ctr = 1
+                while ctr != 0:
+                    if self.current == '{':
+                        ctr += 1
+                    elif self.current == '}':
+                        ctr -= 1
+                    self.semantic()
+                    self.newline()
+            z = self.num
+            self.num = y-1
+            self.semantic()
+            x = self.condition()
+            self.isContinue = False
+            self.semantic()
+            self.newline()
+            self.semantic()
+            self.newline()
         self.num = z
         self.semantic()
         self.newline()
@@ -2934,16 +5349,76 @@ class Compilation:
                 self.variables[x][name] = a
                 self.num = num - 1
                 self.semantic()
-                while self.current != '}' and self.cont != False:
-                    if self.current == 'sulat':
-                        self.sulat()
+            while self.current != '}' and self.cont != False and self.isReturn == False and self.isContinue == False:
+                if self.current == 'yunit':
+                    self.yunit()
+                    self.newline()
+                elif self.current == 'punto':
+                    self.punto()
+                    self.newline()
+                elif self.current == 'baybay':
+                    self.baybay()
+                    self.newline()
+                elif self.current == 'titik':
+                    self.titik()
+                    self.newline()
+                elif self.current == 'bool':
+                    self.boolean()
+                    self.newline()
+                elif self.current == 'sulat':
+                    self.sulat()
+                    self.newline()
+                elif self.current == 'kung':
+                    self.kung()
+                    self.newline()
+                elif self.current == 'pili':
+                    self.pili()
+                    self.newline()
+                elif self.current == 'Identifier':
+                    self.expression()
+                    self.newline()
+                elif self.current == 'habang':
+                    self.index += 1
+                    self.habang()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'para':
+                    self.index += 1
+                    self.para()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'gawin':
+                    self.index += 1
+                    self.gawin()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'tapos':
+                    self.cont == False
+                elif self.current == 'laktaw':
+                    self.semantic()
+                    self.newline()
+                if self.index == 1:
+                    if self.current == 'tuloy':
+                        self.isContinue = True
+                        break
+                if self.isFunc:
+                    if self.current == 'balik':
+                        self.isReturn = True
+                        self.semantic()
+                        self.return_value = self.return_val()
                         self.newline()
-                    elif self.current == 'Identifier':
-                        self.expression()
-                        self.newline()
-                    elif self.current == 'kung':
-                        self.kung()
-                        self.newline()
+                        break
+            if self.isContinue:
+                ctr = 1
+                while ctr != 0:
+                    if self.current == '{':
+                        ctr += 1
+                    elif self.current == '}':
+                        ctr -= 1
+                    self.semantic()
+                self.newline()
+            z = self.num
+            self.num = y-1
             self.semantic()
         elif self.current == 'lawak':
             self.semantic()
@@ -2961,16 +5436,73 @@ class Compilation:
                 self.variables[x][name] = a
                 self.num = num - 1
                 self.semantic()
-                while self.current != '}' and self.cont != False:
-                    if self.current == 'sulat':
-                        self.sulat()
+            while self.current != '}' and self.cont != False and self.isReturn == False and self.isContinue == False:
+                if self.current == 'yunit':
+                    self.yunit()
+                    self.newline()
+                elif self.current == 'punto':
+                    self.punto()
+                    self.newline()
+                elif self.current == 'baybay':
+                    self.baybay()
+                    self.newline()
+                elif self.current == 'titik':
+                    self.titik()
+                    self.newline()
+                elif self.current == 'bool':
+                    self.boolean()
+                    self.newline()
+                elif self.current == 'sulat':
+                    self.sulat()
+                    self.newline()
+                elif self.current == 'kung':
+                    self.kung()
+                    self.newline()
+                elif self.current == 'pili':
+                    self.pili()
+                    self.newline()
+                elif self.current == 'Identifier':
+                    self.expression()
+                    self.newline()
+                elif self.current == 'habang':
+                    self.index += 1
+                    self.habang()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'para':
+                    self.index += 1
+                    self.para()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'gawin':
+                    self.index += 1
+                    self.gawin()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'tapos':
+                    self.cont == False
+                if self.index == 1:
+                    if self.current == 'tuloy':
+                        self.isContinue = True
+                        break
+                if self.isFunc:
+                    if self.current == 'balik':
+                        self.isReturn = True
+                        self.semantic()
+                        self.return_value = self.return_val()
                         self.newline()
-                    elif self.current == 'Identifier':
-                        self.expression()
-                        self.newline()
-                    elif self.current == 'kung':
-                        self.kung()
-                        self.newline()
+                        break
+            if self.isContinue:
+                ctr = 1
+                while ctr != 0:
+                    if self.current == '{':
+                        ctr += 1
+                    elif self.current == '}':
+                        ctr -= 1
+                    self.semantic()
+                self.newline()
+            z = self.num
+            self.num = y-1
             self.semantic()
         self.newline()
 
@@ -3114,21 +5646,21 @@ def syntax_analyzer():
     parser = syn.Parser(read.tokens)    
     parser.parse()
     update_lexical_errors_text(parser.errors[0])    
-    # if parser.errors[0] == "Syntax Completed: No errors found":
-    #     update_lexical_errors_text("Syntax Completed: No errors found")
-    #     update_lexical_errors_text("")
-    #     update_lexical_errors_text("========================================  RUNNING  =======================================\n")
-    #     comp = Compilation(read.tokens)
-    #     comp.sem()
-    #     print(comp.variables)
-    #     print(comp.all_variables)
-    #     # if comp.cont == False:
-    #     #     update_lexical_errors_text(comp.semantic_error[0])
-    #     #     return
-    #     try:
-    #         update_lexical_errors_text(comp.semantic_error[0])
-    #     except:
-    #         add_lexical_errors("\n=========================================  DONE  =========================================\n")
+    if parser.errors[0] == "Syntax Completed: No errors found":
+        update_lexical_errors_text("Syntax Completed: No errors found")
+        update_lexical_errors_text("")
+        update_lexical_errors_text("========================================  RUNNING  =======================================\n")
+        comp = Compilation(read.tokens)
+        comp.sem()
+        # print(comp.variables)
+        # print(comp.all_variables)
+        # if comp.cont == False:
+        #     update_lexical_errors_text(comp.semantic_error[0])
+        #     return
+        try:
+            update_lexical_errors_text(comp.semantic_error[0])
+        except:
+            add_lexical_errors("\n=========================================  DONE  =========================================\n")
         # end=perf_counter()
     # print(end - start)
 
