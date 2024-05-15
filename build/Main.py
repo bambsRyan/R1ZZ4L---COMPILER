@@ -48,6 +48,7 @@ class Compilation:
         self.isReturn = False
         self.return_value = None
         self.isContinue = False
+        self.isBreak = False
 
     def sem(self):
         self.semantic()
@@ -153,6 +154,9 @@ class Compilation:
                 self.index += 1
                 self.para()
                 self.index -= 1
+                self.newline()
+            elif self.current == 'laktaw':
+                self.semantic()
                 self.newline()
             elif self.current == 'takda':
                 self.takda()
@@ -4749,6 +4753,17 @@ class Compilation:
                     if self.current == 'tuloy':
                         self.isContinue = True
                         return
+                    elif self.current == 'labas':
+                        self.isBreak = True
+                        ctr = 1
+                        while ctr != 0:
+                            if self.current == '{':
+                                ctr += 1
+                            elif self.current == '}':
+                                ctr -= 1
+                            self.semantic()
+                            self.newline()
+                        return
                 if self.isFunc:
                     if self.current == 'balik':
                         self.isReturn = True
@@ -4903,6 +4918,17 @@ class Compilation:
                     if self.current == 'tuloy':
                         self.isContinue = True
                         return
+                    elif self.current == 'labas':
+                        self.isBreak = True
+                        ctr = 1
+                        while ctr != 0:
+                            if self.current == '{':
+                                ctr += 1
+                            elif self.current == '}':
+                                ctr -= 1
+                            self.semantic()
+                            self.newline()
+                        return
                 if self.isFunc:
                     if self.current == 'balik':
                         self.isReturn = True
@@ -4975,6 +5001,17 @@ class Compilation:
                 if self.index == 1:
                     if self.current == 'tuloy':
                         break
+                    elif self.current == 'labas':
+                        self.isBreak = True
+                        ctr = 1
+                        while ctr != 0:
+                            if self.current == '{':
+                                ctr += 1
+                            elif self.current == '}':
+                                ctr -= 1
+                            self.semantic()
+                            self.newline()
+                        return
                 if self.isFunc:
                     if self.current == 'balik':
                         self.isReturn = True
@@ -5005,7 +5042,7 @@ class Compilation:
         self.newline()
         self.pag(x, y)
 
-    def pag(self, x,y):
+    def pag(self,x,y):
         while self.current == 'pag' and self.cont != False and self.current != 'kusa':
             self.semantic()
             if x == 'Yunit Literal':
@@ -5068,6 +5105,17 @@ class Compilation:
                     if self.index == 1:
                         if self.current == 'tuloy':
                             self.isContinue = True
+                            return
+                        elif self.current == 'labas':
+                            self.isBreak = True
+                            ctr = 1
+                            while ctr != 0:
+                                if self.current == '{':
+                                    ctr += 1
+                                elif self.current == '}':
+                                    ctr -= 1
+                                self.semantic()
+                                self.newline()
                             return
                     if self.isFunc:
                         if self.current == 'balik':
@@ -5189,7 +5237,7 @@ class Compilation:
         self.semantic()
         self.newline()
         while x == True:
-            while self.current != '}' and self.cont != False and self.isReturn == False and self.isContinue == False:
+            while self.current != '}' and self.cont != False and self.isReturn == False and self.isContinue == False and self.isBreak == False:
                 if self.current == 'yunit':
                     self.yunit()
                     self.newline()
@@ -5241,6 +5289,9 @@ class Compilation:
                     if self.current == 'tuloy':
                         self.isContinue = True
                         break
+                    elif self.current == 'labas':
+                        self.isBreak = True
+                        return
                 if self.isFunc:
                     if self.current == 'balik':
                         self.isReturn = True
@@ -5248,7 +5299,7 @@ class Compilation:
                         self.return_value = self.return_val()
                         self.newline()
                         break
-            if self.isContinue:
+            if self.isContinue or self.isBreak:
                 ctr = 1
                 while ctr != 0:
                     if self.current == '{':
@@ -5257,6 +5308,8 @@ class Compilation:
                         ctr -= 1
                     self.semantic()
                     self.newline()
+            if self.isBreak:
+                return
             z = self.num
             self.num = y-1
             self.semantic()
@@ -5279,26 +5332,88 @@ class Compilation:
         z = self.num
         self.num = z-1
         self.semantic()
-        while self.current != '}' and self.cont != False:
-            if self.current == 'sulat':
-                self.sulat()
-                self.newline()
-            elif self.current == 'kung':
-                self.kung()
-                self.newline()
-            elif self.current == 'Identifier':
-                self.expression()
-                self.newline()
-            elif self.current == 'habang':
-                self.habang()
-                self.newline()
-            elif self.current == 'gawin':
-                self.gawin()
-        self.semantic()
-        self.semantic()
-        self.semantic()
-        x = self.condition()
-        self.semantic()
+        while x:
+            while self.current != '}' and self.cont != False and self.isReturn == False and self.isContinue == False and self.isBreak == False:
+                if self.current == 'yunit':
+                    self.yunit()
+                    self.newline()
+                elif self.current == 'punto':
+                    self.punto()
+                    self.newline()
+                elif self.current == 'baybay':
+                    self.baybay()
+                    self.newline()
+                elif self.current == 'titik':
+                    self.titik()
+                    self.newline()
+                elif self.current == 'bool':
+                    self.boolean()
+                    self.newline()
+                elif self.current == 'sulat':
+                    self.sulat()
+                    self.newline()
+                elif self.current == 'kung':
+                    self.kung()
+                    self.newline()
+                elif self.current == 'pili':
+                    self.pili()
+                    self.newline()
+                elif self.current == 'Identifier':
+                    self.expression()
+                    self.newline()
+                elif self.current == 'habang':
+                    self.index += 1
+                    self.habang()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'para':
+                    self.index += 1
+                    self.para()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'gawin':
+                    self.index += 1
+                    self.gawin()
+                    self.index -= 1
+                    self.newline()
+                elif self.current == 'laktaw':
+                    self.semantic()
+                    self.newline()
+                elif self.current == 'tapos':
+                    self.cont == False
+                if self.index == 1:
+                    if self.current == 'tuloy':
+                        self.isContinue = True
+                        return
+                    elif self.current == 'labas':
+                        self.isBreak = True
+                        return
+                if self.isFunc:
+                    if self.current == 'balik':
+                        self.isReturn = True
+                        self.semantic()
+                        self.return_value = self.return_val()
+                        self.newline()
+                        break
+            if self.isContinue or self.isBreak:
+                ctr = 1
+                while ctr != 0:
+                    if self.current == '{':
+                        ctr += 1
+                    elif self.current == '}':
+                        ctr -= 1
+                    self.semantic()
+                    self.newline()
+            if self.isBreak:
+                return
+            self.semantic()
+            self.semantic()
+            self.semantic()
+            x = self.condition()
+            self.semantic()
+            if x:
+                self.num = z-1
+                self.semantic()
         self.newline() 
 
     def para(self):
@@ -5405,6 +5520,9 @@ class Compilation:
                     if self.current == 'tuloy':
                         self.isContinue = True
                         break
+                    elif self.current == 'labas':
+                        self.isBreak = True
+                        return
                 if self.isFunc:
                     if self.current == 'balik':
                         self.isReturn = True
@@ -5412,7 +5530,7 @@ class Compilation:
                         self.return_value = self.return_val()
                         self.newline()
                         break
-            if self.isContinue:
+            if self.isContinue or self.isBreak:
                 ctr = 1
                 while ctr != 0:
                     if self.current == '{':
@@ -5420,7 +5538,9 @@ class Compilation:
                     elif self.current == '}':
                         ctr -= 1
                     self.semantic()
-                self.newline()
+                    self.newline()
+            if self.isBreak:
+                return
             z = self.num
             self.num = y-1
             self.semantic()
@@ -5496,7 +5616,7 @@ class Compilation:
                         self.return_value = self.return_val()
                         self.newline()
                         break
-            if self.isContinue:
+            if self.isContinue or self.isBreak:
                 ctr = 1
                 while ctr != 0:
                     if self.current == '{':
@@ -5504,7 +5624,9 @@ class Compilation:
                     elif self.current == '}':
                         ctr -= 1
                     self.semantic()
-                self.newline()
+                    self.newline()
+            if self.isBreak:
+                return
             z = self.num
             self.num = y-1
             self.semantic()
