@@ -1421,9 +1421,9 @@ class Compilation:
                     self.semantic()
                     continue
                 elif self.current == 'Punto Literal':
-                    y += str(int(eval(f'{self.val.replace('~', '-')}')))
+                    y += str(int(eval(f'{self.val.replace("~", "-")}')))
                 elif self.current == 'Yunit Literal':
-                    y += str(eval(f'{self.val.replace('~', '-')}'))
+                    y += str(eval(f'{self.val.replace("~", "-")}'))
                 elif self.current in ['+', '-', '*', '/', '**', '(', ')']:
                     y += self.val
                 else:
@@ -1666,9 +1666,9 @@ class Compilation:
                     self.semantic()
                     continue
                 elif self.current == 'Punto Literal':
-                    y += str(eval(f'{self.val.replace('~', '-')}'))
+                    y += str(eval(f'{self.val.replace("~", "-")}'))
                 elif self.current == 'Yunit Literal':
-                    y += str(float(eval(f'{self.val.replace('~', '-')}')))
+                    y += str(float(eval(f'{self.val.replace("~", "-")}')))
                 elif self.current in ['+', '-', '*', '/', '**', '(', ')']:
                     y += self.val
                 else:
@@ -1811,9 +1811,9 @@ class Compilation:
                     self.semantic()
                     continue
                 elif self.current == 'Punto Literal':
-                    y += str(eval(f'{self.val.replace('~', '-')}'))
+                    y += str(eval(f'{self.val.replace("~", "-")}'))
                 elif self.current == 'Yunit Literal':
-                    y += str(eval(f'float({self.val.replace('~', '-')})'))
+                    y += str(eval(f'float({self.val.replace("~", "-")})'))
                 elif self.current in ['+', '-', '*', '/', '**', '(', ')']:
                     y += self.val
                 else:
@@ -5513,7 +5513,7 @@ class Compilation:
                     self.newline()
                 elif self.current == 'tapos':
                     self.cont == False
-                elif self.current == 'laktaw':
+                elif self.current == 'laktaw':  
                     self.semantic()
                     self.newline()
                 if self.index == 1:
