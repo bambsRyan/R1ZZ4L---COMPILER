@@ -1082,6 +1082,7 @@ class Compilation:
                     if ctr != 0:
                         self.semantic()
                         return x
+                    continue
                 elif self.current == 'Identifier':
                     try: 
                         if not self.isFunc:
@@ -1461,6 +1462,7 @@ class Compilation:
                     if ctr != 0:
                         self.semantic()
                         return x
+                    continue
                 elif self.current == 'Identifier':
                     try: 
                         if not self.isFunc:
@@ -1850,6 +1852,7 @@ class Compilation:
                     if ctr != 0:
                         self.semantic()
                         return x
+                    continue
                 elif self.current == 'Identifier':
                     try: 
                         if not self.isFunc:
@@ -2242,6 +2245,7 @@ class Compilation:
                     if ctr != 0:
                         self.semantic()
                         return x
+                    continue
                 elif self.current == 'Identifier':
                     try: 
                         if not self.isFunc:
