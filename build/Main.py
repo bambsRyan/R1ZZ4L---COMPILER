@@ -820,7 +820,6 @@ class Compilation:
                             return
                         self.func_var.append(name)
                         self.variables_for_function['baybay'][name] = parameters[0]
-                        print(self.variables_for_function)
                         parameters = parameters[1:]
                         if self.current == '=':
                             self.semantic()
@@ -976,7 +975,7 @@ class Compilation:
             if self.current =='[':
                 self.semantic_error.append(f"TypeError on line {self.line}: {name} is not subscriptable")
                 self.cont = False
-                return
+                return 
             return self.variables[x][name]
         else:
             self.semantic()
@@ -1389,6 +1388,7 @@ class Compilation:
                         self.cont = False
                         return
         elif self.current == "=":
+            self.semantic()
             if not self.isFunc:
                 self.var.append(val)
                 self.declare('yunit', val)
@@ -1577,7 +1577,7 @@ class Compilation:
             self.jump(2)
             if self.current == '=':
                 self.semantic()
-                while self.current != 'newline':
+                while self.current not in ['newline', ","]:
                     if self.current == '[':
                         self.semantic()
                         valuelist = self.punto_list()
@@ -2578,6 +2578,8 @@ class Compilation:
         z = ''
         a = ''
         titik_ctr = False
+        isBaybay = False
+        isBool = False
         self.semantic()
         self.semantic()
         while self.current != ')': 
@@ -2601,6 +2603,7 @@ class Compilation:
                         else:
                             x += str('\'' +self.func_Identifier() +'\'')
                     elif a == 'baybay':
+                        isBaybay = True
                         if not self.isFunc:
                             x += str('\'' +self.Identifier() +'\'')
                         else:
@@ -2610,6 +2613,8 @@ class Compilation:
                             x += str(self.Identifier())
                         else:
                             x += str(self.func_Identifier())
+                        if a == 'bool':
+                            self.isBool = True
                     if not self.cont:
                         return
                     if x == '':
@@ -2668,6 +2673,9 @@ class Compilation:
                     ctr += 1
                     continue
                 elif self.current in ['+','-','*','**', '/','%']:
+                    if isBool == True:
+                        self.semantic_error.append(f"Semantic Eror on line{self.line}: Invalid operators for boolean")
+                        isBool = False
                     if titik_ctr == True: 
                         self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Titik Literal")
                         self.cont = False
@@ -2678,9 +2686,14 @@ class Compilation:
                         continue
                 y += str(self.val)
                 self.semantic()
+                if isBaybay == True and self.current in  ['+', '-', '*', '/', '**', '%']:
+                    self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Baybay Literal")
+                    self.cont = False
+                    return
             titik_ctr = False
             if self.current == ',':
                 self.semantic()
+                self.isBool = False
             try:
                 z += str(eval(y))
             except:
@@ -2745,7 +2758,7 @@ class Compilation:
                                     self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
                                     self.cont = False
                                     return
-                            if z == 'baybay' or z == 'function':
+                            if z == 'baybay' or z == 'baybay_list' or z == 'function':
                                 if not self.isFunc:
                                     holder = self.Identifier()
                                     if type(holder) == str:
@@ -5468,82 +5481,79 @@ class Compilation:
                 self.variables[x][name] = a
                 self.num = num - 1
                 self.semantic()
-            while self.current != '}' and self.cont != False and self.isReturn == False and self.isContinue == False:
-                if self.current == 'yunit':
-                    self.yunit()
-                    self.newline()
-                elif self.current == 'punto':
-                    self.punto()
-                    self.newline()
-                elif self.current == 'baybay':
-                    self.baybay()
-                    self.newline()
-                elif self.current == 'titik':
-                    self.titik()
-                    self.newline()
-                elif self.current == 'bool':
-                    self.boolean()
-                    self.newline()
-                elif self.current == 'sulat':
-                    self.sulat()
-                    self.newline()
-                elif self.current == 'kung':
-                    self.kung()
-                    self.newline()
-                elif self.current == 'pili':
-                    self.pili()
-                    self.newline()
-                elif self.current == 'Identifier':
-                    self.expression()
-                    self.newline()
-                elif self.current == 'habang':
-                    self.index += 1
-                    self.habang()
-                    self.index -= 1
-                    self.newline()
-                elif self.current == 'para':
-                    self.index += 1
-                    self.para()
-                    self.index -= 1
-                    self.newline()
-                elif self.current == 'gawin':
-                    self.index += 1
-                    self.gawin()
-                    self.index -= 1
-                    self.newline()
-                elif self.current == 'tapos':
-                    self.cont == False
-                elif self.current == 'laktaw':  
-                    self.semantic()
-                    self.newline()
-                if self.index == 1:
-                    if self.current == 'tuloy':
-                        self.isContinue = True
-                        break
-                    elif self.current == 'labas':
-                        self.isBreak = True
-                        return
-                if self.isFunc:
-                    if self.current == 'balik':
-                        self.isReturn = True
-                        self.semantic()
-                        self.return_value = self.return_val()
+                while self.current != '}' and self.cont != False and self.isReturn == False and self.isContinue == False:
+                    if self.current == 'yunit':
+                        self.yunit()
                         self.newline()
-                        break
-            if self.isContinue or self.isBreak:
-                ctr = 1
-                while ctr != 0:
-                    if self.current == '{':
-                        ctr += 1
-                    elif self.current == '}':
-                        ctr -= 1
-                    self.semantic()
-                    self.newline()
-            if self.isBreak:
-                return
-            z = self.num
-            self.num = y-1
-            self.semantic()
+                    elif self.current == 'punto':
+                        self.punto()
+                        self.newline()
+                    elif self.current == 'baybay':
+                        self.baybay()
+                        self.newline()
+                    elif self.current == 'titik':
+                        self.titik()
+                        self.newline()
+                    elif self.current == 'bool':
+                        self.boolean()
+                        self.newline()
+                    elif self.current == 'sulat':
+                        self.sulat()
+                        self.newline()
+                    elif self.current == 'kung':
+                        self.kung()
+                        self.newline()
+                    elif self.current == 'pili':
+                        self.pili()
+                        self.newline()
+                    elif self.current == 'Identifier':
+                        self.expression()
+                        self.newline()
+                    elif self.current == 'habang':
+                        self.index += 1
+                        self.habang()
+                        self.index -= 1
+                        self.newline()
+                    elif self.current == 'para':
+                        self.index += 1
+                        self.para()
+                        self.index -= 1
+                        self.newline()
+                    elif self.current == 'gawin':
+                        self.index += 1
+                        self.gawin()
+                        self.index -= 1
+                        self.newline()
+                    elif self.current == 'tapos':
+                        self.cont == False
+                    elif self.current == 'laktaw':  
+                        self.semantic()
+                        self.newline()
+                    if self.index == 1:
+                        if self.current == 'tuloy':
+                            self.isContinue = True
+                            break
+                        elif self.current == 'labas':
+                            self.isBreak = True
+                            return
+                    if self.isFunc:
+                        if self.current == 'balik':
+                            self.isReturn = True
+                            self.semantic()
+                            self.return_value = self.return_val()
+                            self.newline()
+                            break
+                if self.isContinue or self.isBreak:
+                    ctr = 1
+                    while ctr != 0:
+                        if self.current == '{':
+                            ctr += 1
+                        elif self.current == '}':
+                            ctr -= 1
+                        self.semantic()
+                        self.newline()
+                if self.isBreak:
+                    return
         elif self.current == 'lawak':
             self.semantic()
             b,c,d = self.lawak()
@@ -5560,76 +5570,74 @@ class Compilation:
                 self.variables[x][name] = a
                 self.num = num - 1
                 self.semantic()
-            while self.current != '}' and self.cont != False and self.isReturn == False and self.isContinue == False:
-                if self.current == 'yunit':
-                    self.yunit()
-                    self.newline()
-                elif self.current == 'punto':
-                    self.punto()
-                    self.newline()
-                elif self.current == 'baybay':
-                    self.baybay()
-                    self.newline()
-                elif self.current == 'titik':
-                    self.titik()
-                    self.newline()
-                elif self.current == 'bool':
-                    self.boolean()
-                    self.newline()
-                elif self.current == 'sulat':
-                    self.sulat()
-                    self.newline()
-                elif self.current == 'kung':
-                    self.kung()
-                    self.newline()
-                elif self.current == 'pili':
-                    self.pili()
-                    self.newline()
-                elif self.current == 'Identifier':
-                    self.expression()
-                    self.newline()
-                elif self.current == 'habang':
-                    self.index += 1
-                    self.habang()
-                    self.index -= 1
-                    self.newline()
-                elif self.current == 'para':
-                    self.index += 1
-                    self.para()
-                    self.index -= 1
-                    self.newline()
-                elif self.current == 'gawin':
-                    self.index += 1
-                    self.gawin()
-                    self.index -= 1
-                    self.newline()
-                elif self.current == 'tapos':
-                    self.cont == False
-                if self.index == 1:
-                    if self.current == 'tuloy':
-                        self.isContinue = True
-                        break
-                if self.isFunc:
-                    if self.current == 'balik':
-                        self.isReturn = True
-                        self.semantic()
-                        self.return_value = self.return_val()
+                while self.current != '}' and self.cont != False and self.isReturn == False and self.isContinue == False:
+                    if self.current == 'yunit':
+                        self.yunit()
                         self.newline()
-                        break
-            if self.isContinue or self.isBreak:
-                ctr = 1
-                while ctr != 0:
-                    if self.current == '{':
-                        ctr += 1
-                    elif self.current == '}':
-                        ctr -= 1
-                    self.semantic()
-                    self.newline()
-            if self.isBreak:
-                return
-            z = self.num
-            self.num = y-1
-            self.semantic()
+                    elif self.current == 'punto':
+                        self.punto()
+                        self.newline()
+                    elif self.current == 'baybay':
+                        self.baybay()
+                        self.newline()
+                    elif self.current == 'titik':
+                        self.titik()
+                        self.newline()
+                    elif self.current == 'bool':
+                        self.boolean()
+                        self.newline()
+                    elif self.current == 'sulat':
+                        self.sulat()
+                        self.newline()
+                    elif self.current == 'kung':
+                        self.kung()
+                        self.newline()
+                    elif self.current == 'pili':
+                        self.pili()
+                        self.newline()
+                    elif self.current == 'Identifier':
+                        self.expression()
+                        self.newline()
+                    elif self.current == 'habang':
+                        self.index += 1
+                        self.habang()
+                        self.index -= 1
+                        self.newline()
+                    elif self.current == 'para':
+                        self.index += 1
+                        self.para()
+                        self.index -= 1
+                        self.newline()
+                    elif self.current == 'gawin':
+                        self.index += 1
+                        self.gawin()
+                        self.index -= 1
+                        self.newline()
+                    elif self.current == 'tapos':
+                        self.cont == False
+                    if self.index == 1:
+                        if self.current == 'tuloy':
+                            self.isContinue = True
+                            break
+                    if self.isFunc:
+                        if self.current == 'balik':
+                            self.isReturn = True
+                            self.semantic()
+                            self.return_value = self.return_val()
+                            self.newline()
+                            break
+                if self.isContinue or self.isBreak:
+                    ctr = 1
+                    while ctr != 0:
+                        if self.current == '{':
+                            ctr += 1
+                        elif self.current == '}':
+                            ctr -= 1
+                        self.semantic()
+                        self.newline()
+                if self.isBreak:
+                    return
+        self.semantic()
         self.newline()
 
     def lawak(self):
