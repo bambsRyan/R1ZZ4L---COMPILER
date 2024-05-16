@@ -2580,6 +2580,7 @@ class Compilation:
         titik_ctr = False
         isBaybay = False
         isBool = False
+        isnum = False
         self.semantic()
         self.semantic()
         while self.current != ')': 
@@ -2596,13 +2597,17 @@ class Compilation:
                         self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
                         self.cont = False
                         return
-                    if a == 'titik':
+                    if a == 'titik': # {variablename : datatype}
                         titik_ctr = True
                         if not self.isFunc:
                             x += str('\'' +self.Identifier() +'\'')
                         else:
                             x += str('\'' +self.func_Identifier() +'\'')
                     elif a == 'baybay':
+                        if isnum == True:
+                            self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Baybay Literal")
+                            self.cont = False
+                            return
                         isBaybay = True
                         if not self.isFunc:
                             x += str('\'' +self.Identifier() +'\'')
@@ -2614,7 +2619,13 @@ class Compilation:
                         else:
                             x += str(self.func_Identifier())
                         if a == 'bool':
-                            self.isBool = True
+                            isBool = True
+                        elif a == 'yunit' or a == 'punto':
+                            if isBaybay == True:
+                                self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
+                                self.cont = False
+                                return
+                            isnum = True
                     if not self.cont:
                         return
                     if x == '':
@@ -2623,9 +2634,11 @@ class Compilation:
                     continue
                 elif self.current == 'saBaybay':
                     y += str(self.saBaybay())
+                    isBaybay = True
                     continue
                 elif self.current == 'saPunto':
                     y += str(self.saPunto())
+                    isnum = True
                     continue
                 elif self.current == 'saTitik':
                     y += str(self.saTitik())
@@ -2633,38 +2646,74 @@ class Compilation:
                     continue
                 elif self.current == 'saYunit':
                     y += str(self.saYunit())
+                    isnum = True
                     continue
-                elif self.current == ';':
-                    y += ':'
+                elif self.current == 'at':
+                    y += 'and'
+                    isBaybay = False
+                    isBool = False
+                    titik_ctr = False
+                    isnum = False
+                    self.semantic()
+                    continue
+                elif self.current == 'o':
+                    y += 'or'
+                    isBaybay = False
+                    isBool = False
+                    titik_ctr = False
+                    self.semantic()
+                    continue
                 elif self.current == 'Titik Literal':
                     titik_ctr = True
                 elif self.current == 'Yunit Literal':
                     y += str(self.val.replace('~', '-'))
                     self.semantic()
+                    isnum = True
+                    continue
+                elif self.current == '[':
+                    self.semantic()
+                    while self.current =='[':
+                        y += self.current + ' '
+                        self.semantic()
+                    if self.current == 'Yunit Literal' or self.current == 'saYunit':
+                        y += str(self.yunit_list()) + ' '
+                    elif self.current == 'Punto Literal' or self.current == 'saPunto':
+                        y += str(self.punto_list()) + ' '
+                    elif self.current == 'Baybay Literal' or self.current == 'saBaybay':
+                        y += str(self.baybay_list()) + ' '
+                    elif self.current == 'Titik Literal' or self.current == 'saTitik':
+                        y += str(self.titik_list()) + ' '
+                    else:
+                        self.semantic_error.append(f"Syntax Error on Line {self.line}: Invalid value for list")
+                        self.cont = False
+                        return
+                    while self.current == ']':
+                        y += self.current + ' '
+                        self.semantic()
                     continue
                 elif self.current == 'Totoo':
                     y += str(True)
                     self.semantic()
+                    isBool = True
                     continue
                 elif self.current == 'Peke':
                     y += str(False)
                     self.semantic()
+                    isBool = True
                     continue
                 elif self.current == 'Punto Literal':
                     y += str(self.val.replace('~', '-'))
                     self.semantic()
+                    isnum = True
                     continue
                 elif self.current == '[':
                     self.semantic()
                     if self.current == 'Yunit Literal' or self.current == 'saYunit':
                         y += str(self.yunit_list()) + ' '
-                        isBool = False
                     elif self.current == 'Punto Literal' or self.current == 'saPunto':
                         y += str(self.punto_list()) + ' '
-                        isBool = False
                     elif self.current == 'Baybay Literal' or self.current == 'saBaybay':
                         y += str(self.baybay_list()) + ' '
-                        isBool = False
                     self.semantic()
                     continue
                 elif self.current == '(':
@@ -2673,7 +2722,7 @@ class Compilation:
                     ctr += 1
                     continue
                 elif self.current in ['+','-','*','**', '/','%']:
-                    if isBool == True:
+                    if isBool:
                         self.semantic_error.append(f"Semantic Eror on line{self.line}: Invalid operators for boolean")
                         isBool = False
                     if titik_ctr == True: 
@@ -2686,20 +2735,29 @@ class Compilation:
                         continue
                 y += str(self.val)
                 self.semantic()
-                if isBaybay == True and self.current in  ['+', '-', '*', '/', '**', '%']:
+                if isBaybay == True and self.current in  ['Yunit Literal', 'Punto Literal', 'Totoo', 'Peke', 'Titik Literal', 'saYunit', 'saPunto', 'saTitik']:
                     self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Baybay Literal")
+                    self.cont = False
+                    return
+                elif isnum == True and self.current in ['Baybay Literal', 'saBaybay', 'saTitik', 'Totoo', 'Peke', 'Titik Literal']:
+                    self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
                     self.cont = False
                     return
             titik_ctr = False
             if self.current == ',':
                 self.semantic()
-                self.isBool = False
+                isBool = False
             try:
-                z += str(eval(y))
+                z += eval(y)
             except:
                 pass
             y = ''
-        add_lexical_errors(z.replace('-', '~').replace('True', 'Totoo').replace('False', 'Peke'))
+        if type(z) == int or type(z) == float:
+            add_lexical_errors(str(z).replace('-', '~'))
+        elif type(z) == str:
+            add_lexical_errors(z)
+        elif type(z) == bool: 
+            add_lexical_errors(str(z).replace('True', 'Totoo').replace('False', 'Peke'))
         self.semantic()
         self.newline()
 
@@ -4656,6 +4714,11 @@ class Compilation:
                 elif self.current == ')':
                     enter -= 1  
                 elif self.current == '[':
+                    open_brace = 1
+                    while self.current =='[':
+                        y += self.current + ' '
+                        open_brace += 1
+                        self.semantic()
                     self.semantic()
                     if self.current == 'Yunit Literal' or self.current == 'saYunit':
                         y += str(self.yunit_list()) + ' '
@@ -4669,6 +4732,11 @@ class Compilation:
                     elif self.current == 'Titik Literal' or self.current == 'saTitik':
                         y += str(self.titik_list()) + ' '
                         isBool = False
+                    while open_brace != 0:
+                        if self.current == ']':
+                            y += self.current + ' '
+                            open_brace -= 1
+                        self.semantic()
                     continue
                 elif self.current in ['>', '<', '>=', '<=', '+', '-', '*', '/', '%', '**']:
                     if self.current in ['>', '<', '>=', '<=']:
