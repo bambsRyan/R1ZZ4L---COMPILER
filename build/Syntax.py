@@ -7,7 +7,7 @@ statement_for_func_dec = ["yunit", "punto", "baybay", "titik", "bool", "Identifi
 var_dec = ["yunit", "punto", "baybay", "titik", "bool"]
 num_Identifier = ["Identifier"]
 num_Identifier_continue = ["=", "["]
-num_tala_expression = ["["]
+num_tala_expression = ["[", "Identifier"]
 num_ext = [","]
 num_tala = ["[", "Identifier"]
 num_tala_continue = ["+"]
@@ -941,7 +941,7 @@ class Parser:
             else:
                 self.err('"di", "Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "(", "Totoo", "Peke"')
         else:
-            if self.current != ')' and self.current != 'newline':
+            if self.current != ')' and self.current != 'newline'and self.current != ',':
                 self.err('"at", "o"')
 
     def cop(self):
@@ -1236,10 +1236,10 @@ class Parser:
         elif self.match('('):
             if self.first(arg):
                 self.arg()
-                if self.match(')'):
-                    return
-                else:
-                    self.err('",", ")"')    
+            if self.match(')'):
+                return
+            else:
+                self.err('",", ")"')    
                 
     def allowed_value(self):
         if self.match('Yunit Literal'):
