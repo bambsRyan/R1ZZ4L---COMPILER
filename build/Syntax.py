@@ -628,6 +628,8 @@ class Parser:
         if self.match('='):
             if self.first(titik_expression):
                 self.titik_expression()
+                if self.current not in ['newline', ',']:
+                    self.err(' ",", "newline"')
             else:
                 self.err('"Identifier", "Titik Literal", "saTitik"')  
         elif self.match('['):
