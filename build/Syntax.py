@@ -628,6 +628,8 @@ class Parser:
         if self.match('Identifier'):
             if self.first(titik_Identifier_continue):
                 self.titik_Identifier_continue()
+            if self.current not in ['newline', ',']:
+                self.err('"[", "=", "newline", ","')
             if self.first(titik_ext):
                 self.titik_ext()
             else:
@@ -734,6 +736,8 @@ class Parser:
         if self.match('Identifier'):
             if self.first(bool_identifier_continue):
                 self.bool_identifier_continue()
+            if self.current not in ['newline', ',']:
+                self.err('"=", "newline", ","')
             if self.first(bool_ext):
                 self.bool_ext()
         
