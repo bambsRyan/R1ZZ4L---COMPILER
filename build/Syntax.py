@@ -329,13 +329,12 @@ class Parser:
         
     def num_Identifier(self):   
         if self.match('Identifier'):
-            if self.first(num_Identifier_continue):
+            if self.first(num_Identifier_continue):  
                 self.num_Identifier_continue()
-            elif self.first(num_ext):
+            if self.current != 'newline':
+                self.err('"[", "=", "newline", ","')
+            if self.first(num_ext):
                 self.num_ext()
-            else:
-                if self.current != 'newline':
-                    self.err('"[", "=", "newline", ","')
 
     def num_Identifier_continue(self):
         if self.match('='):
@@ -431,6 +430,9 @@ class Parser:
                 if self.match(')'):
                     if self.first(num_dec_expression_continue):
                         self.num_dec_expression_continue()
+                    else:
+                        if self.current not in ['newline', ',']:
+                            self.err('"+", "-", "*", "/", "**", ",", "newline"')
                 else:
                     self.err(' "+", "-", "*", "/", "%", "**"')
             else:
@@ -489,7 +491,9 @@ class Parser:
         if self.match('Identifier'):
             if self.first(baybay_Identifier_continue):
                 self.baybay_Identifier_continue()
-            elif self.first(baybay_ext):
+            if self.current != 'newline':
+                self.err('"[", "=", "newline", ","')
+            if self.first(baybay_ext):
                 self.baybay_ext()
     
     def baybay_Identifier_continue(self):
@@ -585,6 +589,9 @@ class Parser:
                 if self.match(')'):
                     if self.first(baybay_dec_expression_continue):
                         self.baybay_dec_expression_continue()
+                    else:
+                        if self.current not in ['newline', ',']:
+                            self.err('"+", ")", "newline", ","')
                 else:
                     self.err('"+", ")"')
             else:
@@ -623,6 +630,9 @@ class Parser:
                 self.titik_Identifier_continue()
             if self.first(titik_ext):
                 self.titik_ext()
+            else:
+                if self.current != 'newline':
+                    self.err('"[", "=", "newline", ","')
 
     def titik_Identifier_continue(self):
         if self.match('='):
@@ -755,7 +765,7 @@ class Parser:
                 if self.first(condition_continue):
                     self.condition_continue()
             else:
-                self.err('"di", "Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "Totoo", "Peke", "("')
+                self.err('"di", "Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "Totoo", "Peke", "("')
 
     def cond(self):
         if self.first(condition_statement):
@@ -953,7 +963,7 @@ class Parser:
                 self.err('"di", "Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "(", "Totoo", "Peke"')
         else:
             if self.current != ')' and self.current != 'newline'and self.current != ',':
-                self.err('"at", "o"')
+                self.err('"at", "o", ")"')
 
     def cop(self):
         if self.match('>'):
