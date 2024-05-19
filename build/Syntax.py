@@ -331,7 +331,7 @@ class Parser:
         if self.match('Identifier'):
             if self.first(num_Identifier_continue):  
                 self.num_Identifier_continue()
-            if self.current != 'newline':
+            if self.current not in ['newline', ',']:
                 self.err('"[", "=", "newline", ","')
             if self.first(num_ext):
                 self.num_ext()
@@ -491,7 +491,7 @@ class Parser:
         if self.match('Identifier'):
             if self.first(baybay_Identifier_continue):
                 self.baybay_Identifier_continue()
-            if self.current != 'newline':
+            if self.current not in ['newline', ',']:
                 self.err('"[", "=", "newline", ","')
             if self.first(baybay_ext):
                 self.baybay_ext()
@@ -770,7 +770,7 @@ class Parser:
     def cond(self):
         if self.first(condition_statement):
             self.condition_statement()
-            self.condition_continue()
+            self.condition_continue() 
         elif self.match('('):
             if self.first(condition):
                 self.condition()
