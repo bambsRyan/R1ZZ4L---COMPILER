@@ -333,6 +333,9 @@ class Parser:
                 self.num_Identifier_continue()
             elif self.first(num_ext):
                 self.num_ext()
+            else:
+                if self.current != 'newline':
+                    self.err('"[", "=", "newline", ","')
 
     def num_Identifier_continue(self):
         if self.match('='):
@@ -406,8 +409,10 @@ class Parser:
     
     def num_tala_content_continue(self):
         if self.match(','):
-            if self.first(num_tala_content):
-                self.num_tala_content()
+            if self.first(num_content):
+                self.num_content()
+                if self.first(num_tala_content_continue):
+                    self.num_tala_content_continue()
             else:
                 self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
 
@@ -558,8 +563,10 @@ class Parser:
 
     def baybay_tala_content_continue(self):
         if self.match(','):
-            if self.first(baybay_tala_content):
-                self.baybay_tala_content()
+            if self.first(baybay_content):
+                self.baybay_content()
+                if self.first(baybay_tala_content_continue):
+                    self.baybay_tala_content_continue()
             else:
                 self.err('"Identifier", "Baybay Literal", "saBaybay", "("')
 
@@ -698,8 +705,10 @@ class Parser:
 
     def titik_tala_content_continue(self):
         if self.match(','):
-            if self.first(titik_tala_content):
-                self.titik_tala_content()
+            if self.first(titik_content):
+                self.titik_content()
+                if self.first(titik_tala_content_continue):
+                    self.titik_tala_content_continue()
             else:
                 self.err('"Identifier", "Titik Literal", "saTitik", "("')
 
