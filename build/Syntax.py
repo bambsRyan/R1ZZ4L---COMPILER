@@ -947,7 +947,7 @@ class Parser:
                 if self.first(math_tala_continue):
                     self.math_tala_continue()
             else:
-                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
+                self.err('"Identifier", "["')
 
     def math_tala_concatenate(self):    
         if self.first(math_tala_expression):
@@ -1187,7 +1187,7 @@ class Parser:
                 if self.match(')'):
                     return
                 else:
-                    self.err('"Baybay Literal", ")"')
+                    self.err('")"')
             else:
                 self.err('"("')
         
@@ -1416,7 +1416,13 @@ class Parser:
                                 self.newline()
                                 if self.first(global_call):
                                     self.global_call()
-                                if self.first(func_content):
+                                    if self.first(func_content_continue):
+                                        self.func_content_continue()
+                                    if self.match('}'):
+                                        return
+                                    else:
+                                        self.err('"yunit", "punto", "baybay", "titik", "bool", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili", "}"')
+                                elif self.first(func_content):
                                     self.func_content()
                                     if self.first(func_content_continue):
                                         self.func_content_continue()
