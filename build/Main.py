@@ -206,7 +206,10 @@ class Compilation:
         x = ''
         specific = ''
         try:
-            x = self.func_variables[self.val]
+            if self.isFunc == 0:
+                x = self.all_variables[self.val]
+            else:
+                x = self.func_variables[self.val]
             if self.isFunc == 0:
                 z = 'self.variables[x][name]'
             else:
@@ -222,7 +225,10 @@ class Compilation:
                 self.semantic_error.append(f"TypeError on line {self.line}: {name} is not subscriptable")
                 self.cont = False
                 return
-            return self.variables_for_function[x][name]
+            if self.isFunc == 0:
+                return self.variables[x][name]
+            else:
+                return self.variables_for_function[x][name]
         else:
             self.semantic()
             if x == 'function':
@@ -1179,7 +1185,10 @@ class Compilation:
         x = ''
         specific = ''
         try:
-            x = self.all_variables[self.val]
+            if self.isFunc == 0:
+                x = self.all_variables[self.val]
+            else:
+                x = self.func_variables[self.val]
             if self.isFunc == 0:
                 z = 'self.variables[x][name]'
             else:
@@ -1195,7 +1204,10 @@ class Compilation:
                 self.semantic_error.append(f"TypeError on line {self.line}: {name} is not subscriptable")
                 self.cont = False
                 return
-            return self.variables[x][name]
+            if self.isFunc == 0:
+                return self.variables[x][name]
+            else:
+                return self.variables_for_function[x][name]
         else:
             self.semantic()
             if x == 'function':
@@ -1211,6 +1223,9 @@ class Compilation:
                 isnum = False
                 ctr = 1
                 while ctr != 0: 
+                    isBaybay = False
+                    isBool = False
+                    isnum = False
                     while self.current != ',' and ctr != 0:
                         specific += str(self.current)
                         if self.current == 'Identifier':
@@ -1253,7 +1268,7 @@ class Compilation:
                                     isBool = True
                                 elif a == 'yunit' or a == 'punto':
                                     if isBaybay == True:
-                                        self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
+                                        self.semantic_error.append(f"TypeError on Line {self.line}: 1Invalid operators for Yunit Literal or Punto Literal")
                                         self.cont = False
                                         return
                                     isnum = True
@@ -3392,6 +3407,7 @@ class Compilation:
                 self.semantic_error.append(f"Semantic Error on line {self.line}: {name} not defined")
                 self.cont = False
                 return
+        print(x, name)
         y = ''
         z = ''
         baybay_val= ''
@@ -6085,13 +6101,13 @@ class Compilation:
             b,c,d = self.lawak()
             self.semantic()
             self.newline()
-            self.semantic()
-            self.newline()
-            num = self.num
             if x != 'yunit':
                 self.semantic_error.append(f"TypeError on line {self.line}: {name} is not a yunit")
                 self.cont = False
                 return
+            self.semantic()
+            self.newline()
+            num = self.num
             for a in range(b,c,d):
                 if self.isFunc == 0:
                     self.variables[x][name] = a
@@ -6176,7 +6192,10 @@ class Compilation:
         self.semantic()
         if self.current == 'Identifier':
             try:
-                x = self.all_variables[self.val]
+                if self.isFunc == 0:
+                    x = self.all_variables[self.val]
+                else:
+                    x = self.func_variables[self.val]
                 if x == 'yunit':
                     a = int(self.Identifier())
                 else:
@@ -6193,9 +6212,17 @@ class Compilation:
         self.semantic()
         if self.current == 'Identifier':
             try:
-                x = self.all_variables[self.val]
-                if x == 'yunit':
-                    b = int(self.Identifier())
+                if self.isFunc == 0:
+                    x = self.all_variables[self.val]
+                else:
+                    x = self.func_variables[self.val]
+                if x == 'yunit' or x == 'yunit_list':
+                    try:
+                        b = int(self.Identifier())
+                    except:
+                        self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid variable")
+                        self.cont = False
+                        return
                 else:
                     self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid variable")
                     self.cont = False
@@ -6210,7 +6237,10 @@ class Compilation:
         self.semantic()
         if self.current == 'Identifier':
             try:
-                x = self.all_variables[self.val]
+                if self.isFunc == 0:
+                    x = self.all_variables[self.val]
+                else:
+                    x = self.func_variables[self.val]
                 if x == 'yunit':
                     c = int(self.Identifier())
                 else:
