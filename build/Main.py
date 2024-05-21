@@ -1689,7 +1689,7 @@ class Compilation:
             self.jump(2)
             if self.current == '=':
                 self.semantic()
-                while self.current != 'newline':
+                while self.current != 'newline' and self.current != ',':
                     if self.current == '[':
                         self.semantic() 
                         valuelist = self.yunit_list()
@@ -1805,6 +1805,7 @@ class Compilation:
         self.newline()
 
     def punto_list(self, ctr = 0):
+        print(self.current)
         x = []
         y = ''
         while self.current != ']':
@@ -2076,7 +2077,7 @@ class Compilation:
             self.jump(2)
             if self.current == '=':
                 self.semantic()
-                while self.current != 'newline':
+                while self.current != 'newline' and self.current != ',':
                     if self.current == '[':
                         self.semantic() 
                         valuelist = self.punto_list()
@@ -3118,6 +3119,8 @@ class Compilation:
             if self.current == ',':
                 self.semantic()
                 isBool = False
+                isBaybay = False
+                isnum = False
             try:
                 a = eval(y)
                 if type(a) == int or type(a) == float:
@@ -3407,7 +3410,6 @@ class Compilation:
                 self.semantic_error.append(f"Semantic Error on line {self.line}: {name} not defined")
                 self.cont = False
                 return
-        print(x, name)
         y = ''
         z = ''
         baybay_val= ''
