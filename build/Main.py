@@ -1205,6 +1205,7 @@ class Compilation:
                 self.cont = False
                 return
             if self.isFunc == 0:
+                print(self.variables[x])
                 return self.variables[x][name]
             else:
                 return self.variables_for_function[x][name]
@@ -3793,7 +3794,7 @@ class Compilation:
                         self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Titik variable')
                         self.cont = False
                         return
-                    if len(titik_val) != 0:
+                    if len(titik_val) < 1:
                         self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Titik variable')
                         self.cont = False
                         return
@@ -3808,9 +3809,9 @@ class Compilation:
                 else:
                     a = self.titik_expression()
                     if self.isFunc == 0:
-                        self.variables['titik'][name] = eval(a)
+                        self.variables['titik'][name] = eval('\''+a+'\'')
                     else:
-                        self.variables_for_function['titik'][name] = eval(a)
+                        self.variables_for_function['titik'][name] = eval('\''+a+'\'')
                         a = ''
                     return
             else:
@@ -6024,7 +6025,7 @@ class Compilation:
                         ctr -= 1
                     self.semantic()
                     self.newline()
-                    return
+                return
             for a in z:
                 if self.isFunc == 0:
                     self.variables[x][name] = a
@@ -6129,13 +6130,13 @@ class Compilation:
                         ctr -= 1
                     self.semantic()
                     self.newline()
-                    return
+                return
             for a in range(b,c,d):
                 if self.isFunc == 0:
                     self.variables[x][name] = a
                 else:
                     self.variables_for_function[x][name] = a
-                self.num = num - 1
+                self.num = num - 1      
                 self.semantic()
                 while self.current != '}' and self.cont != False and self.isReturn == False and self.isContinue == False:
                     if self.current == 'yunit':
@@ -6240,7 +6241,11 @@ class Compilation:
                     x = self.func_variables[self.val]
                 if x == 'yunit' or x == 'yunit_list':
                     try:
-                        b = int(self.Identifier())
+                        if self.isFunc == 0:
+                            b = int(self.Identifier())
+                            print(b)
+                        else:
+                            b = int(self.func_Identifier())
                     except:
                         self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid variable")
                         self.cont = False
