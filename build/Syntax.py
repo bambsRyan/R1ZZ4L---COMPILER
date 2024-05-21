@@ -384,7 +384,8 @@ class Parser:
             if self.first(num_tala_content):
                 self.num_tala_content()
             else:
-                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "(,", "["')
+                if self.current != ']':
+                    self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "(,", "["')
             if self.match(']'):
                 return
             else:
@@ -552,7 +553,8 @@ class Parser:
             if self.first(baybay_tala_content):
                 self.baybay_tala_content()
             else:
-                self.err('"Identifier", "Baybay Literal", "saBaybay", "(", "["')
+                if self.current != ']':
+                    self.err('"Identifier", "Baybay Literal", "saBaybay", "(", "["')
             if self.match(']'):
                 return
             else:
@@ -711,6 +713,9 @@ class Parser:
         if self.match('['):
             if self.first(titik_tala_content):
                 self.titik_tala_content()
+            else:
+                if self.current != ']':
+                    self.err('"Identifier", "Baybay Literal", "saBaybay", "(", "["') 
             if self.match(']'):
                 return
             else:
