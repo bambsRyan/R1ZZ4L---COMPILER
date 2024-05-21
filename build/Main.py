@@ -197,7 +197,7 @@ class Compilation:
                 self.semantic()
                 self.functions[self.val] = [self.num, self.line]
                 self.all_variables[self.val] = 'function'
-                self.var_dec[self.val] = 'function'
+                self.func_variables[self.val] = 'function'
             self.semantic()
 
     def func_Identifier(self):
@@ -403,9 +403,8 @@ class Compilation:
                     val2 = self.func_variables
                     val3 = self.func_var
                     self.variables_for_function = {key: {} for key in self.variables_for_function}
-                    self.func_variables = {}
                     self.func_var = []
-                self.func_variables = self.var_dec
+                    self.func_variables = {key: value for key, value in self.func_variables.items() if value == 'function'}
                 answer = self.run(self.functions[name][0], self.functions[name][1], parameters, name)
                 self.variables_for_function = val1
                 self.func_variables = val2
@@ -790,7 +789,6 @@ class Compilation:
         z = ''
         while self.current != 'newline':
             if self.current == 'Identifier':
-                print(self.func_variables)
                 try:
                     if self.isFunc == 0:
                         x = self.all_variables[self.val]
@@ -800,12 +798,16 @@ class Compilation:
                     self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
                     self.cont = False
                     return
+                if x == 'function':
+                    self.semantic_error.append(f"TypeError on line {self.line}: Cannot return a function call")
+                    self.cont = False
+                    return
                 if self.isFunc == 0:
                     z = self.Identifier()
                 else:
                     z = self.func_Identifier()
                 if self.cont == False:
-                    return  
+                    return
                 if type(z) == bool:
                     y += str(z)+ ' '
                     isBool = True
@@ -1374,9 +1376,8 @@ class Compilation:
                     val2 = self.func_variables
                     val3 = self.func_var
                     self.variables_for_function = {key: {} for key in self.variables_for_function}
-                    self.func_variables = {}
                     self.func_var = []
-                self.func_variables = self.var_dec
+                    self.func_variables = {key: value for key, value in self.func_variables.items() if value == 'function'}
                 answer = self.run(self.functions[name][0], self.functions[name][1], parameters,name)
                 self.variables_for_function = val1
                 self.func_variables = val2
@@ -3155,7 +3156,7 @@ class Compilation:
                     else:
                         holder = self.func_Identifier()
                         if type(holder) == str:
-                            y += str(holder)
+                            y +='\'' + str(holder) + '\''
                         else:
                             if z == 'function':
                                 self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
@@ -3451,9 +3452,10 @@ class Compilation:
                     a = self.baybay_expression()
                     try:
                         if self.isFunc == 0:
-                            self.variables['baybay'][name] = eval(a)
+                            self.variables['baybay'][name] += eval(a)
                         else:
-                            self.variables_for_function['baybay'][name] = eval(a)
+                            self.variables_for_function['baybay'][name] += eval(a)
+                        a = ''
                         return
                     except:
                         pass
@@ -3488,6 +3490,7 @@ class Compilation:
                             self.variables['yunit'][name] = int(eval(a))
                         else:
                             self.variables_for_function['yunit'][name] = int(eval(a))
+                        a = ''
                     except:
                         pass
                 return
@@ -3516,6 +3519,7 @@ class Compilation:
                             self.variables['yunit'][name] += int(eval(a))
                         else:
                             self.variables_for_function['yunit'][name] += int(eval(a))
+                            a = ''
                     except:
                         pass
                 return
@@ -3544,6 +3548,7 @@ class Compilation:
                             self.variables['yunit'][name] -= int(eval(a))
                         else:
                             self.variables_for_function['yunit'][name] -= int(eval(a))
+                            a = ''
                     except:
                         pass
                 return
@@ -3572,6 +3577,7 @@ class Compilation:
                             self.variables['yunit'][name] *= int(eval(a))
                         else:
                             self.variables_for_function['yunit'][name] *= int(eval(a))
+                            a = ''
                     except:
                         pass
                 return
@@ -3600,6 +3606,7 @@ class Compilation:
                             self.variables['yunit'][name] /= int(eval(a))
                         else:
                             self.variables_for_function['yunit'][name] /= int(eval(a))
+                            a = ''
                     except:
                         pass
                 return
@@ -3630,6 +3637,7 @@ class Compilation:
                             self.variables['punto'][name] = float(eval(a))
                         else:
                             self.variables_for_function['punto'][name] = float(eval(a))
+                            a = ''
                     except:
                         pass
                     return
@@ -3658,6 +3666,7 @@ class Compilation:
                             self.variables['punto'][name] += float(eval(a))
                         else:
                             self.variables_for_function['punto'][name] += float(eval(a))
+                            a = ''
                     except:
                         pass
                     return
@@ -3686,6 +3695,7 @@ class Compilation:
                             self.variables['punto'][name] -= float(eval(a))
                         else:
                             self.variables_for_function['punto'][name] -= float(eval(a))
+                        a = ''
                     except:
                         pass
                     return
@@ -3714,6 +3724,7 @@ class Compilation:
                             self.variables['punto'][name] *= float(eval(a))
                         else:
                             self.variables_for_function['punto'][name] *= float(eval(a))
+                        a = ''
                     except:
                         pass
                     return
@@ -3742,6 +3753,7 @@ class Compilation:
                             self.variables['punto'][name] /= float(eval(a))
                         else:
                             self.variables_for_function['punto'][name] /= float(eval(a))
+                        a = ''
                     except:
                         pass
                     return
@@ -3781,6 +3793,7 @@ class Compilation:
                         self.variables['titik'][name] = eval(a)
                     else:
                         self.variables_for_function['titik'][name] = eval(a)
+                        a = ''
                     return
             else:
                 self.semantic_error.append(f'TypeError on line {self.line}: Invalid Assignment operator on Titik variable')
@@ -3970,6 +3983,7 @@ class Compilation:
                             return
                         a += '=' + self.titik_expression()
                         exec(a)
+                        a = ''
             else:
                 self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not a valid Assignment operator")
                 self.cont = False
@@ -4139,6 +4153,7 @@ class Compilation:
                         self.semantic()
                         a += '=' + str(baybay_val) 
                         exec(a)
+                        a = ''
                     else:
                         holder = (eval(a))
                         if type(holder) != str:
@@ -4148,6 +4163,7 @@ class Compilation:
                         holder = self.baybay_expression()
                         a += '= eval(\'' + holder + '\')' 
                         exec(a)
+                        a = ''
                 elif self.current == '+=':
                     self.semantic()
                     if self.current == 'kuha':
@@ -4158,6 +4174,7 @@ class Compilation:
                         self.semantic()
                         a += '+=' + str(baybay_val)
                         exec(a)
+                        a = ''
                     else:
                         holder = (eval(a))
                         if type(holder) != str:
@@ -4167,6 +4184,7 @@ class Compilation:
                         holder = self.baybay_expression()
                         a += '+= eval(\'' + holder + '\')' 
                         exec(a)
+                        a = ''
                 else:
                     self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not a valid Assignment operator")
                     self.cont = False
@@ -4345,6 +4363,7 @@ class Compilation:
                         self.semantic()
                         a += '=' + str(yunit_val)
                         exec(a)
+                        a = ''
                     else:
                         holder = (eval(a))
                         if type(holder) != int:
@@ -4355,6 +4374,7 @@ class Compilation:
                         try:
                             a += '= int(eval(\'' + holder +'\'))'
                             exec(a)
+                            a = ''
                         except:
                             pass
                 elif self.current == '+=':
@@ -4372,6 +4392,7 @@ class Compilation:
                         self.semantic()
                         a += '+=' + str(yunit_val)
                         exec(a)
+                        a = ''
                     else:
                         holder = (eval(a))
                         if type(holder) != int:
@@ -4382,6 +4403,7 @@ class Compilation:
                         try:
                             a += '+= int(eval(\'' + holder +'\'))'
                             exec(a)
+                            a = ''
                         except:
                             pass
                 elif self.current == '-=':
@@ -4399,6 +4421,7 @@ class Compilation:
                         self.semantic()
                         a += '-=' + str(yunit_val)
                         exec(a)
+                        a = ''
                     else:
                         holder = (eval(a))
                         if type(holder) != int:
@@ -4409,6 +4432,7 @@ class Compilation:
                         try:
                             a += '-= int(eval(\'' + holder +'\'))'
                             exec(a)
+                            a = ''
                         except:
                             pass
                 elif self.current == '*=':
@@ -4426,6 +4450,7 @@ class Compilation:
                         self.semantic()
                         a += '-=' + str(yunit_val)
                         exec(a)
+                        a = ''
                     else:
                         holder = (eval(a))
                         if type(holder) != int:
@@ -4436,6 +4461,7 @@ class Compilation:
                         try:
                             a += '-= int(eval(\'' + holder +'\'))'
                             exec(a)
+                            a = ''
                         except:
                             pass
                 elif self.current == '/=':
@@ -4453,6 +4479,7 @@ class Compilation:
                         self.semantic()
                         a += '/=' + str(yunit_val)
                         exec(a)
+                        a = ''
                     else:
                         holder = (eval(a))
                         if type(holder) != int:
@@ -4463,6 +4490,7 @@ class Compilation:
                         try:
                             a += '/= int(eval(\'' + holder +'\'))'
                             exec(a)
+                            a = ''
                         except:
                             pass
             else:
@@ -4639,6 +4667,7 @@ class Compilation:
                         self.semantic()
                         a += '=' + str(punto_val)
                         exec(a)
+                        a = ''
                     else:
                         holder = (eval(a))
                         if type(holder) != float:
@@ -4649,6 +4678,7 @@ class Compilation:
                         try:
                             a += '= float(eval(\'' + holder +'\'))'
                             exec(a)
+                            a = ''
                         except:
                             pass
                 elif self.current == '+=':
@@ -4666,6 +4696,7 @@ class Compilation:
                         self.semantic()
                         a += '+=' + str(punto_val)
                         exec(a)
+                        a = ''
                     else:
                         holder = (eval(a))
                         if type(holder) != float:
@@ -4676,6 +4707,7 @@ class Compilation:
                         try:
                             a += '+= float(eval(\'' + holder +'\'))'
                             exec(a)
+                            a = ''
                         except:
                             pass
                     self.semantic()
@@ -4694,6 +4726,7 @@ class Compilation:
                         self.semantic()
                         a += '-=' + str(punto_val)
                         exec(a)
+                        a = ''
                     else:
                         holder = (eval(a))
                         if type(holder) != float:
@@ -4704,6 +4737,7 @@ class Compilation:
                         try:
                             a += '-= float(eval(\'' + holder +'\'))'
                             exec(a)
+                            a = ''
                         except:
                             pass
                 elif self.current == '*=':
@@ -4721,6 +4755,7 @@ class Compilation:
                         self.semantic()
                         a += '*=' + str(punto_val)
                         exec(a)
+                        a = ''
                     else:
                         holder = (eval(a))
                         if type(holder) != float:
@@ -4731,6 +4766,7 @@ class Compilation:
                         try:
                             a += '*= float(eval(\'' + holder +'\'))'
                             exec(a)
+                            a = ''
                         except:
                             pass
                 elif self.current == '/=':
@@ -4748,6 +4784,7 @@ class Compilation:
                         self.semantic()
                         a += '/=' + str(punto_val)
                         exec(a)
+                        a = ''
                     else:
                         holder = (eval(a))
                         if type(holder) != float:
@@ -4758,6 +4795,7 @@ class Compilation:
                         try:
                             a += '/= float(eval(\'' + holder +'\'))'
                             exec(a)
+                            a = ''
                         except:
                             pass
             else:
@@ -5791,7 +5829,7 @@ class Compilation:
                         ctr -= 1
                     self.semantic()
                     self.newline()
-            if self.isBreak:
+            if self.isBreak or self.isReturn:
                 return
             z = self.num
             self.num = y-1
@@ -5890,7 +5928,7 @@ class Compilation:
                         ctr -= 1
                     self.semantic()
                     self.newline()
-            if self.isBreak:
+            if self.isBreak or self.isReturn:
                 return
             self.semantic()
             self.semantic()
@@ -6040,7 +6078,7 @@ class Compilation:
                             ctr -= 1
                         self.semantic()
                         self.newline()
-                if self.isBreak:
+                if self.isBreak or self.isReturn:
                     return
         elif self.current == 'lawak':
             self.semantic()
@@ -6055,7 +6093,10 @@ class Compilation:
                 self.cont = False
                 return
             for a in range(b,c,d):
-                self.variables[x][name] = a
+                if self.isFunc == 0:
+                    self.variables[x][name] = a
+                else:
+                    self.variables_for_function[x][name] = a
                 self.num = num - 1
                 self.semantic()
                 while self.current != '}' and self.cont != False and self.isReturn == False and self.isContinue == False:
@@ -6123,7 +6164,7 @@ class Compilation:
                             ctr -= 1
                         self.semantic()
                         self.newline()
-                if self.isBreak:
+                if self.isBreak or self.isReturn:
                     return
         self.semantic()
         self.newline()
@@ -6362,6 +6403,54 @@ def syntax_analyzer():
     parser = syn.Parser(read.tokens)    
     parser.parse()
     update_lexical_errors_text(parser.errors[0])    
+    # if parser.errors[0] == "Syntax Completed: No errors found":
+    #     update_lexical_errors_text("Syntax Completed: No errors found")
+    #     update_lexical_errors_text("")
+    #     update_lexical_errors_text("========================================  RUNNING  =======================================\n")
+    #     comp = Compilation(read.tokens)
+    #     comp.sem()
+    #     # print(comp.variables)
+    #     # print(comp.all_variables)
+    #     # if comp.cont == False:
+    #     #     update_lexical_errors_text(comp.semantic_error[0])
+    #     #     return
+    #     try:
+    #         update_lexical_errors_text(comp.semantic_error[0])
+    #     except:
+    #         add_lexical_errors("\n=========================================  DONE  =========================================\n")
+        # end=perf_counter()
+    # print(end - start)
+
+def semantic_analyzer():
+    button = True
+    read = lx.Lexer('')
+    read.tokens.clear()
+    read.error.clear()
+    lexeme_tokens_area.delete(*lexeme_tokens_area.get_children())
+    line = coding_area.get("1.0", "end-1c")
+    read = lx.Lexer(line)
+    read.Tokenize()
+                
+    for token in read.tokens:
+        lexeme_tokens_area.insert("", "end", values=(token['value'], token['token']), tags=('custom_font'))
+
+    lexeme_tokens_area.heading("#1", text="Lexeme", anchor="center",)
+    lexeme_tokens_area.heading("#2", text="Token Type", anchor="center")
+
+    lexeme_tokens_area.column("#1", width=250, anchor="center")
+    lexeme_tokens_area.column("#2", width=250, anchor="center")
+    
+    lexeme_tokens_area.column("#1",  stretch=tk.YES)
+    lexeme_tokens_area.column("#2", stretch=tk.YES)
+
+
+    if len(read.error) > 0: 
+        update_lexical_errors_text("Can't compile in Syntax.. Lexical errors occur")
+        return
+    # start=perf_counter()
+    parser = syn.Parser(read.tokens)    
+    parser.parse()
+    update_lexical_errors_text(parser.errors[0])    
     if parser.errors[0] == "Syntax Completed: No errors found":
         update_lexical_errors_text("Syntax Completed: No errors found")
         update_lexical_errors_text("")
@@ -6379,8 +6468,6 @@ def syntax_analyzer():
             add_lexical_errors("\n=========================================  DONE  =========================================\n")
         # end=perf_counter()
     # print(end - start)
-
-
 #Rectangle Task Bar
 canvas.create_rectangle(0.0, 0.0, 1870.0, 55.0, fill="#E1DBD0", outline="")
 
@@ -6535,7 +6622,7 @@ syntax_button.config(padx=42, pady=13)
 
 #Semantic Run Button
 image_semanticbutton = PhotoImage(file=relative_to_assets("semanticbutton.png"))
-semantic_button = tk.Button(window, image=image_semanticbutton, bg="#E1DBD0", relief="flat", borderwidth=1)
+semantic_button = tk.Button(window, image=image_semanticbutton, bg="#E1DBD0", relief="flat", borderwidth=1 , command=semantic_analyzer)
 semantic_button.place(x=335, y=4)
 semantic_button.config(padx=42, pady=13)
 
