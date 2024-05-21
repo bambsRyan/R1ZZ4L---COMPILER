@@ -23,7 +23,7 @@ num_value = ["Punto Literal", "Yunit Literal", "saYunit", "saPunto"]
 mop = ["+", "-", "*", "/", "%", "**"]
 baybay_Identifier = ["Identifier"]
 baybay_Identifier_continue = ["[", "="]
-baybay_tala_expression = ["["]
+baybay_tala_expression = ["[", "Identifier"]
 baybay_ext = [","]
 baybay_tala = ["[", "Identifier"]
 baybay_tala_continue = ["+"]
@@ -38,7 +38,7 @@ baybay_sub_expression = ["Baybay Literal", "saBaybay"]
 baybay_value = ["Baybay Literal", "saBaybay"]
 titik_Identifier = ["Identifier"]
 titik_Identifier_continue = ["=", "["]
-titik_tala_expression = ["["]
+titik_tala_expression = ["[", "Identifier"]
 titik_expression = ["Identifier", "Titik Literal", "saTitik"]
 titik_sub_expression = ["Titik Literal", "saTitik"]
 titik_ext = [","]
@@ -192,7 +192,7 @@ class Parser:
                         self.newline()
             self.newline()
             if self.current == None:
-                self.err('newline')
+                self.err('"yunit", "punto", "baybay", "titik", "bool", "Identifier", "sulat", "laktaw", "tapos", "bura", "para", "habang", "gawin", "kung", "pili", "takda"')
                 return
             self.ender()
             self.newline()
@@ -331,10 +331,15 @@ class Parser:
         if self.match('Identifier'):
             if self.first(num_Identifier_continue):  
                 self.num_Identifier_continue()
+            print(self.current)
             if self.current not in ['newline', ',']:
-                self.err('"[", "=", "newline", ","')
+                if self.current == None:
+                    self.err('"+", "-", "*", "/", "%", "**", "]", "," ,"newline"')
+                else:
+                    self.err('"[", "=", "newline", ","')
             if self.first(num_ext):
                 self.num_ext()
+            
 
     def num_Identifier_continue(self):
         if self.match('='):
@@ -350,7 +355,7 @@ class Parser:
                     if self.first(num_tala_expression):
                         self.num_tala_expression()
                     else:
-                        self.err('"["')
+                        self.err('"[", "Identifier"')
                 else:
                     self.err('"="')
             else:
@@ -361,6 +366,9 @@ class Parser:
             self.num_tala()
             if self.first(num_tala_continue):
                 self.num_tala_continue()
+            else:
+                if self.current != 'newline':
+                    self.err('"+", ",", "newline"')
 
     def num_ext(self):
         if self.match(','):
@@ -375,6 +383,8 @@ class Parser:
         if self.match('['):
             if self.first(num_tala_content):
                 self.num_tala_content()
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "(,", "["')
             if self.match(']'):
                 return
             else:
@@ -389,6 +399,9 @@ class Parser:
                 self.num_tala_concatenate()
                 if self.first(num_tala_continue):
                     self.num_tala_continue()
+                else:
+                    if self.current != 'newline':
+                        self.err('"+", ",", "newline"')
             else:
                 self.err('"Identifier", "["')
 
@@ -413,7 +426,7 @@ class Parser:
                 if self.first(num_tala_content_continue):
                     self.num_tala_content_continue()
             else:
-                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "(", "["')
 
     def num_tala_concatenate(self):
         if self.first(num_tala):
@@ -510,7 +523,7 @@ class Parser:
                     if self.first(baybay_tala_expression):
                         self.baybay_tala_expression()
                     else:
-                        self.err('"["')
+                        self.err('"[", "Identifier"')
                 else:
                     self.err('"="')
             else:
@@ -520,7 +533,10 @@ class Parser:
         if self.first(baybay_tala):
             self.baybay_tala()
             if self.first(baybay_tala_continue):
-                self.baybay_tala_continue()      
+                self.baybay_tala_continue()   
+            else:
+                if self.current != 'newline':
+                    self.err('"+", ",", "newline"')   
 
     def baybay_ext(self):
         if self.match(','):
@@ -535,6 +551,8 @@ class Parser:
         if self.match('['):
             if self.first(baybay_tala_content):
                 self.baybay_tala_content()
+            else:
+                self.err('"Identifier", "Baybay Literal", "saBaybay", "(", "["')
             if self.match(']'):
                 return
             else:
@@ -548,6 +566,9 @@ class Parser:
                 self.baybay_tala_concatenate()
                 if self.first(baybay_tala_continue):
                     self.baybay_tala_continue()
+                else:
+                    if self.current != 'newline':
+                        self.err('"+", ",", "newline"')
             else:
                 self.err('"Identifier", "["')
 
@@ -572,7 +593,7 @@ class Parser:
                 if self.first(baybay_tala_content_continue):
                     self.baybay_tala_content_continue()
             else:
-                self.err('"Identifier", "Baybay Literal", "saBaybay", "("')
+                self.err('"Identifier", "Baybay Literal", "saBaybay", "(", "["')
 
     def baybay_tala_concatenate(self):
         if self.first(baybay_tala):
@@ -650,7 +671,7 @@ class Parser:
                     if self.first(titik_tala_expression):
                         self.titik_tala_expression()
                     else:
-                        self.err('"["')
+                        self.err('"[", "Identifier"')
                 else:
                     self.err('"="')
             else:
@@ -661,6 +682,9 @@ class Parser:
             self.titik_tala()
             if self.first(titik_tala_continue):
                 self.titik_tala_continue()
+            else:
+                if self.current != 'newline':
+                    self.err('"+", ",", "newline"')
 
     def titik_expression(self):
         if self.first(value_id):
@@ -700,6 +724,9 @@ class Parser:
                 self.titik_tala_concatenate()
                 if self.first(titik_tala_continue):
                     self.titik_tala_continue()
+                else:
+                    if self.current != 'newline':
+                        self.err('"+", ",", "newline"')
             else:
                 self.err('"Identifier", "["')
             
@@ -1212,6 +1239,9 @@ class Parser:
             self.math()
             if self.first(printable_continue):
                 self.printable_continue()
+            else:
+                if self.current != ')':
+                    self.err('",", ")"')
 
     def printable_continue(self):
         if self.match(','):
@@ -1433,7 +1463,7 @@ class Parser:
                                 else:
                                     self.err('"global", "yunit", "punto", "baybay", "titik", "bool", "Identifier", "sulat", "laktaw", "tapos", "bura", "balik", "para", "habang", "gawin", "kung", "pili"')
                             else:
-                                self.err('newline')
+                                self.err('"newline"')
                         else:
                             self.err('{')
                     else:
