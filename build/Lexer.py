@@ -589,6 +589,12 @@ class Lexer:
             return
     def baybaylit(self):
         while self.current != '\"' and self.current != '\n' and self.index != len(self.code):
+            if self.current == '\\':
+                self.string += self.current
+                self.traverse()
+                self.string += self.current
+                self.traverse()
+                continue    
             self.string += self.current
             self.traverse()
         if self.state('\"'):
