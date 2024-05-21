@@ -215,14 +215,14 @@ class Compilation:
             else:
                 z = 'self.variables_for_function[x][name]'
         except (KeyError, NameError, SyntaxError, TypeError) as e :
-            self.semantic_error.append(f"NameError on line {self.line}: Variable '{self.val}' is not defined")
+            self.semantic_error.append(f"Semantic Error on line {self.line}: Variable '{self.val}' is not defined")
             self.y = None
             self.cont = False
             return
         if x not in ['yunit_list', 'punto_list', 'baybay_list', 'titik_list', 'bool_list','function']:
             self.semantic()
             if self.current =='[':
-                self.semantic_error.append(f"TypeError on line {self.line}: {name} is not subscriptable")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {name} is not subscriptable")
                 self.cont = False
                 return
             if self.isFunc == 0:
@@ -254,7 +254,7 @@ class Compilation:
                                 else:
                                     a = self.func_variables[self.val]
                             except:
-                                self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                                 self.cont = False
                                 return
                             if a in ['yunit_list', 'punto_list', 'baybay_list', 'titik_list']:
@@ -267,7 +267,7 @@ class Compilation:
                                     x += str('\'' +self.func_Identifier() +'\'')
                             elif a == 'baybay':
                                 if isnum == True:
-                                    self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Baybay Literal")
+                                    self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Baybay Literal")
                                     self.cont = False
                                     return
                                 isBaybay = True
@@ -286,7 +286,7 @@ class Compilation:
                                     isBool = True
                                 elif a == 'yunit' or a == 'punto':
                                     if isBaybay == True:
-                                        self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
+                                        self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
                                         self.cont = False
                                         return
                                     isnum = True
@@ -372,7 +372,7 @@ class Compilation:
                                 self.semantic_error.append(f"Semantic Eror on line{self.line}: Invalid operators for boolean")
                                 isBool = False
                             if titik_ctr == True: 
-                                self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Titik Literal")
+                                self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Titik Literal")
                                 self.cont = False
                                 return
                             else:
@@ -382,11 +382,11 @@ class Compilation:
                         y += str(self.val)
                         self.semantic()
                         if isBaybay == True and self.current in  ['Yunit Literal', 'Punto Literal', 'Totoo', 'Peke', 'Titik Literal', 'saYunit', 'saPunto', 'saTitik']:
-                            self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Baybay Literal")
+                            self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Baybay Literal")
                             self.cont = False
                             return
                         elif isnum == True and self.current in ['Baybay Literal', 'saBaybay', 'saTitik', 'Totoo', 'Peke', 'Titik Literal']:
-                            self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
+                            self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
                             self.cont = False
                             return
                     titik_ctr = False
@@ -398,7 +398,7 @@ class Compilation:
                             parameters.append(eval(y))
                             y = ''
                         except:
-                            self.semantic_error.append(f"TypeError on line {self.line}: {specific} is not a valid parameter")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: {specific} is not a valid parameter")
                             self.cont = False
                             return
                 line = self.line
@@ -434,10 +434,10 @@ class Compilation:
         try:
             return eval(z)
         except (IndexError) as e:
-            self.semantic_error.append(f"IndexError on ine {self.line}: {e}")
+            self.semantic_error.append(f"Semantic Error on ine {self.line}: Index Error")
             self.cont = False
         except (TypeError) as e:
-            self.semantic_error.append(f"TypeError on line {self.line}: {str(e).replace('int', 'yunit').replace('float', 'punto')}")
+            self.semantic_error.append(f"Semantic Error on line {self.line}: {str(e).replace('int', 'yunit').replace('float', 'punto')}")
             self.cont = False
             return
     
@@ -480,9 +480,9 @@ class Compilation:
                     if x == 'function':
                         holder = self.Identifier()
                     else:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {z} is not a valid parameter for {param_name}")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {z} is not a valid parameter for {param_name}")
                     if type(holder) != int and type(holder) != float:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Yunit Literal")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {z} does not contain Yunit Literal")
                         self.cont = False
                         return
                     if type(holder) == float:
@@ -542,9 +542,9 @@ class Compilation:
                     if x == 'function':
                         holder = self.Identifier()
                     else:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {z} is not a valid parameter for {param_name}")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {z} is not a valid parameter for {param_name}")
                     if type(holder) != int and type(holder) != float:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Punto Literal")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {z} does not contain Punto Literal")
                         self.cont = False
                         return
                     if type(holder) == int:
@@ -605,9 +605,9 @@ class Compilation:
                     if x == 'function':
                         holder = self.Identifier()
                     else:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {z} is not a valid parameter for {param_name}")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {z} is not a valid parameter for {param_name}")
                     if type(holder) != str:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Baybay Literal")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {z} does not contain Baybay Literal")
                         self.cont = False
                         return
                     y += "\"" + str(holder) + "\""
@@ -655,9 +655,9 @@ class Compilation:
                     if x == 'function':
                         holder = self.Identifier()
                     else:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {z} is not a valid parameter for {param_name}")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {z} is not a valid parameter for {param_name}")
                     if type(holder) != str:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Titik Literal")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {z} does not contain Titik Literal")
                         self.cont = False
                         return
                     y += "\"" + str(holder) + "\""
@@ -707,9 +707,9 @@ class Compilation:
                     if x == 'function':
                         holder = self.Identifier()
                     else:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {z} is not a valid parameter for {param_name}")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {z} is not a valid parameter for {param_name}")
                     if type(holder) != str:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Titik Literal")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {z} does not contain Titik Literal")
                         self.cont = False
                         return
                     y += "\"" + str(holder) + "\""
@@ -763,7 +763,7 @@ class Compilation:
                 elif self.current in ['>', '<', '>=', '<=', '+', '-', '*', '/', '%', '**']:
                     y += self.current + ' '
                     if isBool == True:
-                        self.semantic_error.append(f"TypeError on line {self.line}: Invalid operator for Boolean")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid operator for Boolean")
                         self.cont = False
                         return 
                 else:
@@ -801,11 +801,11 @@ class Compilation:
                     else:
                         x = self.func_variables[self.val]
                 except:
-                    self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                     self.cont = False
                     return
                 if x == 'function':
-                    self.semantic_error.append(f"TypeError on line {self.line}: Cannot return a function call")
+                    self.semantic_error.append(f"Semantic Error on line {self.line}: Cannot return a function call")
                     self.cont = False
                     return
                 if self.isFunc == 0:
@@ -876,7 +876,7 @@ class Compilation:
             elif self.current in ['>', '<', '>=', '<=', '+', '-', '*', '/', '%', '**']:
                 y += self.current + ' '
                 if isBool == True:
-                    self.semantic_error.append(f"TypeError on line {self.line}: Invalid operator for Boolean")
+                    self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid operator for Boolean")
                     self.cont = False
                     return
             elif self.current in ['==', '!=']:
@@ -901,7 +901,7 @@ class Compilation:
                 if len(parameters) != 0:
                     try:
                         if type(parameters[0]) != int and type(parameters[0]) != float:
-                            self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: invalid parameter for {name}")
                             self.cont = False
                             return
                         self.func_var.append(name)
@@ -920,7 +920,7 @@ class Compilation:
                                 if ctr == 0:
                                     break
                     except:
-                        self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: invalid parameter for {name}")
                         self.cont = False
                         return
                 else:
@@ -935,7 +935,7 @@ class Compilation:
                 if len(parameters) != 0:
                     try:
                         if type(parameters[0]) != int and type(parameters[0]) != float:
-                            self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: invalid parameter for {name}")
                             self.cont = False
                             return
                         self.func_var.append(name)
@@ -954,7 +954,7 @@ class Compilation:
                                 if ctr == 0:
                                     break
                     except:
-                        self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: invalid parameter for {name}")
                         self.cont = False
                         return
                 else:
@@ -969,7 +969,7 @@ class Compilation:
                 if len(parameters) != 0:
                     try:
                         if type(parameters[0]) != str:
-                            self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: invalid parameter for {name}")
                             self.cont = False
                             return
                         self.func_var.append(name)
@@ -988,7 +988,7 @@ class Compilation:
                                 if ctr == 0:
                                     break
                     except:
-                        self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: invalid parameter for {name}")
                         self.cont = False
                         return
                 else:
@@ -1003,7 +1003,7 @@ class Compilation:
                 if len(parameters) != 0:
                     try:
                         if type(parameters[0]) != str:
-                            self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: invalid parameter for {name}")
                             self.cont = False
                             return
                         self.func_var.append(name)
@@ -1022,7 +1022,7 @@ class Compilation:
                                 if ctr == 0:
                                     break
                     except:
-                        self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: invalid parameter for {name}")
                         self.cont = False
                         return
                 else:
@@ -1037,7 +1037,7 @@ class Compilation:
                 if len(parameters) != 0:
                     try:
                         if type(parameters[0]) != bool:
-                            self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: invalid parameter for {name}")
                             self.cont = False
                             return
                         self.func_var.append(name)
@@ -1056,7 +1056,7 @@ class Compilation:
                                 if ctr == 0:
                                     break
                     except:
-                        self.semantic_error.append(f"TypeError on line {self.line}: invalid parameter for {name}")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: invalid parameter for {name}")
                         self.cont = False
                         return
                 else:
@@ -1067,7 +1067,7 @@ class Compilation:
             if self.current == ',':
                 self.semantic()
         if parameters != []:
-            self.semantic_error.append(f"TypeError on line {self.line}: too many parameters for {var_name}")
+            self.semantic_error.append(f"Semantic Error on line {self.line}: too many parameters for {var_name}")
             self.cont = False
             return
         self.semantic()
@@ -1161,7 +1161,7 @@ class Compilation:
         try: 
             a = self.all_variables[self.val]
         except:
-            self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+            self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
             self.cont = False
             return
         z = self.val
@@ -1194,14 +1194,14 @@ class Compilation:
             else:
                 z = 'self.variables_for_function[x][name]'
         except (KeyError, NameError, SyntaxError, TypeError) as e :
-            self.semantic_error.append(f"NameError on line {self.line}: Variable '{self.val}' is not defined")
+            self.semantic_error.append(f"Semantic Error on line {self.line}: Variable '{self.val}' is not defined")
             self.y = None
             self.cont = False
             return
         if x not in ['yunit_list', 'punto_list', 'baybay_list', 'titik_list', 'bool_list','function']:
             self.semantic()
             if self.current =='[':
-                self.semantic_error.append(f"TypeError on line {self.line}: {name} is not subscriptable")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {name} is not subscriptable")
                 self.cont = False
                 return
             if self.isFunc == 0:
@@ -1236,7 +1236,7 @@ class Compilation:
                                 else:
                                     a = self.func_variables[self.val]
                             except:
-                                self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                                 self.cont = False
                                 return
                             if a in ['yunit_list', 'punto_list', 'baybay_list', 'titik_list']:
@@ -1249,7 +1249,7 @@ class Compilation:
                                     x += str('\'' +self.func_Identifier() +'\'')
                             elif a == 'baybay':
                                 if isnum == True:
-                                    self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Baybay Literal")
+                                    self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Baybay Literal")
                                     self.cont = False
                                     return
                                 isBaybay = True
@@ -1268,7 +1268,7 @@ class Compilation:
                                     isBool = True
                                 elif a == 'yunit' or a == 'punto':
                                     if isBaybay == True:
-                                        self.semantic_error.append(f"TypeError on Line {self.line}: 1Invalid operators for Yunit Literal or Punto Literal")
+                                        self.semantic_error.append(f"Semantic Error on Line {self.line}: 1Invalid operators for Yunit Literal or Punto Literal")
                                         self.cont = False
                                         return
                                     isnum = True
@@ -1354,7 +1354,7 @@ class Compilation:
                                 self.semantic_error.append(f"Semantic Eror on line{self.line}: Invalid operators for boolean")
                                 isBool = False
                             if titik_ctr == True: 
-                                self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Titik Literal")
+                                self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Titik Literal")
                                 self.cont = False
                                 return
                             else:
@@ -1364,11 +1364,11 @@ class Compilation:
                         y += str(self.val)
                         self.semantic()
                         if isBaybay == True and self.current in  ['Yunit Literal', 'Punto Literal', 'Totoo', 'Peke', 'Titik Literal', 'saYunit', 'saPunto', 'saTitik']:
-                            self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Baybay Literal")
+                            self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Baybay Literal")
                             self.cont = False
                             return
                         elif isnum == True and self.current in ['Baybay Literal', 'saBaybay', 'saTitik', 'Totoo', 'Peke', 'Titik Literal']:
-                            self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
+                            self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
                             self.cont = False
                             return
                     titik_ctr = False
@@ -1380,7 +1380,7 @@ class Compilation:
                             parameters.append(eval(y))
                             y = ''
                         except:
-                            self.semantic_error.append(f"TypeError on line {self.line}: {specific} is not a valid parameter")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: {specific} is not a valid parameter")
                             self.cont = False
                             return
                 line = self.line
@@ -1416,10 +1416,10 @@ class Compilation:
         try:
             return eval(z)
         except (IndexError) as e:
-            self.semantic_error.append(f"IndexError on Line {self.line}: {e}")
+            self.semantic_error.append(f"Semantic Error on Line {self.line}: Index Error")
             self.cont = False
         except (TypeError) as e:
-            self.semantic_error.append(f"TypeError on line {self.line}: {str(e).replace('int', 'yunit').replace('float', 'punto')}")
+            self.semantic_error.append(f"Semantic Error on line {self.line}: {str(e).replace('int', 'yunit').replace('float', 'punto')}")
             self.cont = False
             return
         
@@ -1528,12 +1528,12 @@ class Compilation:
         val = self.val
         if self.isFunc == 0:
             if val in self.var:
-                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {val} is already defined")
                 self.cont = False
                 return
         else:
             if val in self.func_var:
-                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {val} is already defined")
                 self.cont = False
                 return
         self.semantic()
@@ -1563,7 +1563,7 @@ class Compilation:
                         else:
                             x = self.func_variables[self.val]
                         if x != 'yunit_list':
-                            self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid parameter for {val}")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid parameter for {val}")
                             self.cont = False
                             return
                         if self.isFunc == 0:
@@ -1620,7 +1620,7 @@ class Compilation:
                     if self.cont == False:
                         return
                     if type(holder) != int and type(holder) != float:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Yunit Literal")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {z} does not contain Yunit Literal")
                         self.cont = False
                         return
                     if type(holder) == float:
@@ -1675,7 +1675,7 @@ class Compilation:
         y = ''
         val = self.val
         if val in self.var:
-            self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+            self.semantic_error.append(f"Semantic Error on line {self.line}: {val} is already defined")
             self.cont = False
             return
         self.semantic()
@@ -1704,7 +1704,7 @@ class Compilation:
                         else:
                             x = self.func_variables[self.val]
                         if x != 'yunit_list':
-                            self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid value for {val}")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid value for {val}")
                             self.cont = False
                             return
                         if self.isFunc == 0:
@@ -1756,7 +1756,7 @@ class Compilation:
                     if self.cont == False:
                         return
                     if type(holder) != int and type(holder) != float:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Yunit Literal")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {z} does not contain Yunit Literal")
                         self.cont = False
                         return
                     if type(holder) == float:
@@ -1909,12 +1909,12 @@ class Compilation:
         val = self.val
         if self.isFunc == 0:
             if val in self.var:
-                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {val} is already defined")
                 self.cont = False
                 return
         else:
             if val in self.func_var:
-                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {val} is already defined")
                 self.cont = False
                 return
         self.semantic()
@@ -1944,7 +1944,7 @@ class Compilation:
                         else:
                             x = self.func_variables[self.val]
                         if x != 'punto_list':
-                            self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid value for {val}")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid value for {val}")
                             self.cont = False
                             return
                         if self.isFunc == 0:
@@ -2001,7 +2001,7 @@ class Compilation:
                     if self.cont == False:
                         return
                     if type(holder) != int and type(holder) != float:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Yunit Literal")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {z} does not contain Yunit Literal")
                         self.cont = False
                         return
                     if type(holder) == int:
@@ -2057,12 +2057,12 @@ class Compilation:
         val = self.val
         if self.isFunc == 0:
             if val in self.var:
-                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {val} is already defined")
                 self.cont = False
                 return
         else:
             if val in self.func_var:
-                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {val} is already defined")
                 self.cont = False
                 return
         self.semantic()
@@ -2092,7 +2092,7 @@ class Compilation:
                         else:
                             x = self.func_variables[self.val]
                         if x != 'punto_list':
-                            self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid value for {val}")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid value for {val}")
                             self.cont = False
                             return
                         if self.isFunc == 0:
@@ -2146,7 +2146,7 @@ class Compilation:
                     if self.cont == False:
                         return
                     if type(holder) != int and type(holder) != float:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Punto Literal")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {z} does not contain Punto Literal")
                         self.cont = False
                         return
                     if type(holder) == int:
@@ -2290,12 +2290,12 @@ class Compilation:
         val = self.val
         if self.isFunc == 0:
             if val in self.var:
-                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {val} is already defined")
                 self.cont = False
                 return
         else:
             if val in self.func_var:
-                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {val} is already defined")
                 self.cont = False
                 return
         self.semantic()
@@ -2325,7 +2325,7 @@ class Compilation:
                         else:
                             x = self.func_variables[self.val]
                         if x != 'baybay_list':
-                            self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid value for {val}")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid value for {val}")
                             self.cont = False
                             return
                         if self.isFunc == 0:
@@ -2378,7 +2378,7 @@ class Compilation:
                     if self.cont == False:
                         return
                     if type(holder) != str:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Baybay Litaral")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {z} does not contain Baybay Litaral")
                         self.cont = False
                         return
                     y += f'\'{str(holder)}\''
@@ -2429,12 +2429,12 @@ class Compilation:
         val = self.val
         if self.isFunc == 0:
             if val in self.var:
-                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {val} is already defined")
                 self.cont = False
                 return
         else:
             if val in self.func_var:
-                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {val} is already defined")
                 self.cont = False
                 return
         self.semantic()
@@ -2464,7 +2464,7 @@ class Compilation:
                         else:
                             x = self.func_variables[self.val]
                         if x != 'baybay_list':
-                            self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid value for {val}")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid value for {val}")
                             self.cont = False
                             return
                         if self.isFunc == 0:
@@ -2517,7 +2517,7 @@ class Compilation:
                     if self.cont == False:
                         return
                     if type(holder) != str:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Baybay Litaral")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {z} does not contain Baybay Litaral")
                         self.cont = False
                         return
                     y += f'\'{str(holder)}\''
@@ -2656,12 +2656,12 @@ class Compilation:
         val = self.val
         if self.isFunc == 0:
             if val in self.var:
-                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {val} is already defined")
                 self.cont = False
                 return
         else:
             if val in self.func_var:
-                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {val} is already defined")
                 self.cont = False
                 return
         self.semantic()
@@ -2691,7 +2691,7 @@ class Compilation:
                         else:
                             x = self.func_variables[self.val]
                         if x != 'titik_list':
-                            self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid parameter for {val}")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid parameter for {val}")
                             self.cont = False
                             return
                         if self.isFunc == 0:
@@ -2743,21 +2743,21 @@ class Compilation:
                 if self.cont == False:
                     return
                 if type(holder) != str and len(holder) != 1:
-                    self.semantic_error.append(f"TypeError on line {self.line}: {self.val} does not contain Titik Literal")
+                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} does not contain Titik Literal")
                     self.cont = False
                     return
                 y += f'\'{str(holder)}\''
             elif self.current == 'saTitik':
                 y += str(self.saTitik())
                 if len(y[1:-1]) < 1:
-                    self.semantic_error.append(f"TypeError on line {self.line}: {self.val} does not contain Titik Literal")
+                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} does not contain Titik Literal")
                     self.cont = False
             elif self.current == 'Titik Literal':
                 y += self.val
             elif self.current == '+':
                 y += self.val
             else:
-                self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Titik Litaral")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {z} does not contain Titik Litaral")
                 self.cont = False
             self.semantic()
             if self.cont == False:
@@ -2794,12 +2794,12 @@ class Compilation:
         val = self.val
         if self.isFunc == 0:
             if val in self.var:
-                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {val} is already defined")
                 self.cont = False
                 return
         else:
             if val in self.func_var:
-                self.semantic_error.append(f"NameError on line {self.line}: {val} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {val} is already defined")
                 self.cont = False
                 return
         self.semantic()
@@ -2829,7 +2829,7 @@ class Compilation:
                         else:
                             x = self.func_variables[self.val]
                         if x != 'titik_list':
-                            self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid parameter for {val}")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid parameter for {val}")
                             self.cont = False
                             return
                         if self.isFunc == 0:
@@ -2881,21 +2881,21 @@ class Compilation:
                 if self.cont == False:
                     return
                 if type(holder) != str and len(holder) != 1:
-                    self.semantic_error.append(f"TypeError on line {self.line}: {self.val} does not contain Titik Literal")
+                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} does not contain Titik Literal")
                     self.cont = False
                     return
                 y += f'\'{str(holder)}\''
             elif self.current == 'saTitik':
                 y += str(self.saTitik())
                 if len(y[1:-1]) < 1:
-                    self.semantic_error.append(f"TypeError on line {self.line}: {self.val} does not contain Titik Literal")
+                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} does not contain Titik Literal")
                     self.cont = False
             elif self.current == 'Titik Literal':
                 y += self.val
             elif self.current == '+':
                 y += self.val
             else:
-                self.semantic_error.append(f"TypeError on line {self.line}: {z} does not contain Titik Litaral")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {z} does not contain Titik Litaral")
                 self.cont = False
             self.semantic()
             if self.cont == False:
@@ -2945,7 +2945,7 @@ class Compilation:
                         else:
                             a = self.func_variables[self.val]
                     except:
-                        self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                         self.cont = False
                         return
                     if a == 'titik':
@@ -2956,7 +2956,7 @@ class Compilation:
                             x += str('\'' +self.func_Identifier() +'\'')
                     elif a == 'baybay':
                         if isnum == True:
-                            self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Baybay Literal")
+                            self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Baybay Literal")
                             self.cont = False
                             return
                         isBaybay = True
@@ -2992,7 +2992,7 @@ class Compilation:
                             isBool = True
                         elif a == 'yunit' or a == 'punto':
                             if isBaybay == True:
-                                self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
+                                self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
                                 self.cont = False
                                 return
                             isnum = True
@@ -3097,7 +3097,7 @@ class Compilation:
                         self.semantic_error.append(f"Semantic Eror on line{self.line}: Invalid operators for boolean")
                         isBool = False
                     if titik_ctr == True: 
-                        self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Titik Literal")
+                        self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Titik Literal")
                         self.cont = False
                         return
                     else:
@@ -3107,11 +3107,11 @@ class Compilation:
                 y += str(self.val)
                 self.semantic()
                 if isBaybay == True and self.current in  ['Yunit Literal', 'Punto Literal', 'Totoo', 'Peke', 'Titik Literal', 'saYunit', 'saPunto', 'saTitik']:
-                    self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Baybay Literal")
+                    self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Baybay Literal")
                     self.cont = False
                     return
                 elif isnum == True and self.current in ['Baybay Literal', 'saBaybay', 'saTitik', 'Totoo', 'Peke', 'Titik Literal']:
-                    self.semantic_error.append(f"TypeError on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
+                    self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
                     self.cont = False
                     return
             titik_ctr = False
@@ -3161,11 +3161,11 @@ class Compilation:
                             y +='\''+ str(holder) +'\''
                         else:
                             if z == 'function':
-                                self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid value returned by function")
                                 self.cont = False
                                 return
                             else:
-                                self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
                     else:
@@ -3174,11 +3174,11 @@ class Compilation:
                             y +='\'' + str(holder) + '\''
                         else:
                             if z == 'function':
-                                self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid value returned by function")
                                 self.cont = False
                                 return
                             else:
-                                self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
                 continue
@@ -3192,9 +3192,9 @@ class Compilation:
                 self.semantic()
             else:
                 if self.current in ['-', '*', '**','/', '%' ]:
-                    self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
+                    self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid operator')
                 else:
-                    self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Baybay variable')
+                    self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid Assignment on Baybay variable')
                 self.cont = False
                 return
         return str(y)
@@ -3225,11 +3225,11 @@ class Compilation:
                             y += str(int(holder))
                         else:
                             if z == 'function':
-                                self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid value returned by function")
                                 self.cont = False
                                 return
                             else:
-                                self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
                     else:
@@ -3238,15 +3238,15 @@ class Compilation:
                             y += str(int(holder))
                         else:
                             if z == 'function':
-                                self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid value returned by function")
                                 self.cont = False
                                 return
                             else:
-                                self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
                 else:   
-                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                    self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                     self.cont = False
                     return
                 continue
@@ -3261,7 +3261,7 @@ class Compilation:
                 y += self.current
                 self.semantic()
             else:
-                self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Yunit variable')
+                self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid Assignment on Yunit variable')
                 self.cont = False
                 return
         return str(y)
@@ -3292,11 +3292,11 @@ class Compilation:
                             y += str(float(holder))
                         else:
                             if z == 'function':
-                                self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid value returned by function")
                                 self.cont = False
                                 return
                             else:
-                                self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
                     else:
@@ -3305,15 +3305,15 @@ class Compilation:
                             y += str(float(holder))
                         else:
                             if z == 'function':
-                                self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid value returned by function")
                                 self.cont = False
                                 return
                             else:
-                                self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                                self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                                 self.cont = False
                                 return
                 else:   
-                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                    self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                     self.cont = False
                     return
                 continue
@@ -3328,7 +3328,7 @@ class Compilation:
                 y += self.current
                 self.semantic()
             else:
-                self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Punto variable')
+                self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid Assignment on Punto variable')
                 self.cont = False
                 return
         return str(y)
@@ -3361,15 +3361,15 @@ class Compilation:
                         y += str(holder)
                     else:
                         if z == 'function':
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid value returned by function")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid value returned by function")
                             self.cont = False
                             return
                         else:
-                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                            self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                             self.cont = False
                             return
                 else:
-                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                    self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                     self.cont = False
                     return
                 continue
@@ -3383,9 +3383,9 @@ class Compilation:
                 self.semantic()
             else:
                 if self.current in ['+', '-', '*', '**','/', '%' ]:
-                    self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
+                    self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid operator')
                 else:
-                    self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik variable')
+                    self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid Assignment on Titik variable')
                 self.cont = False
                 return
         return str(y)
@@ -3423,7 +3423,7 @@ class Compilation:
                     try:
                         baybay_val = self.inp(x[1:-1])
                     except:
-                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Baybay variable')
+                        self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Baybay variable')
                         self.cont = False
                         return
                     if self.isFunc == 0:
@@ -3453,7 +3453,7 @@ class Compilation:
                     try:
                         baybay_val = self.inp(x[1:-1])
                     except:
-                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Baybay variable')
+                        self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Baybay variable')
                         self.cont = False
                         return
                     if self.isFunc == 0:
@@ -3476,7 +3476,7 @@ class Compilation:
                     except:
                         pass
             else:
-                self.semantic_error.append(f'TypeError on line {self.line}: Invalid Assignment operator on baybay variable')
+                self.semantic_error.append(f'Semantic Error on line {self.line}: Invalid Assignment operator on baybay variable')
                 self.cont = False
             return
         elif x == 'yunit':
@@ -3489,8 +3489,8 @@ class Compilation:
                     x = self.val
                     try:
                         num_val = int(self.inp(x[1:-1].replace('~','-')))
-                    except TypeError:
-                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Yunit variable')
+                    except:
+                        self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Yunit variable')
                     if self.isFunc == 0:
                         self.variables['yunit'][name] = num_val
                     else:
@@ -3519,7 +3519,7 @@ class Compilation:
                     try:
                         num_val = int(self.inp(x[1:-1].replace('~','-')))
                     except TypeError:
-                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Yunit variable')
+                        self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Yunit variable')
                     if self.isFunc == 0:
                         self.variables['yunit'][name] += num_val
                     else:
@@ -3548,7 +3548,7 @@ class Compilation:
                     try:
                         num_val = int(self.inp(x[1:-1].replace('~','-')))
                     except TypeError:
-                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Yunit variable')
+                        self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Yunit variable')
                     if self.isFunc == 0:
                         self.variables['yunit'][name] = num_val
                     else:
@@ -3577,7 +3577,7 @@ class Compilation:
                     try:
                         num_val = int(self.inp(x[1:-1].replace('~','-')))
                     except TypeError:
-                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Yunit variable')
+                        self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Yunit variable')
                     if self.isFunc == 0:
                         self.variables['yunit'][name] = num_val
                     else:
@@ -3606,7 +3606,7 @@ class Compilation:
                     try:
                         num_val = int(self.inp(x[1:-1].replace('~','-')))
                     except TypeError:
-                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Yunit variable')
+                        self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Yunit variable')
                     if self.isFunc == 0:
                         self.variables['yunit'][name] = num_val
                     else:
@@ -3637,7 +3637,7 @@ class Compilation:
                     try:
                         num_val = float(self.inp(x[1:-1].replace('~', '-')))
                     except TypeError:
-                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Punto variable')
+                        self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Punto variable')
                     if self.isFunc == 0:
                         self.variables['punto'][name] = num_val
                     else:
@@ -3666,7 +3666,7 @@ class Compilation:
                     try:
                         num_val = float(self.inp(x[1:-1].replace('~', '-')))
                     except TypeError:
-                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Punto variable')
+                        self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Punto variable')
                     if self.isFunc == 0:
                         self.variables['punto'][name] += num_val
                     else:
@@ -3695,7 +3695,7 @@ class Compilation:
                     try:
                         num_val = float(self.inp(x[1:-1].replace('~', '-')))
                     except TypeError:
-                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Punto variable')
+                        self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Punto variable')
                     if self.isFunc == 0:
                         self.variables['punto'][name] -= num_val
                     else:
@@ -3724,7 +3724,7 @@ class Compilation:
                     try:
                         num_val = float(self.inp(x[1:-1].replace('~', '-')))
                     except TypeError:
-                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Punto variable')
+                        self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Punto variable')
                     if self.isFunc == 0:
                         self.variables['punto'][name] *= num_val
                     else:
@@ -3753,7 +3753,7 @@ class Compilation:
                     try:
                         num_val = float(self.inp(x[1:-1].replace('~', '-')))
                     except TypeError:
-                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Punto variable')
+                        self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Punto variable')
                     if self.isFunc == 0:
                         self.variables['punto'][name] /= num_val
                     else:
@@ -3784,15 +3784,15 @@ class Compilation:
                     try:
                         titik_val = self.inp(x[1:-1])
                         if len(titik_val) > 1:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Titik variable')
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Titik variable')
                             self.cont = False
                             return
                     except:
-                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Titik variable')
+                        self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Titik variable')
                         self.cont = False
                         return
                     if len(titik_val) != 0:
-                        self.semantic_error.append(f'TypeError on Line {self.line}: Invalid input for Titik variable')
+                        self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Titik variable')
                         self.cont = False
                         return
                     if self.isFunc == 0:
@@ -3812,13 +3812,13 @@ class Compilation:
                         a = ''
                     return
             else:
-                self.semantic_error.append(f'TypeError on line {self.line}: Invalid Assignment operator on Titik variable')
+                self.semantic_error.append(f'Semantic Error on line {self.line}: Invalid Assignment operator on Titik variable')
         elif x == 'bool':
             self.semantic()
             if self.current == '=':
                 self.semantic()
                 if self.current == 'kuha':
-                    self.semantic_error.append(f"TypeError on line {self.line}: Invalid input for Boolean variable")
+                    self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid input for Boolean variable")
                     self.cont = False
                     return
                 else:
@@ -3860,11 +3860,11 @@ class Compilation:
                                 elif holder[0] == str and len(holder[0]) == 1:
                                     y += str(holder)
                                 else:
-                                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid return value for function')
+                                    self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid return value for function')
                                     self.cont = False
                                     return
                         else:
-                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                            self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                             self.cont = False
                             return
                     elif self.current in ["(,", ")", "+"]:
@@ -3872,9 +3872,9 @@ class Compilation:
                         self.semantic()
                     else:
                         if self.current in ['-', '*', '**','/', '%' ]:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid operator')
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik array variable')
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid Assignment on Titik array variable')
                         self.cont = False
                         return
                 if self.isFunc == 0:
@@ -3914,11 +3914,11 @@ class Compilation:
                                 elif holder[0] == str and len(holder[0]) == 1:
                                     y += str(holder)
                                 else:
-                                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid return value for function')
+                                    self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid return value for function')
                                     self.cont = False
                                     return
                         else:
-                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                            self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                             self.cont = False
                             return
                     elif self.current in ["(,", ")", "+"]:
@@ -3926,9 +3926,9 @@ class Compilation:
                         self.semantic()
                     else:
                         if self.current in ['-', '*', '**','/', '%' ]:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid operator')
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik array variable')
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid Assignment on Titik array variable')
                         self.cont = False
                         return
                 if self.isFunc == 0:
@@ -3960,7 +3960,7 @@ class Compilation:
                             self.cont = False
                             return
                         if z != 'yunit' and z != 'yunit_list':
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Identifier")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Identifier")
                             self.cont = False
                             return
                         else:
@@ -3969,7 +3969,7 @@ class Compilation:
                             else:
                                 holder = self.func_Identifier()
                             if type(holder) == list:
-                                self.semantic_error.append(f"TypeError on line {self.line}: Invalid Identifier")
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Identifier")
                                 self.cont = False
                                 return
                             else:
@@ -3978,7 +3978,7 @@ class Compilation:
                         a += ']'
                         self.semantic()
                     else:
-                        self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Titik array variable")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                         self.cont = False
                         return
                 if self.current == '=':
@@ -3994,14 +3994,14 @@ class Compilation:
                     else:
                         holder = (eval(a))
                         if type(holder) != str:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Titik array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
                             return
                         a += '=' + self.titik_expression()
                         exec(a)
                         a = ''
             else:
-                self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not a valid Assignment operator")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid Assignment operator")
                 self.cont = False
                 return
         elif x == 'baybay_list':
@@ -4038,11 +4038,11 @@ class Compilation:
                                 elif holder[0] == str:
                                     y += str(holder)
                                 else:
-                                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid return value for function')
+                                    self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid return value for function')
                                     self.cont = False
                                     return
                         else:
-                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                            self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                             self.cont = False
                             return
                     elif self.current in ["(,", ")", "+"]:
@@ -4050,9 +4050,9 @@ class Compilation:
                         self.semantic()
                     else:
                         if self.current in ['-', '*', '**','/', '%' ]:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid operator')
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik array variable')
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid Assignment on Titik array variable')
                         self.cont = False
                         return
                 if self.isFunc == 0:
@@ -4092,11 +4092,11 @@ class Compilation:
                                 elif holder[0] == str :
                                     y += str(holder)
                                 else:
-                                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid return value for function')
+                                    self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid return value for function')
                                     self.cont = False
                                     return
                         else:
-                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                            self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                             self.cont = False
                             return
                     elif self.current in ["(,", ")", "+"]:
@@ -4104,9 +4104,9 @@ class Compilation:
                         self.semantic()
                     else:
                         if self.current in ['-', '*', '**','/', '%' ]:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid operator')
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik array variable')
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid Assignment on Titik array variable')
                         self.cont = False
                         return
                 if self.isFunc == 0:
@@ -4138,7 +4138,7 @@ class Compilation:
                             self.cont = False
                             return
                         if z != 'yunit' and z != 'yunit_list':
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Identifier")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Identifier")
                             self.cont = False
                             return
                         else:
@@ -4147,7 +4147,7 @@ class Compilation:
                             else:
                                 holder = self.func_Identifier()
                             if type(holder) == list:
-                                self.semantic_error.append(f"TypeError on line {self.line}: Invalid Identifier")
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Identifier")
                                 self.cont = False
                                 return
                             else:
@@ -4156,7 +4156,7 @@ class Compilation:
                         a += ']'
                         self.semantic()
                     else:
-                        self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Titik array variable")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                         self.cont = False
                         return
                 if self.current == '=':
@@ -4173,7 +4173,7 @@ class Compilation:
                     else:
                         holder = (eval(a))
                         if type(holder) != str:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Baybay array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Baybay array variable")
                             self.cont = False
                             return
                         holder = self.baybay_expression()
@@ -4194,7 +4194,7 @@ class Compilation:
                     else:
                         holder = (eval(a))
                         if type(holder) != str:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Baybay array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Baybay array variable")
                             self.cont = False
                             return
                         holder = self.baybay_expression()
@@ -4202,11 +4202,11 @@ class Compilation:
                         exec(a)
                         a = ''
                 else:
-                    self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not a valid Assignment operator")
+                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid Assignment operator")
                     self.cont = False
                     return
             else:
-                self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not a valid Assignment operator")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid Assignment operator")
                 self.cont = False
                 return
         elif x == 'yunit_list':
@@ -4243,11 +4243,11 @@ class Compilation:
                                 elif type(holder[0]) == int:
                                     y += str(holder)
                                 else:
-                                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid return value for function')
+                                    self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid return value for function')
                                     self.cont = False
                                     return
                         else:
-                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                            self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                             self.cont = False
                             return
                     elif self.current in ["(,", ")", "+"]:
@@ -4255,9 +4255,9 @@ class Compilation:
                         self.semantic()
                     else:
                         if self.current in ['-', '*', '**','/', '%' ]:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid operator')
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik array variable')
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid Assignment on Titik array variable')
                         self.cont = False
                         return
                 if self.isFunc == 0:
@@ -4297,11 +4297,11 @@ class Compilation:
                                 elif type(holder[0]) == int:
                                     y += str(holder)
                                 else:
-                                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid return value for function')
+                                    self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid return value for function')
                                     self.cont = False
                                     return
                         else:
-                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                            self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                             self.cont = False
                             return
                     elif self.current in ["(,", ")", "+"]:
@@ -4309,9 +4309,9 @@ class Compilation:
                         self.semantic()
                     else:
                         if self.current in ['-', '*', '**','/', '%' ]:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid operator')
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik array variable')
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid Assignment on Titik array variable')
                         self.cont = False
                         return
                 if self.isFunc == 0:
@@ -4343,7 +4343,7 @@ class Compilation:
                             self.cont = False
                             return
                         if z != 'yunit' and z != 'yunit_list':
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Identifier")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Identifier")
                             self.cont = False
                             return
                         else:
@@ -4352,7 +4352,7 @@ class Compilation:
                             else:
                                 holder = self.func_Identifier()
                             if type(holder) == list:
-                                self.semantic_error.append(f"TypeError on line {self.line}: Invalid Identifier")
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Identifier")
                                 self.cont = False
                                 return
                             else:
@@ -4361,7 +4361,7 @@ class Compilation:
                         a += ']'
                         self.semantic()
                     else:
-                        self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Titik array variable")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                         self.cont = False
                         return
                 if self.current == '=':
@@ -4372,7 +4372,7 @@ class Compilation:
                         try:
                             yunit_val = int(self.inp(self.val[1:-1]).replace('~', '-'))
                         except:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Yunit array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Yunit array variable")
                             self.cont = False
                             return
                         self.semantic()
@@ -4383,7 +4383,7 @@ class Compilation:
                     else:
                         holder = (eval(a))
                         if type(holder) != int:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Titik array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
                             return
                         holder = self.yunit_expression()
@@ -4401,7 +4401,7 @@ class Compilation:
                         try:
                             yunit_val = int(self.inp(self.val[1:-1]).replace('~', '-'))
                         except:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Yunit array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Yunit array variable")
                             self.cont = False
                             return
                         self.semantic()
@@ -4412,7 +4412,7 @@ class Compilation:
                     else:
                         holder = (eval(a))
                         if type(holder) != int:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Titik array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
                             return
                         holder = self.yunit_expression()
@@ -4430,7 +4430,7 @@ class Compilation:
                         try:
                             yunit_val = int(self.inp(self.val[1:-1]).replace('~', '-'))
                         except:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Yunit array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Yunit array variable")
                             self.cont = False
                             return
                         self.semantic()
@@ -4441,7 +4441,7 @@ class Compilation:
                     else:
                         holder = (eval(a))
                         if type(holder) != int:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Titik array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
                             return
                         holder = self.yunit_expression()
@@ -4459,7 +4459,7 @@ class Compilation:
                         try:
                             yunit_val = int(self.inp(self.val[1:-1]).replace('~', '-'))
                         except:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Yunit array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Yunit array variable")
                             self.cont = False
                             return
                         self.semantic()
@@ -4470,7 +4470,7 @@ class Compilation:
                     else:
                         holder = (eval(a))
                         if type(holder) != int:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Titik array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
                             return
                         holder = self.yunit_expression()
@@ -4488,7 +4488,7 @@ class Compilation:
                         try:
                             yunit_val = int(self.inp(self.val[1:-1]).replace('~', '-'))
                         except:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Yunit array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Yunit array variable")
                             self.cont = False
                             return
                         self.semantic()
@@ -4499,7 +4499,7 @@ class Compilation:
                     else:
                         holder = (eval(a))
                         if type(holder) != int:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Titik array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
                             return
                         holder = self.yunit_expression()
@@ -4510,7 +4510,7 @@ class Compilation:
                         except:
                             pass
             else:
-                self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not a valid Assignment operator")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid Assignment operator")
                 self.cont = False
                 return
         elif x == 'punto_list':
@@ -4547,11 +4547,11 @@ class Compilation:
                                 elif type(holder[0]) == float:
                                     y += str(holder)
                                 else:
-                                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid return value for function')
+                                    self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid return value for function')
                                     self.cont = False
                                     return
                         else:
-                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                            self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                             self.cont = False
                             return
                     elif self.current in ["(,", ")", "+"]:
@@ -4559,9 +4559,9 @@ class Compilation:
                         self.semantic()
                     else:
                         if self.current in ['-', '*', '**','/', '%' ]:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid operator')
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik array variable')
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid Assignment on Titik array variable')
                         self.cont = False
                         return
                 if self.isFunc == 0:
@@ -4601,11 +4601,11 @@ class Compilation:
                                 elif type(holder[0]) == float:
                                     y += str(holder)
                                 else:
-                                    self.semantic_error.append(f'TypeError in Line {self.line}: Invalid return value for function')
+                                    self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid return value for function')
                                     self.cont = False
                                     return
                         else:
-                            self.semantic_error.append(f'TypeError in Line {self.line}: Invalid Identifier')
+                            self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                             self.cont = False
                             return
                     elif self.current in ["(,", ")", "+"]:
@@ -4613,9 +4613,9 @@ class Compilation:
                         self.semantic()
                     else:
                         if self.current in ['-', '*', '**','/', '%' ]:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid operator')
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid operator')
                         else:
-                            self.semantic_error.append(f'TypeError on Line {self.line}: Invalid Assignment on Titik array variable')
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid Assignment on Titik array variable')
                         self.cont = False
                         return
                 if self.isFunc == 0:
@@ -4647,7 +4647,7 @@ class Compilation:
                             self.cont = False
                             return
                         if z != 'yunit' and z != 'yunit_list':
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Identifier")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Identifier")
                             self.cont = False
                             return
                         else:
@@ -4656,7 +4656,7 @@ class Compilation:
                             else:
                                 holder = self.func_Identifier()
                             if type(holder) == list:
-                                self.semantic_error.append(f"TypeError on line {self.line}: Invalid Identifier")
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Identifier")
                                 self.cont = False
                                 return
                             else:
@@ -4665,7 +4665,7 @@ class Compilation:
                         a += ']'
                         self.semantic()
                     else:
-                        self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Titik array variable")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                         self.cont = False
                         return
                 if self.current == '=':
@@ -4676,7 +4676,7 @@ class Compilation:
                         try:
                             punto_val = float(self.inp(self.val[1:-1]).replace('~', '-'))
                         except:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Yunit array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Yunit array variable")
                             self.cont = False
                             return
                         self.semantic()
@@ -4687,7 +4687,7 @@ class Compilation:
                     else:
                         holder = (eval(a))
                         if type(holder) != float:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Titik array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
                             return
                         holder = self.punto_expression()
@@ -4705,7 +4705,7 @@ class Compilation:
                         try:
                             punto_val = float(self.inp(self.val[1:-1]).replace('~', '-'))
                         except:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Yunit array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Yunit array variable")
                             self.cont = False
                             return
                         self.semantic()
@@ -4716,7 +4716,7 @@ class Compilation:
                     else:
                         holder = (eval(a))
                         if type(holder) != float:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Titik array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
                             return
                         holder = self.punto_expression()
@@ -4735,7 +4735,7 @@ class Compilation:
                         try:
                             punto_val = float(self.inp(self.val[1:-1]).replace('~', '-'))
                         except:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Yunit array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Yunit array variable")
                             self.cont = False
                             return
                         self.semantic()
@@ -4746,7 +4746,7 @@ class Compilation:
                     else:
                         holder = (eval(a))
                         if type(holder) != float:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Titik array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
                             return
                         holder = self.punto_expression()
@@ -4764,7 +4764,7 @@ class Compilation:
                         try:
                             punto_val = float(self.inp(self.val[1:-1]).replace('~', '-'))
                         except:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Yunit array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Yunit array variable")
                             self.cont = False
                             return
                         self.semantic()
@@ -4775,7 +4775,7 @@ class Compilation:
                     else:
                         holder = (eval(a))
                         if type(holder) != float:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Titik array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
                             return
                         holder = self.punto_expression()
@@ -4793,7 +4793,7 @@ class Compilation:
                         try:
                             punto_val = float(self.inp(self.val[1:-1]).replace('~', '-'))
                         except:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Yunit array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Yunit array variable")
                             self.cont = False
                             return
                         self.semantic()
@@ -4804,7 +4804,7 @@ class Compilation:
                     else:
                         holder = (eval(a))
                         if type(holder) != float:
-                            self.semantic_error.append(f"TypeError on line {self.line}: Invalid Assignment on Titik array variable")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
                             return
                         holder = self.punto_expression()
@@ -4815,14 +4815,14 @@ class Compilation:
                         except:
                             pass
             else:
-                self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not a valid Assignment operator")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid Assignment operator")
                 self.cont = False
                 return
         elif x == 'function':
             self.Identifier()
             self.semantic()
         else:
-            self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+            self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
             self.cont = False
             return
         self.newline()
@@ -4838,12 +4838,12 @@ class Compilation:
         s_name = self.val
         if self.isFunc == 0:
             if s_name in self.var:
-                self.semantic_error.append(f"NameError on line {self.line}: {s_name} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {s_name} is already defined")
                 self.cont = False
                 return
         else:
             if s_name in self.var:
-                self.semantic_error.append(f"NameError on line {self.line}: {s_name} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {s_name} is already defined")
                 self.cont = False
                 return
         if self.isFunc == 0:
@@ -4861,14 +4861,14 @@ class Compilation:
                         try:
                             x = self.all_variables[self.val]
                         except:
-                            self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                             self.cont = False
                             return
                     else:
                         try:
                             x = self.func_variables[self.val]
                         except:
-                            self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                             self.cont = False
                             return
                     if self.isFunc == 0:
@@ -4936,7 +4936,7 @@ class Compilation:
                 elif self.current in ['>', '<', '>=', '<=', '+', '-', '*', '/', '%', '**']:
                     y += self.current + ' '
                     if isBool == True:
-                        self.semantic_error.append(f"TypeError on line {self.line}: Invalid operator for Boolean")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid operator for Boolean")
                         self.cont = False
                         return 
                 else:
@@ -4970,12 +4970,12 @@ class Compilation:
         s_name = self.val
         if self.isFunc == 0:
             if s_name in self.var:
-                self.semantic_error.append(f"NameError on line {self.line}: {s_name} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {s_name} is already defined")
                 self.cont = False
                 return
         else:
             if s_name in self.var:
-                self.semantic_error.append(f"NameError on line {self.line}: {s_name} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {s_name} is already defined")
                 self.cont = False
                 return
         if self.isFunc == 0:
@@ -4993,14 +4993,14 @@ class Compilation:
                         try:
                             x = self.all_variables[self.val]
                         except:
-                            self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                             self.cont = False
                             return
                     else:
                         try:
                             x = self.func_variables[self.val]
                         except:
-                            self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                             self.cont = False
                             return
                     if self.isFunc == 0:
@@ -5053,7 +5053,7 @@ class Compilation:
                 elif self.current in ['>', '<', '>=', '<=', '+', '-', '*', '/', '%', '**']:
                     y += self.current + ' '
                     if isBool == True:
-                        self.semantic_error.append(f"TypeError on line {self.line}: Invalid operator for Boolean")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid operator for Boolean")
                         self.cont = False
                         return 
                 else:
@@ -5093,7 +5093,7 @@ class Compilation:
                         else:
                             x = self.func_variables[self.val]
                     except:
-                        self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                         self.cont = False
                         return
                     if self.isFunc == 0:
@@ -5182,7 +5182,7 @@ class Compilation:
                         ctr = True
                     y += self.current + ' '
                     if isBool == True:
-                        self.semantic_error.append(f"TypeError on line {self.line}: Invalid operator for Boolean")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid operator for Boolean")
                         self.cont = False
                         return
                 elif self.current in ['==', '!=']:
@@ -5194,7 +5194,7 @@ class Compilation:
                     isBool = False
                 self.semantic()
             if not isCond and not ctr and not isBool:
-                self.semantic_error.append(f"TypeError on line {self.line}: Invalid condition")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid condition")
                 self.cont = False
                 return
             if self.cont == False:
@@ -5202,7 +5202,7 @@ class Compilation:
             try:
                 return eval(y)
             except SyntaxError as e:
-                self.semantic_error.append(f"SyntaxError on line {self.line}: {e}")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {e}")
                 self.cont = False
                 return
 
@@ -5557,7 +5557,7 @@ class Compilation:
             try:
                 x = self.all_variables[self.val].replace('titik','Titik Literal').replace('yunit', 'Yunit Literal')
             except:
-                self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                 self.cont = False
                 return
             y = self.Identifier() 
@@ -5967,7 +5967,7 @@ class Compilation:
                 x = self.func_variables[self.val]
             name = self.val
         except:
-            self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+            self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
             self.cont = False
             return
         self.semantic()
@@ -5979,31 +5979,31 @@ class Compilation:
                 else:
                     y = self.func_variables[self.val]
             except:
-                self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                 self.cont = False
                 return
             if y not in ['baybay', 'yunit_list', 'punto_list', 'titik_list', 'baybay_list']:
-                self.semantic_error.append(f"TypeError on line {self.line}: {name} is not iterable")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {name} is not iterable")
                 self.cont = False
                 return
             if y == 'baybay' or y == 'baybay_list':
                 if x != 'baybay':
-                    self.semantic_error.append(f"TypeError on line {self.line}: {name} is not a valid variable")
+                    self.semantic_error.append(f"Semantic Error on line {self.line}: {name} is not a valid variable")
                     self.cont = False
                     return  
             elif y == 'yunit_list':
                 if x != 'yunit':
-                    self.semantic_error.append(f"TypeError on line {self.line}: {name} is not a valid variable")
+                    self.semantic_error.append(f"Semantic Error on line {self.line}: {name} is not a valid variable")
                     self.cont = False
                     return
             elif y == 'punto_list':
                 if x != 'punto':
-                    self.semantic_error.append(f"TypeError on line {self.line}: {name} is not a valid variable")
+                    self.semantic_error.append(f"Semantic Error on line {self.line}: {name} is not a valid variable")
                     self.cont = False
                     return
             elif y == 'titik_list':
                 if x != 'titik':
-                    self.semantic_error.append(f"TypeError on line {self.line}: {name} is not a valid variable")
+                    self.semantic_error.append(f"Semantic Error on line {self.line}: {name} is not a valid variable")
                     self.cont = False
                     return
             if self.isFunc == 0:
@@ -6013,6 +6013,16 @@ class Compilation:
             self.semantic()
             self.newline()
             num = self.num
+            if len(z) == 0:
+                ctr = 1
+                while ctr != 0:
+                    if self.current == '{':
+                        ctr += 1
+                    elif self.current == '}':
+                        ctr -= 1
+                    self.semantic()
+                    self.newline()
+                    return
             for a in z:
                 if self.isFunc == 0:
                     self.variables[x][name] = a
@@ -6102,12 +6112,22 @@ class Compilation:
             self.semantic()
             self.newline()
             if x != 'yunit':
-                self.semantic_error.append(f"TypeError on line {self.line}: {name} is not a yunit")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {name} is not a yunit")
                 self.cont = False
                 return
             self.semantic()
             self.newline()
             num = self.num
+            if b == c:
+                ctr = 1
+                while ctr != 0:
+                    if self.current == '{':
+                        ctr += 1
+                    elif self.current == '}':
+                        ctr -= 1
+                    self.semantic()
+                    self.newline()
+                    return
             for a in range(b,c,d):
                 if self.isFunc == 0:
                     self.variables[x][name] = a
@@ -6199,11 +6219,11 @@ class Compilation:
                 if x == 'yunit':
                     a = int(self.Identifier())
                 else:
-                    self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid variable")
+                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid variable")
                     self.cont = False
                     return
             except:
-                self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                 self.cont = False
                 return
         else:
@@ -6220,15 +6240,15 @@ class Compilation:
                     try:
                         b = int(self.Identifier())
                     except:
-                        self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid variable")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid variable")
                         self.cont = False
                         return
                 else:
-                    self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid variable")
+                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid variable")
                     self.cont = False
                     return
             except:
-                self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                 self.cont = False
                 return
         else:
@@ -6244,11 +6264,11 @@ class Compilation:
                 if x == 'yunit':
                     c = int(self.Identifier())
                 else:
-                    self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid variable")
+                    self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid variable")
                     self.cont = False
                     return
             except:
-                self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                 self.cont = False
                 return
         else:
@@ -6277,7 +6297,7 @@ class Compilation:
                         if self.current == 'Identifier':
                             a = self.all_variables[self.val]
                             if a != 'yunit':
-                                self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid variable")
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid variable")
                                 self.cont = False
                                 return
                             y +=  self.Identifier() 
@@ -6289,7 +6309,7 @@ class Compilation:
                         elif self.current == 'Yunit Literal':
                             y += self.val
                         else:
-                            self.semantic_error.append(f"SyntaxError on line {self.line}: Invalid ")
+                            self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Index")
                             self.cont = False
                             return
                         self.semantic()
@@ -6301,7 +6321,7 @@ class Compilation:
                             del self.all_variables[z]
                             self.var.remove(z)
                     except Exception as e:
-                        self.semantic_error.append(f"NameError on line {self.line}: {y} invalid index")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {y} invalid index")
                         self.cont = False
                         return
             else:
@@ -6320,7 +6340,7 @@ class Compilation:
                         if self.current == 'Identifier':
                             a = self.func_variables[self.val]
                             if a != 'yunit':
-                                self.semantic_error.append(f"TypeError on line {self.line}: {self.val} is not a valid variable")
+                                self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not a valid variable")
                                 self.cont = False
                                 return
                             y +=  self.func_Identifier() 
@@ -6344,11 +6364,11 @@ class Compilation:
                             del self.func_variables[z]
                             self.func_var.remove(z)
                     except Exception as e:
-                        self.semantic_error.append(f"NameError on line {self.line}: {y} invalid index")
+                        self.semantic_error.append(f"Semantic Error on line {self.line}: {y} invalid index")
                         self.cont = False
                         return
         except:
-            self.semantic_error.append(f"NameError on line {self.line}: {self.val} is not defined")
+            self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
             self.cont = False
             return
 # UI --------------------------------------------------------------------------------------------------------------------------------
