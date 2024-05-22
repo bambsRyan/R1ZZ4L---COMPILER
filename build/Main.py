@@ -5605,7 +5605,7 @@ class Compilation:
                     self.newline()
                 elif self.current == 'tapos':
                     self.cont = False
-                if self.index == 1:
+                if self.index > 0:
                     if self.current == 'tuloy':
                         self.isContinue = True
                         return
@@ -5773,7 +5773,7 @@ class Compilation:
                 elif self.current == 'laktaw':
                     self.semantic()
                     self.newline()
-                if self.index == 1:
+                if self.index > 0:
                     if self.current == 'tuloy':
                         self.isContinue = True
                         return
@@ -5862,7 +5862,7 @@ class Compilation:
                 elif self.current == 'laktaw':
                     self.semantic()
                     self.newline()
-                if self.index == 1:
+                if self.index > 0:
                     if self.current == 'tuloy':
                         break
                     elif self.current == 'labas':
@@ -5969,7 +5969,7 @@ class Compilation:
                         self.newline()
                     elif self.current == 'tapos':
                         self.cont = False
-                    elif self.index == 1:
+                    elif self.index > 0:
                         if self.current == 'tuloy':
                             self.isContinue = True
                             return
@@ -6081,7 +6081,7 @@ class Compilation:
                     self.newline()
                 elif self.current == 'tapos':
                     self.cont = False
-                if self.index == 1:
+                if self.index > 0:
                     if self.current == 'tuloy':
                         self.isContinue = True
                         return
@@ -6158,7 +6158,7 @@ class Compilation:
                 elif self.current == 'laktaw':
                     self.semantic()
                     self.newline()
-                if self.index == 1:
+                if self.index > 0:
                     if self.current == 'tuloy':
                         self.isContinue = True
                         break
@@ -6181,6 +6181,7 @@ class Compilation:
                         ctr -= 1
                     self.semantic()
                     self.newline()
+                self.isContinue = False
             if self.isBreak or self.isReturn or self.cont == False:
                 return
             z = self.num
@@ -6257,7 +6258,7 @@ class Compilation:
                     self.newline()
                 elif self.current == 'tapos':
                     self.cont = False
-                if self.index == 1:
+                if self.index > 0:
                     if self.current == 'tuloy':
                         self.isContinue = True
                         return
@@ -6280,6 +6281,7 @@ class Compilation:
                         ctr -= 1
                     self.semantic()
                     self.newline()
+                self.isContinue = False
             if self.isBreak or self.isReturn or self.cont == False:
                 return
             self.semantic()
@@ -6417,7 +6419,7 @@ class Compilation:
                     elif self.current == 'laktaw':  
                         self.semantic()
                         self.newline()
-                    if self.index == 1:
+                    if self.index > 0:
                         if self.current == 'tuloy':
                             self.isContinue = True
                             break
@@ -6440,6 +6442,7 @@ class Compilation:
                             ctr -= 1
                         self.semantic()
                         self.newline()
+                    self.isContinue = False
                 if self.isBreak or self.isReturn or self.cont == False:
                     return
         elif self.current == 'lawak':
@@ -6516,7 +6519,7 @@ class Compilation:
                         self.newline()
                     elif self.current == 'tapos':
                         self.cont = False
-                    if self.index == 1:
+                    if self.index > 0:
                         if self.current == 'tuloy':
                             self.isContinue = True
                             break
@@ -6536,6 +6539,7 @@ class Compilation:
                             ctr -= 1
                         self.semantic()
                         self.newline()
+                    self.isContinue = False
                 if self.isBreak or self.isReturn or self.cont == False:
                     return
         self.semantic()

@@ -331,7 +331,7 @@ class Parser:
         if self.match('Identifier'):
             if self.first(num_Identifier_continue):  
                 self.num_Identifier_continue()
-            print(self.current)
+
             if self.current not in ['newline', ',']:
                 if self.current == None:
                     self.err('"+", "-", "*", "/", "%", "**", "]", "," ,"newline"')
@@ -841,7 +841,9 @@ class Parser:
                 self.cop()
                 if self.first(num_dec_expression):
                     self.num_dec_expression()
-                    if self.current != ')' and self.current != 'newline':
+                    if self.current != 'newline' and self.isCond == False:
+                        self.err('"at", "o", "+", "-", "*", "/", "%", "**"')
+                    elif self.current != ')' and self.isCond == True:
                         self.err('"at", "o", ")",  "+", "-", "*", "/", "%", "**"')
                 else:
                     self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
@@ -853,7 +855,9 @@ class Parser:
                 self.eop()
                 if self.first(baybay_dec_expression):
                     self.baybay_dec_expression()
-                    if self.current != ')' and self.current != 'newline':
+                    if self.current != 'newline' and self.isCond == False:
+                        self.err('"at", "o", "+"')
+                    elif self.current != ')' and self.isCond == True:
                         self.err('"at", "o", ")", "+"')
                 else:
                     self.err('"Identifier", "Baybay Literal", "saBaybay", "("')
@@ -865,7 +869,9 @@ class Parser:
                 self.eop()
                 if self.first(titik_expression):
                     self.titik_expression()
-                    if self.current != ')' and self.current != 'newline':
+                    if self.current != 'newline' and self.isCond == False:
+                        self.err('"at", "o"')
+                    elif self.current != ')' and self.isCond == True:
                         self.err('"at", "o", ")"')
                 else:
                     self.err('"Identifier", "Titik Literal", "saTitik"')
@@ -877,15 +883,25 @@ class Parser:
                 self.eop()
                 if self.first(math_tala_dec_expression):
                     self.math_tala_dec_expression()
-                    if self.current != ')' and self.current != 'newline':
+                    if self.current != 'newline' and self.isCond == False:
+                        self.err('"at", "o", "+"')
+                    elif self.current != ')' and self.isCond == True:
                         self.err('"at", "o", ")", "+"')
                 else:
                     self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "("')
             else:
                 self.err('"==", "!="')
         elif self.match('Totoo'):
+            if self.current != 'newline' and self.isCond == False:
+                self.err('"at", "o"')
+            elif self.current != ')' and self.isCond == True:
+                self.err('"at", "o", ")"')
             return
         elif self.match('Peke'):
+            if self.current != 'newline' and self.isCond == False:
+                self.err('"at", "o"')
+            elif self.current != ')' and self.isCond == True:
+                self.err('"at", "o", ")"')
             return
 
     def condition_id_continue(self):
@@ -903,7 +919,7 @@ class Parser:
                 if self.match(')'):
                     return
                 else:
-                    self.err('")"')
+                    self.err('"at", "o", "1)"')
         elif self.first(value_id_sub_expression):
             self.value_id_sub_expression()
         elif self.first(num_sub_expression):
@@ -1771,8 +1787,10 @@ class Parser:
                 self.err('Identifier')
         elif self.match('habang'):
             if self.match('('):
+                self.isCond = True 
                 if self.first(condition):
                     self.condition()
+                    self.isCond = False
                     if self.match(')'):
                         self.newline()
                         if self.match('{'):
@@ -1794,6 +1812,7 @@ class Parser:
                         self.err('")"')
                 elif self.first(cond):
                     self.cond()
+                    self.isCond = False
                     if self.match(')'):
                         self.newline()
                         if self.match('{'):
@@ -1827,14 +1846,17 @@ class Parser:
                     if self.match('}'):
                         if self.match('tuwing'):
                             if self.match('('):
+                                self.isCond = True
                                 if self.first(condition):
                                     self.condition()
+                                    self.isCond = False
                                     if self.match(')'):
                                         return
                                     else:
                                         self.err('"[", "(", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                                 elif self.first(cond):
                                     self.cond()
+                                    self.isCond = False
                                     if self.match(')'):
                                         return
                                     else:
@@ -1935,7 +1957,9 @@ class Parser:
     def func_loop_conditional(self):
         if self.match('kung'):
             if self.match('('):
+                self.isCond = True
                 if self.first(condition):
+                    self.isCond = False
                     self.condition()
                     if self.match(')'):
                         if self.match('{'):
@@ -1966,6 +1990,7 @@ class Parser:
                         self.err('"[", "(", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 elif self.first(cond):
                     self.cond()
+                    self.isCond = False
                     if self.match(')'):
                         self.newline()
                         if self.match('{'):
@@ -2052,7 +2077,9 @@ class Parser:
     def func_loop_conditional_continue(self):
         if self.match('kundi'):
             if self.match('('):
+                self.isCond = True
                 if self.first(condition):
+                    self.isCond = False
                     self.condition()
                     if self.match(')'):
                         if self.match('{'):
@@ -2083,6 +2110,7 @@ class Parser:
                         self.err('"[", "(", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 elif self.first(cond):
                     self.cond()
+                    self.isCond = False
                     if self.match(')'):
                         self.newline()
                         if self.match('{'):
@@ -2175,8 +2203,10 @@ class Parser:
     def func_conditional(self):
         if self.match('kung'):
             if self.match('('):
+                self.isCond = True
                 if self.first(condition):
                     self.condition()
+                    self.isCond = False
                     if self.match(')'):
                         if self.match('{'):
                             if self.match('newline'):
@@ -2206,6 +2236,7 @@ class Parser:
                         self.err('"[", "(", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 elif self.first(cond):
                     self.cond()
+                    self.isCond = False
                     if self.match(')'):
                         self.newline()
                         if self.match('{'):
@@ -2292,8 +2323,10 @@ class Parser:
     def func_conditional_continue(self):
         if self.match('kundi'):
             if self.match('('):
+                self.isCond = True
                 if self.first(condition):
                     self.condition()
+                    self.isCond = False
                     if self.match(')'):
                         if self.match('{'):
                             if self.match('newline'):
@@ -2323,6 +2356,7 @@ class Parser:
                         self.err('"[", "(", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 elif self.first(cond):
                     self.cond()
+                    self.isCond = False
                     if self.match(')'):
                         self.newline()
                         if self.match('{'):
@@ -2445,7 +2479,9 @@ class Parser:
     def conditional(self):
         if self.match('kung'):
             if self.match('('):
+                self.isCond = True
                 if self.first(condition):
+                    self.isCond = False
                     self.condition()
                     if self.match(')'):
                         if self.match('{'):
@@ -2474,6 +2510,7 @@ class Parser:
                         self.err('"[", "(", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 elif self.first(cond):
                     self.cond()
+                    self.isCond = False
                     if self.match(')'):
                         self.newline()
                         if self.match('{'):
@@ -2570,7 +2607,9 @@ class Parser:
     def conditional_continue(self):
         if self.match('kundi'):
             if self.match('('):
+                self.isCond = True
                 if self.first(condition):
+                    self.isCond = False
                     self.condition()
                     if self.match(')'):
                         if self.match('{'):
@@ -2598,6 +2637,7 @@ class Parser:
                         self.err('"[", "(", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 elif self.first(cond):
                     self.cond()
+                    self.isCond = False
                     if self.match(')'):
                         self.newline()
                         if self.match('{'):
@@ -2728,8 +2768,10 @@ class Parser:
                 self.err('Identifier')
         elif self.match('habang'):
             if self.match('('):
+                self.isCond = True
                 if self.first(condition):
                     self.condition()
+                    self.isCond = False
                     if self.match(')'):
                         if self.match('{'):
                             if self.match('newline'):
@@ -2750,6 +2792,7 @@ class Parser:
                         self.err('"[", "(", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 elif self.first(cond):
                     self.cond()
+                    self.isCond = False
                     if self.match(')'):
                         self.newline()
                         if self.match('{'):
@@ -2783,14 +2826,17 @@ class Parser:
                         if self.match('}'):
                             if self.match('tuwing'):
                                 if self.match('('):
+                                    self.isCond = True
                                     if self.first(condition):
                                         self.condition()
+                                        self.isCond = False
                                         if self.match(')'):
                                             return
                                         else:
                                             self.err('"[", "(", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                                     elif self.first(cond):
                                         self.cond()
+                                        self.isCond = False
                                         if self.match(')'):
                                             return
                                         else:
@@ -2837,8 +2883,10 @@ class Parser:
     def loop_conditional(self):
         if self.match('kung'):
             if self.match('('):
+                self.isCond = True
                 if self.first(condition):
                     self.condition()
+                    self.isCond = False
                     if self.match(')'):
                         if self.match('{'):
                             if self.match('newline'):
@@ -2868,6 +2916,7 @@ class Parser:
                         self.err('"[", "(", "+", "-", "", "/", "%", "*", ">", "<", ">=", "<=", "==", "!=", ")", "at", "o", ")"')
                 elif self.first(cond):
                     self.cond()
+                    self.isCond = False
                     if self.match(')'):
                         self.newline
                         if self.match('{'):
@@ -2957,7 +3006,9 @@ class Parser:
     def loop_conditional_continue(self):
         if self.match('kundi'):
             if self.match('('):
+                self.isCond = True
                 if self.first(condition):
+                    self.isCond = False
                     self.condition()
                     if self.match(')'):
                         self.newline()
@@ -2987,6 +3038,7 @@ class Parser:
                         self.err('")"')
                 elif self.first(cond):
                     self.cond()
+                    self.isCond = False
                     if self.match(')'):
                         self.newline()
                         if self.match('{'):
