@@ -1205,7 +1205,6 @@ class Compilation:
                 self.cont = False
                 return
             if self.isFunc == 0:
-                print(self.variables[x])
                 return self.variables[x][name]
             else:
                 return self.variables_for_function[x][name]
@@ -1529,12 +1528,13 @@ class Compilation:
         val = self.val
         if self.isFunc == 0:
             if val in self.var:
+                print(self.var)
                 self.semantic_error.append(f"Semantic Error on line {self.line}: {val} is already defined")
                 self.cont = False
                 return
         else:
             if val in self.func_var:
-                self.semantic_error.append(f"Semantic Error on line {self.line}: {val} is already defined")
+                self.semantic_error.append(f"Semantic Error on line {self.line}: {val} 2is already defined")
                 self.cont = False
                 return
         self.semantic()
@@ -1806,7 +1806,6 @@ class Compilation:
         self.newline()
 
     def punto_list(self, ctr = 0):
-        print(self.current)
         x = []
         y = ''
         while self.current != ']':
@@ -5474,7 +5473,7 @@ class Compilation:
                 self.semantic()
                 self.newline()
         return x
-    
+
     def edi(self):
         self.semantic()
         self.newline()
@@ -5526,6 +5525,8 @@ class Compilation:
                     self.gawin()
                     self.index -= 1
                     self.newline()
+                elif self.current == 'tapos':
+                    self.cont = False
                 elif self.current == 'laktaw':
                     self.semantic()
                     self.newline()
@@ -5621,7 +5622,7 @@ class Compilation:
                     elif self.current == 'bura':
                         self.del_val()
                         self.newline()
-                    elif self.current == 'para':
+                    elif self.current == 'para':    
                         self.index += 1
                         self.para()
                         self.index -= 1
@@ -5636,7 +5637,7 @@ class Compilation:
                         self.newline()
                     elif self.current == 'tapos':
                         self.cont = False
-                    if self.index == 1:
+                    elif self.index == 1:
                         if self.current == 'tuloy':
                             self.isContinue = True
                             return
@@ -5651,7 +5652,7 @@ class Compilation:
                                 self.semantic()
                                 self.newline()
                             return
-                    if self.isFunc > 0:
+                    elif self.isFunc > 0:
                         if self.current == 'balik':
                             self.isReturn = True
                             self.semantic()
@@ -5848,7 +5849,7 @@ class Compilation:
                         ctr -= 1
                     self.semantic()
                     self.newline()
-            if self.isBreak or self.isReturn:
+            if self.isBreak or self.isReturn or self.isCont == False:
                 return
             z = self.num
             self.num = y-1
@@ -5947,7 +5948,7 @@ class Compilation:
                         ctr -= 1
                     self.semantic()
                     self.newline()
-            if self.isBreak or self.isReturn:
+            if self.isBreak or self.isReturn or self.isCont == False:
                 return
             self.semantic()
             self.semantic()
@@ -6107,7 +6108,7 @@ class Compilation:
                             ctr -= 1
                         self.semantic()
                         self.newline()
-                if self.isBreak or self.isReturn:
+                if self.isBreak or self.isReturn or self.isCont == False:
                     return
         elif self.current == 'lawak':
             self.semantic()
@@ -6203,7 +6204,7 @@ class Compilation:
                             ctr -= 1
                         self.semantic()
                         self.newline()
-                if self.isBreak or self.isReturn:
+                if self.isBreak or self.isReturn or self.isCont == False:
                     return
         self.semantic()
         self.newline()
@@ -6243,7 +6244,6 @@ class Compilation:
                     try:
                         if self.isFunc == 0:
                             b = int(self.Identifier())
-                            print(b)
                         else:
                             b = int(self.func_Identifier())
                     except:
