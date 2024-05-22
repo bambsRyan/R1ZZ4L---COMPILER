@@ -834,7 +834,7 @@ class Compilation:
                 y += 'False'+ ' '
                 isBool = True
             elif self.current == 'saBaybay':
-                y +='\''+ str(self.saBaybay())+ '\' '
+                y +=str(self.saBaybay())
                 isBool = False
                 continue
             elif self.current == 'saPunto':
@@ -842,7 +842,7 @@ class Compilation:
                 isBool = False
                 continue
             elif self.current == 'saTitik':
-                y +='\'' +str(self.saTitik()) + '\' '
+                y += str(self.saTitik()) 
                 isBool = False
                 continue
             elif self.current == 'saYunit':
@@ -3189,7 +3189,7 @@ class Compilation:
                                 return
                 continue
             elif self.current == 'saBaybay':
-                y += '\'' + str(self.saBaybay()) + '\''
+                y += str(self.saBaybay()) 
             elif self.current == 'Baybay Literal':
                 y += str(self.val)
                 self.semantic()
@@ -3466,7 +3466,7 @@ class Compilation:
                                 return
                 continue
             elif self.current == 'saBaybay':
-                y += '\'' + str(self.saBaybay()) + '\''
+                y +=  str(self.saBaybay())
             elif self.current == 'Baybay Literal':
                 y += str(self.val)
                 self.semantic()
@@ -4702,7 +4702,6 @@ class Compilation:
                                 a += '= int(' + str(holder) +')'
                             elif type(holder) == list:
                                 a += '='+ str(holder)
-                            print(a)
                             exec(a)
                             a = ''
                         except:
@@ -4735,7 +4734,6 @@ class Compilation:
                                 a += '+= int(' + str(holder) +')'
                             elif type(holder) == list:
                                 a += '+='+ str(holder)
-                            print(a)
                             exec(a)
                             a = ''
                         except:
@@ -5022,7 +5020,6 @@ class Compilation:
                                 a += '= float(' + str(holder) +')'
                             elif type(holder) == list:
                                 a += '='+ str(holder)
-                            print(a)
                             exec(a)
                             a = ''
                         except:
@@ -5055,7 +5052,6 @@ class Compilation:
                                 a += '+= float(' + str(holder) +')'
                             elif type(holder) == list:
                                 a += '+='+ str(holder)
-                            print(a)
                             exec(a)
                             a = ''
                         except:
@@ -5228,7 +5224,7 @@ class Compilation:
                     y += 'False'+ ' '
                     isBool = True
                 elif self.current == 'saBaybay':
-                    y += '\'' + str(self.saBaybay())+ '\' '
+                    y += str(self.saBaybay())
                     isBool = False
                     continue
                 elif self.current == 'saPunto':
@@ -5236,7 +5232,7 @@ class Compilation:
                     isBool = False
                     continue
                 elif self.current == 'saTitik':
-                    y += '\'' + str(self.saTitik()) + '\' '
+                    y += str(self.saTitik()) 
                     isBool = False
                     continue
                 elif self.current == 'saYunit':
@@ -5419,7 +5415,7 @@ class Compilation:
         y = ''
         z = ''
         if enter != 0:
-            while self.current != 'newline' and self.current != ')':
+            while self.current != 'newline' and enter != 0:
                 if self.current == 'Identifier':
                     try:
                         if self.isFunc == 0:
@@ -5456,7 +5452,7 @@ class Compilation:
                     y += 'False'+ ' '
                     isBool = True
                 elif self.current == 'saBaybay':
-                    y +='\''+ str(self.saBaybay())+ '\' '
+                    y += str(self.saBaybay())
                     isBool = False
                     continue
                 elif self.current == 'saPunto':
@@ -5464,7 +5460,7 @@ class Compilation:
                     isBool = False
                     continue
                 elif self.current == 'saTitik':
-                    y +='\'' +str(self.saTitik()) + '\' '
+                    y += str(self.saTitik()) 
                     isBool = False
                     continue
                 elif self.current == 'saYunit':
@@ -5485,6 +5481,10 @@ class Compilation:
                     enter += 1
                 elif self.current == ')':
                     enter -= 1  
+                    if enter != 0:
+                        y += self.current + ' '
+                    else:
+                        break
                 elif self.current == '[':
                     open_brace = 1
                     while self.current =='[':
@@ -5874,7 +5874,7 @@ class Compilation:
                             elif self.current == '}':
                                 ctr -= 1
                             self.semantic()
-                            self.newline()
+                            self.newline()  
                         return
                 if self.isFunc > 0:
                     if self.current == 'balik':
@@ -6097,6 +6097,7 @@ class Compilation:
             self.semantic()
 
     def habang(self):
+        brk = False
         z = 0
         self.semantic()
         self.semantic()
@@ -6164,6 +6165,7 @@ class Compilation:
                         break
                     elif self.current == 'labas':
                         self.isBreak = True
+                        brk = True
                         return
                 if self.isFunc > 0:
                     if self.current == 'balik':
@@ -6179,10 +6181,12 @@ class Compilation:
                         ctr += 1
                     elif self.current == '}':
                         ctr -= 1
-                    self.semantic()
-                    self.newline()
+                    if ctr != 0:
+                        self.semantic()
+                        self.newline()
                 self.isContinue = False
-            if self.isBreak or self.isReturn or self.cont == False:
+                self.isBreak = False
+            if brk or self.isReturn or self.cont == False:
                 return
             z = self.num
             self.num = y-1
@@ -6199,6 +6203,7 @@ class Compilation:
 
     def gawin(self):
         x = True
+        brk = False
         self.semantic()
         self.newline()
         self.semantic()
@@ -6264,6 +6269,7 @@ class Compilation:
                         return
                     elif self.current == 'labas':
                         self.isBreak = True
+                        brk = True
                         return
                 if self.isFunc > 0:
                     if self.current == 'balik':
@@ -6272,6 +6278,8 @@ class Compilation:
                         self.return_value = self.return_val()
                         self.newline()
                         break
+            if not self.isContinue and not self.isBreak:
+                self.semantic()
             if self.isContinue or self.isBreak:
                 ctr = 1
                 while ctr != 0:
@@ -6282,9 +6290,9 @@ class Compilation:
                     self.semantic()
                     self.newline()
                 self.isContinue = False
-            if self.isBreak or self.isReturn or self.cont == False:
+                self.isBreak = False
+            if brk or self.isReturn or self.cont == False:
                 return
-            self.semantic()
             self.semantic()
             self.semantic()
             x = self.condition()
@@ -6295,6 +6303,7 @@ class Compilation:
         self.newline() 
 
     def para(self):
+        brk = False
         x = ''
         y = ''
         self.semantic()
@@ -6425,6 +6434,7 @@ class Compilation:
                             break
                         elif self.current == 'labas':
                             self.isBreak = True
+                            brk = True
                             return
                     if self.isFunc > 0:
                         if self.current == 'balik':
@@ -6440,10 +6450,12 @@ class Compilation:
                             ctr += 1
                         elif self.current == '}':
                             ctr -= 1
-                        self.semantic()
-                        self.newline()
+                        if ctr != 0:
+                            self.semantic()
+                            self.newline()
                     self.isContinue = False
-                if self.isBreak or self.isReturn or self.cont == False:
+                    self.isBreak = False
+                if brk or self.isReturn or self.cont == False:
                     return
         elif self.current == 'lawak':
             self.semantic()
@@ -6522,6 +6534,7 @@ class Compilation:
                     if self.index > 0:
                         if self.current == 'tuloy':
                             self.isContinue = True
+                            brk = True
                             break
                     if self.isFunc > 0:
                         if self.current == 'balik':
@@ -6537,10 +6550,12 @@ class Compilation:
                             ctr += 1
                         elif self.current == '}':
                             ctr -= 1
-                        self.semantic()
-                        self.newline()
+                        if ctr != 0:
+                            self.semantic()
+                            self.newline()
                     self.isContinue = False
-                if self.isBreak or self.isReturn or self.cont == False:
+                    self.isBreak = False
+                if brk or self.isReturn or self.cont == False:
                     return
         self.semantic()
         self.newline()
@@ -6567,7 +6582,7 @@ class Compilation:
                 self.cont = False
                 return
         else:
-            a = int(self.val)
+            a = int(self.val.replace('~','-'))
             self.semantic()
         self.semantic()
         if self.current == 'Identifier':
@@ -6595,7 +6610,7 @@ class Compilation:
                 self.cont = False
                 return
         else:
-            b = int(self.val)
+            b = int(self.val.replace('~','-'))
             self.semantic()
         self.semantic()
         if self.current == 'Identifier':
@@ -6615,7 +6630,7 @@ class Compilation:
                 self.cont = False
                 return
         else:
-            c = int(self.val)
+            c = int(self.val.replace('~','-'))
             self.semantic()
         return a,b,c
 
