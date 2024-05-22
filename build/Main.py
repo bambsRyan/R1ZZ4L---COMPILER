@@ -5849,7 +5849,7 @@ class Compilation:
                         ctr -= 1
                     self.semantic()
                     self.newline()
-            if self.isBreak or self.isReturn or self.isCont == False:
+            if self.isBreak or self.isReturn or self.cont == False:
                 return
             z = self.num
             self.num = y-1
@@ -5948,7 +5948,7 @@ class Compilation:
                         ctr -= 1
                     self.semantic()
                     self.newline()
-            if self.isBreak or self.isReturn or self.isCont == False:
+            if self.isBreak or self.isReturn or self.cont == False:
                 return
             self.semantic()
             self.semantic()
@@ -6204,7 +6204,7 @@ class Compilation:
                             ctr -= 1
                         self.semantic()
                         self.newline()
-                if self.isBreak or self.isReturn or self.isCont == False:
+                if self.isBreak or self.isReturn or self.cont == False:
                     return
         self.semantic()
         self.newline()
