@@ -5986,27 +5986,28 @@ class Compilation:
                 self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} is not defined")
                 self.cont = False
                 return
+            print(x)
             if y not in ['baybay', 'yunit_list', 'punto_list', 'titik_list', 'baybay_list']:
                 self.semantic_error.append(f"Semantic Error on line {self.line}: {name} is not iterable")
                 self.cont = False
                 return
             if y == 'baybay' or y == 'baybay_list':
-                if x != 'baybay':
+                if x != 'baybay' and x != 'baybay_list':
                     self.semantic_error.append(f"Semantic Error on line {self.line}: {name} is not a valid variable")
                     self.cont = False
-                    return  
+                    return
             elif y == 'yunit_list':
-                if x != 'yunit':
+                if x != 'yunit' and x != 'yunit_list':
                     self.semantic_error.append(f"Semantic Error on line {self.line}: {name} is not a valid variable")
                     self.cont = False
                     return
             elif y == 'punto_list':
-                if x != 'punto':
+                if x != 'punto' and x != 'punto_list':
                     self.semantic_error.append(f"Semantic Error on line {self.line}: {name} is not a valid variable")
                     self.cont = False
                     return
             elif y == 'titik_list':
-                if x != 'titik':
+                if x != 'titik' and x != 'titik_list':
                     self.semantic_error.append(f"Semantic Error on line {self.line}: {name} is not a valid variable")
                     self.cont = False
                     return
