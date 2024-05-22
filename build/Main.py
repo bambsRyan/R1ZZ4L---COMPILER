@@ -6108,7 +6108,7 @@ class Compilation:
                             ctr -= 1
                         self.semantic()
                         self.newline()
-                if self.isBreak or self.isReturn or self.isCont == False:
+                if self.isBreak or self.isReturn or self.cont == False:
                     return
         elif self.current == 'lawak':
             self.semantic()
