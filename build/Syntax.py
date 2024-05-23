@@ -781,7 +781,7 @@ class Parser:
             elif self.first(cond):
                 self.cond()
             else:
-                self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "(", "Totoo", "Peke"')
+                self.err('"di","Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[",  "(", "Totoo", "Peke"')
         if self.current not in [ 'newline', ',', 'at', 'o']:
             self.err('"at", "o", ",", "newline"')
 
@@ -824,7 +824,7 @@ class Parser:
                 else:
                     self.err('")"')
             else:
-                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "(", "Totoo", "Peke"')
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[",  "(", "Totoo", "Peke"')
         
     def negate(self):
         if self.match('di'):
@@ -842,8 +842,8 @@ class Parser:
                 self.cop()
                 if self.first(num_dec_expression):
                     self.num_dec_expression()
-                    if self.current != 'newline' and self.isCond == False:
-                        self.err('"at", "o", "+", "-", "*", "/", "%", "**"')
+                    if self.current != 'newline'and self.current ==',' and self.isCond == False:
+                        self.err('"at", "o", "+", "-", "*", "/", "%", "**", ",", "newline"')
                     elif self.current != ')' and self.isCond == True:
                         self.err('"at", "o", ")",  "+", "-", "*", "/", "%", "**"')
                 else:
@@ -856,8 +856,8 @@ class Parser:
                 self.eop()
                 if self.first(baybay_dec_expression):
                     self.baybay_dec_expression()
-                    if self.current != 'newline' and self.isCond == False:
-                        self.err('"at", "o", "+"')
+                    if self.current != 'newline'and self.current ==',' and self.isCond == False:
+                        self.err('"at", "o", "+", ",", "newline"')
                     elif self.current != ')' and self.isCond == True:
                         self.err('"at", "o", ")", "+"')
                 else:
@@ -870,8 +870,8 @@ class Parser:
                 self.eop()
                 if self.first(titik_expression):
                     self.titik_expression()
-                    if self.current != 'newline' and self.isCond == False:
-                        self.err('"at", "o"')
+                    if self.current != 'newline'and self.current !=',' and self.isCond == False:
+                        self.err('"at", "o", ",", "newline"')
                     elif self.current != ')' and self.isCond == True:
                         self.err('"at", "o", ")"')
                 else:
@@ -884,8 +884,8 @@ class Parser:
                 self.eop()
                 if self.first(math_tala_dec_expression):
                     self.math_tala_dec_expression()
-                    if self.current != 'newline' and self.isCond == False:
-                        self.err('"at", "o", "+"')
+                    if self.current != 'newline'and self.current ==',' and self.isCond == False:
+                        self.err('"at", "o", "+", ",", "newline"')
                     elif self.current != ')' and self.isCond == True:
                         self.err('"at", "o", ")", "+"')
                 else:
@@ -893,14 +893,14 @@ class Parser:
             else:
                 self.err('"==", "!="')
         elif self.match('Totoo'):
-            if self.current != 'newline' and self.isCond == False:
-                self.err('"at", "o"')
+            if self.current != 'newline'and self.current !=',' and self.current == 'o' and self.current == 'at' and self.isCond == False:
+                self.err('"at", "o", ",", "newline"')
             elif self.current != ')' and self.isCond == True:
                 self.err('"at", "o", ")"')
             return
         elif self.match('Peke'):
-            if self.current != 'newline' and self.isCond == False:
-                self.err('"at", "o"')
+            if self.current != 'newline'and self.current !=',' and self.current == 'o' and self.current == 'at' and self.isCond == False:
+                self.err('"at", "o", ",", "newline"')
             elif self.current != ')' and self.isCond == True:
                 self.err('"at", "o", ")"')
             return
@@ -920,7 +920,7 @@ class Parser:
                 if self.match(')'):
                     return
                 else:
-                    self.err('"at", "o", "1)"')
+                    self.err('"at", "o", ")"')
         elif self.first(value_id_sub_expression):
             self.value_id_sub_expression()
         elif self.first(num_sub_expression):
@@ -1013,7 +1013,7 @@ class Parser:
             elif self.first(cond):
                 self.cond()
             else:
-                self.err('"di", "Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "(", "Totoo", "Peke"')
+                self.err('"di", "Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[",  "(", "Totoo", "Peke"')
         else:
             if self.current != ')' and self.current != 'newline'and self.current != ',':
                 self.err('"at", "o", ")"')
@@ -1087,7 +1087,7 @@ class Parser:
             elif self.first(math):
                 self.math()
             else:
-                self.err('"di", "Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
+                self.err('"di", "Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[",  "("')
         else:
             self.err('"=", "+=", "-=", "*=", "/="')
 
@@ -1109,7 +1109,7 @@ class Parser:
             if self.first(math):
                 self.math()
             else:
-                self.err('"di", "Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
+                self.err('"di", "Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "("')
         elif self.first(inputting):
             self.inputting()
 
@@ -1119,9 +1119,11 @@ class Parser:
                 self.math()
                 if self.match(')'):
                     if self.first(math_continue):
-                        self.math_continue()
+                        self.math_continue()    
                 else:
                     self.err('")", "newline"')
+            else:
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "("')
         elif self.first(math_expression):
             self.math_expression()
     
@@ -1131,24 +1133,24 @@ class Parser:
             if self.first(math):
                 self.math()
             else:
-                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "("')
         elif self.first(cop):
             self.cop()
             if self.first(math):
                 self.math()
             else:
-                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[",  "("')
         elif self.first(lop):
             self.lop()
             if self.first(math):
                 self.math()
             else:
-                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[",  "("')
         elif self.match('|'):
             if self.first(math):
                 self.math()
             else:
-                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[",  "("')
 
     def math_expression(self):
         if self.first(value_id_sub_expression):
@@ -1186,7 +1188,7 @@ class Parser:
                 if self.first(condition_continue):
                     self.condition_continue()
             else:
-                self.first('"(", "Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "Totoo", "Peke"')
+                self.first('"(", "Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[",  "Totoo", "Peke"')
 
     def math_num_expression_continue(self):
         if self.first(cop):
@@ -1236,7 +1238,7 @@ class Parser:
                 if self.match(')'):
                     return
                 else:
-                    self.err('")"')
+                    self.err('"Baybay Literal", ")"')
             else:
                 self.err('"("')
         
@@ -1252,10 +1254,10 @@ class Parser:
                 if self.match(')'):
                     return
                 else:
-                    self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "(", ")"')
+                    self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "(", ")"')
             else:
                 self.err('"("')
-                
+            
     def printable(self):
         if self.first(math):
             self.math()
@@ -1272,7 +1274,7 @@ class Parser:
                 if self.first(printable_continue):
                     self.printable_continue()
             else:
-                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[", "{", "("')
+                self.err('"Identifier", "Punto Literal", "Yunit Literal", "saYunit", "saPunto", "~", "Baybay Literal", "saBaybay", "Titik Literal", "saTitik", "[",  "("')
         
     def value_id_expression(self):
         if self.match('('):
@@ -1781,7 +1783,7 @@ class Parser:
                         else:
                             self.err('{')
                     else:
-                        self.err('"[", "{", "lawak", "Identifier"')
+                        self.err('"[",  "lawak", "Identifier"')
                 else:
                     self.err('sa')
             else:

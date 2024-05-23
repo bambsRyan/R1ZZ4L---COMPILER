@@ -267,7 +267,7 @@ class Compilation:
                                     x += str('\'' +self.func_Identifier() +'\'')
                             elif a == 'baybay':
                                 if isnum == True:
-                                    self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Baybay Literal")
+                                    self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operand for Baybay Literal")
                                     self.cont = False
                                     return
                                 isBaybay = True
@@ -286,7 +286,7 @@ class Compilation:
                                     isBool = True
                                 elif a == 'yunit' or a == 'punto':
                                     if isBaybay == True:
-                                        self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
+                                        self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operand for {a.replace('yunit', 'Yunit Literal', 'punto', 'Punto Literal')}")
                                         self.cont = False
                                         return
                                     isnum = True
@@ -382,11 +382,11 @@ class Compilation:
                         y += str(self.val)
                         self.semantic()
                         if isBaybay == True and self.current in  ['Yunit Literal', 'Punto Literal', 'Totoo', 'Peke', 'Titik Literal', 'saYunit', 'saPunto', 'saTitik']:
-                            self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Baybay Literal")
+                            self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operand for Baybay Literal")
                             self.cont = False
                             return
                         elif isnum == True and self.current in ['Baybay Literal', 'saBaybay', 'saTitik', 'Totoo', 'Peke', 'Titik Literal']:
-                            self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
+                            self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operand")
                             self.cont = False
                             return
                     titik_ctr = False
@@ -1249,7 +1249,7 @@ class Compilation:
                                     x += str('\'' +self.func_Identifier() +'\'')
                             elif a == 'baybay':
                                 if isnum == True:
-                                    self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Baybay Literal")
+                                    self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operand for Baybay Literal")
                                     self.cont = False
                                     return
                                 isBaybay = True
@@ -1268,7 +1268,7 @@ class Compilation:
                                     isBool = True
                                 elif a == 'yunit' or a == 'punto':
                                     if isBaybay == True:
-                                        self.semantic_error.append(f"Semantic Error on Line {self.line}: 1Invalid operators for Yunit Literal or Punto Literal")
+                                        self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operand for assiging {a.replace('yunit', 'Yunit Literal').replace('punto', 'Punto Literal')}")
                                         self.cont = False
                                         return
                                     isnum = True
@@ -1364,11 +1364,11 @@ class Compilation:
                         y += str(self.val)
                         self.semantic()
                         if isBaybay == True and self.current in  ['Yunit Literal', 'Punto Literal', 'Totoo', 'Peke', 'Titik Literal', 'saYunit', 'saPunto', 'saTitik']:
-                            self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Baybay Literal")
+                            self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operand for Baybay Literal")
                             self.cont = False
                             return
                         elif isnum == True and self.current in ['Baybay Literal', 'saBaybay', 'saTitik', 'Totoo', 'Peke', 'Titik Literal']:
-                            self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
+                            self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid assigning operand")
                             self.cont = False
                             return
                     titik_ctr = False
@@ -2956,7 +2956,7 @@ class Compilation:
                             x += str('\'' +self.func_Identifier() +'\'')
                     elif a == 'baybay':
                         if isnum == True:
-                            self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Baybay Literal")
+                            self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operand for Baybay Literal")
                             self.cont = False
                             return
                         isBaybay = True
@@ -2992,7 +2992,7 @@ class Compilation:
                             isBool = True
                         elif a == 'yunit' or a == 'punto':
                             if isBaybay == True:
-                                self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
+                                self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operand for Yunit Literal or Punto Literal")
                                 self.cont = False
                                 return
                             isnum = True
@@ -3107,11 +3107,11 @@ class Compilation:
                 y += str(self.val)
                 self.semantic()
                 if isBaybay == True and self.current in  ['Yunit Literal', 'Punto Literal', 'Totoo', 'Peke', 'Titik Literal', 'saYunit', 'saPunto', 'saTitik']:
-                    self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Baybay Literal")
+                    self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operand for assigning Baybay Literal")
                     self.cont = False
                     return
                 elif isnum == True and self.current in ['Baybay Literal', 'saBaybay', 'saTitik', 'Totoo', 'Peke', 'Titik Literal']:
-                    self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operators for Yunit Literal or Punto Literal")
+                    self.semantic_error.append(f"Semantic Error on Line {self.line}: Invalid operand ")
                     self.cont = False
                     return
             titik_ctr = False
@@ -3615,7 +3615,7 @@ class Compilation:
                 self.cont = False
                 return
         return str(y)
-    
+
     def titik_expression(self):
         z = ''
         y = ''
@@ -5466,7 +5466,7 @@ class Compilation:
                         isBool = False
                     continue
                 elif self.current == 'di':
-                    y+= 'not'
+                    y+= 'not' + ' '
                     isBool = False
                 elif self.current == 'Totoo':
                     y += 'True'+ ' '
@@ -6121,6 +6121,7 @@ class Compilation:
 
     def habang(self):
         brk = False
+        ent = False
         z = 0
         self.semantic()
         self.semantic()
@@ -6131,6 +6132,7 @@ class Compilation:
         self.semantic()
         self.newline()
         while x == True:
+            ent = True
             while self.current != '}' and self.cont != False and self.isReturn == False and self.isContinue == False and self.isBreak == False:
                 if self.current == 'yunit':
                     self.yunit()
@@ -6208,7 +6210,11 @@ class Compilation:
                         self.semantic()
                         self.newline()
                 self.isContinue = False
-                self.isBreak = False
+                if self.isBreak == True:
+                    self.isBreak = False
+                    self.semantic()
+                    self.newline()
+                    return
             if brk or self.isReturn or self.cont == False:
                 return
             z = self.num
@@ -6219,7 +6225,17 @@ class Compilation:
             self.semantic()
             self.newline()
             self.semantic()
-            self.newline()
+            self.newline()  
+        if not ent:
+            ctr = 1
+            while ctr != 0:
+                if self.current == '{':
+                    ctr += 1
+                elif self.current == '}':
+                    ctr -= 1
+                self.semantic()
+                self.newline()
+            return
         self.num = z
         self.semantic()
         self.newline()
@@ -6313,7 +6329,11 @@ class Compilation:
                     self.semantic()
                     self.newline()
                 self.isContinue = False
-                self.isBreak = False
+                if self.isBreak == True:
+                    self.isBreak = False
+                    self.semantic()
+                    self.newline()
+                    return
             if brk or self.isReturn or self.cont == False:
                 return
             self.semantic()
@@ -6948,10 +6968,15 @@ def update_line_numbers(event=None):
         line_numbers.insert("end", str(i).rjust(4) + '\n')
     line_numbers.config(state="disabled")
 
+def handle_tab_press(event):
+    coding_area.insert("insert", " " * 4)
+    return "break"
+
 coding_area.bind("<Key>", update_line_numbers)
 coding_area.bind("<Return>", update_line_numbers)
 coding_area.bind("<ButtonRelease-1>", update_line_numbers)
 coding_area.bind("<MouseWheel>", update_line_numbers)
+coding_area.bind("<Tab>", handle_tab_press)
 coding_area.bind("<Configure>", update_line_numbers)
 update_line_numbers()
 
