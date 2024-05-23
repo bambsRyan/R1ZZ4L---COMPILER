@@ -3773,6 +3773,8 @@ class Compilation:
                         num_val = int(self.inp(x[1:-1]).replace('~','-'))
                     except:
                         self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Yunit variable')
+                        self.cont = False
+                        return
                     if self.isFunc == 0:
                         self.variables['yunit'][name] = num_val
                     else:
@@ -3800,8 +3802,10 @@ class Compilation:
                     x = self.val
                     try:
                         num_val = int(self.inp(x[1:-1]).replace('~','-'))
-                    except TypeError:
+                    except:
                         self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Yunit variable')
+                        self.cont = False
+                        return
                     if self.isFunc == 0:
                         self.variables['yunit'][name] += num_val
                     else:
@@ -3829,8 +3833,10 @@ class Compilation:
                     x = self.val
                     try:
                         num_val = int(self.inp(x[1:-1]).replace('~','-'))
-                    except TypeError:
+                    except:
                         self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Yunit variable')
+                        self.cont = False
+                        return
                     if self.isFunc == 0:
                         self.variables['yunit'][name] = num_val
                     else:
@@ -3858,8 +3864,10 @@ class Compilation:
                     x = self.val
                     try:
                         num_val = int(self.inp(x[1:-1]).replace('~','-'))
-                    except TypeError:
+                    except:
                         self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Yunit variable')
+                        self.cont = False
+                        return
                     if self.isFunc == 0:
                         self.variables['yunit'][name] = num_val
                     else:
@@ -3918,8 +3926,10 @@ class Compilation:
                     x = self.val
                     try:
                         num_val = float(self.inp(x[1:-1]).replace('~','-'))
-                    except TypeError:
+                    except:
                         self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Punto variable')
+                        self.cont = False
+                        return
                     if self.isFunc == 0:
                         self.variables['punto'][name] = num_val
                     else:
@@ -3947,8 +3957,10 @@ class Compilation:
                     x = self.val
                     try:
                         num_val = float(self.inp(x[1:-1]).replace('~','-'))
-                    except TypeError:
+                    except:
                         self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Punto variable')
+                        self.cont = False
+                        return
                     if self.isFunc == 0:
                         self.variables['punto'][name] += num_val
                     else:
@@ -3976,8 +3988,10 @@ class Compilation:
                     x = self.val
                     try:
                         num_val = float(self.inp(x[1:-1]).replace('~','-'))
-                    except TypeError:
+                    except:
                         self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Punto variable')
+                        self.cont = False
+                        return
                     if self.isFunc == 0:
                         self.variables['punto'][name] -= num_val
                     else:
@@ -4005,8 +4019,10 @@ class Compilation:
                     x = self.val
                     try:
                         nnum_val = float(self.inp(x[1:-1]).replace('~','-'))
-                    except TypeError:
+                    except:
                         self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Punto variable')
+                        self.cont = False
+                        return
                     if self.isFunc == 0:
                         self.variables['punto'][name] *= num_val
                     else:
@@ -4034,8 +4050,10 @@ class Compilation:
                     x = self.val
                     try:
                         num_val = float(self.inp(x[1:-1]).replace('~','-'))
-                    except TypeError:
+                    except:
                         self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Punto variable')
+                        self.cont = False
+                        return
                     if self.isFunc == 0:
                         self.variables['punto'][name] /= num_val
                     else:
@@ -4070,10 +4088,6 @@ class Compilation:
                             self.cont = False
                             return
                     except:
-                        self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Titik variable')
-                        self.cont = False
-                        return
-                    if len(titik_val) < 1:
                         self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Titik variable')
                         self.cont = False
                         return
@@ -4276,7 +4290,16 @@ class Compilation:
                     if self.current == 'kuha':
                         self.semantic()
                         self.semantic()
-                        titik_val = self.inp(self.val[1:-1])
+                        try:
+                            titik_val = self.inp(x[1:-1])
+                            if len(titik_val) > 1:
+                                self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Titik variable')
+                                self.cont = False
+                                return
+                        except:
+                            self.semantic_error.append(f'Semantic Error on Line {self.line}: Invalid input for Titik variable')
+                            self.cont = False
+                            return
                         self.semantic()
                         self.semantic()
                         a += '=' + str(titik_val)

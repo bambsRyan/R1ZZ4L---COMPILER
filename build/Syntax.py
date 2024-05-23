@@ -169,6 +169,7 @@ class Parser:
         self.current = ''       #current token
         self.values = ''        #values
         self.line = 0
+        self.isCond = False
 
 # ------------------------ PARSER -------------------------------------
     def parse(self):
