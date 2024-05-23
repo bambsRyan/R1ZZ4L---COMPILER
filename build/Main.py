@@ -174,8 +174,15 @@ class Compilation:
                 self.newline()
 #=================UI FOR KUHA=========================
     def inp(self, message):
+        root = Tk()  # Create a Tkinter root window
+        root.withdraw()  # Hide the root window
         top = Toplevel()  # Create a new window for input
         top.title("Input")
+        top.attributes('-toolwindow', 1)  # Remove the close button from the window
+        top.overrideredirect(True)  # Remove the window decorations
+        top.attributes('-topmost', 1)  # Set the input window to be always on top
+        top.geometry("+%d+%d" % (root.winfo_screenwidth() // 2 - top.winfo_reqwidth() // 2, root.winfo_screenheight() // 2 - top.winfo_reqheight() // 2))
+        top.geometry("500x100")  # Set the size of the input window (width x height)
         Label(top, text=message, font=("Helvetica", 14), anchor='w', justify='left').pack(pady=10) # Display the description with a larger font
         entry = Entry(top, font=("Helvetica", 12), width=40)  # Entry widget for user input with larger font and width
         entry.pack(padx=20, pady=10)  # Add padding to the Entry widget
@@ -186,6 +193,7 @@ class Compilation:
             nonlocal value
             value = str(entry.get())  # Get the value from the Entry widget
             top.destroy()  # Close the input window
+            root.destroy()  # Close the root window
 
         Button(top, text="Submit", command=submit, font=("Helvetica", 12), padx=20, pady=5).pack()  # Button to submit the input with larger font and padding
         top.wait_window()  # Wait for the input window to be closed
