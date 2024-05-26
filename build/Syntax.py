@@ -2405,7 +2405,7 @@ class Parser:
                             self.func_content_continue()
                         if self.match('}'):
                             if self.match('newline'):
-                                self.newline()  
+                                self.newline()
                             else:
                                 self.err('newline')
                         else:
@@ -3166,4 +3166,3 @@ class Parser:
             self.errors.append(f"Syntax Error on Line {self.line}: Unexpected {self.current}, expecting : {error_list}")
         self.end()
         return
-    

@@ -6128,7 +6128,6 @@ class Compilation:
             self.semantic()
 
     def habang(self):
-        brk = False
         ent = False
         z = 0
         self.semantic()
@@ -6198,7 +6197,6 @@ class Compilation:
                         break
                     elif self.current == 'labas':
                         self.isBreak = True
-                        brk = True
                         return
                 if self.isFunc > 0:
                     if self.current == 'balik':
@@ -6223,7 +6221,7 @@ class Compilation:
                     self.semantic()
                     self.newline()
                     return
-            if brk or self.isReturn or self.cont == False:
+            if self.isReturn or self.cont == False:
                 return
             z = self.num
             self.num = y-1
@@ -6250,7 +6248,6 @@ class Compilation:
 
     def gawin(self):
         x = True
-        brk = False
         self.semantic()
         self.newline()
         self.semantic()
@@ -6316,7 +6313,6 @@ class Compilation:
                         return
                     elif self.current == 'labas':
                         self.isBreak = True
-                        brk = True
                         return
                 if self.isFunc > 0:
                     if self.current == 'balik':
@@ -6342,7 +6338,7 @@ class Compilation:
                     self.semantic()
                     self.newline()
                     return
-            if brk or self.isReturn or self.cont == False:
+            if self.isReturn or self.cont == False:
                 return
             self.semantic()
             self.semantic()
@@ -6354,7 +6350,6 @@ class Compilation:
         self.newline() 
 
     def para(self):
-        brk = False
         x = ''
         y = ''
         self.semantic()
@@ -6385,7 +6380,7 @@ class Compilation:
                 self.cont = False
                 return
             if y == 'baybay' or y == 'baybay_list':
-                if x != 'baybay' and x != 'baybay_list':
+                if x != 'baybay' and x != 'baybay_list' and x != 'titik':
                     self.semantic_error.append(f"Semantic Error on line {self.line}: {name} is not a valid variable")
                     self.cont = False
                     return
@@ -6485,7 +6480,6 @@ class Compilation:
                             break
                         elif self.current == 'labas':
                             self.isBreak = True
-                            brk = True
                             return
                     if self.isFunc > 0:
                         if self.current == 'balik':
@@ -6505,8 +6499,11 @@ class Compilation:
                             self.semantic()
                             self.newline()
                     self.isContinue = False
-                    self.isBreak = False
-                if brk or self.isReturn or self.cont == False:
+                    if self.isBreak == True:
+                        self.isBreak = False
+                        self.semantic()
+                        return
+                if self.isReturn or self.cont == False:
                     return
         elif self.current == 'lawak':
             self.semantic()
@@ -6585,8 +6582,10 @@ class Compilation:
                     if self.index > 0:
                         if self.current == 'tuloy':
                             self.isContinue = True
-                            brk = True
                             break
+                        elif self.current == 'labas':
+                            self.isBreak = True
+                            return
                     if self.isFunc > 0:
                         if self.current == 'balik':
                             self.isReturn = True
@@ -6605,8 +6604,11 @@ class Compilation:
                             self.semantic()
                             self.newline()
                     self.isContinue = False
-                    self.isBreak = False
-                if brk or self.isReturn or self.cont == False:
+                    if self.isBreak == True:
+                        self.isBreak = False
+                        self.semantic()
+                        return
+                if self.isReturn or self.cont == False:
                     return
         self.semantic()
         self.newline()
