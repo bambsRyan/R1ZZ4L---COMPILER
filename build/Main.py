@@ -174,30 +174,49 @@ class Compilation:
                 self.newline()
 #=================UI FOR KUHA=========================
     def inp(self, message):
-        root = Tk()  # Create a Tkinter root window
-        root.withdraw()  # Hide the root window
-        top = Toplevel()  # Create a new window for input
+        root = Tk()
+        root.withdraw()
+        top = Toplevel()
         top.title("Input")
-        top.attributes('-toolwindow', 1)  # Remove the close button from the window
-        top.overrideredirect(True)  # Remove the window decorations
-        top.attributes('-topmost', 1)  # Set the input window to be always on top
+        top.attributes('-toolwindow', 1)
+        top.overrideredirect(True)
+        top.attributes('-topmost', 1)
         top.geometry("+%d+%d" % (root.winfo_screenwidth() // 2 - top.winfo_reqwidth() // 2, root.winfo_screenheight() // 2 - top.winfo_reqheight() // 2))
-        top.geometry("500x150")  # Set the size of the input window (width x height)
-        Label(top, text=message, font=("Helvetica", 14), anchor='w', justify='left').pack(pady=10) # Display the description with a larger font
-        entry = Entry(top, font=("Helvetica", 12), width=40)  # Entry widget for user input with larger font and width
-        entry.pack(padx=20, pady=10)  # Add padding to the Entry widget
-        entry.focus_set()  # Set focus to the Entry widget
+        top.geometry("500x160")
+        top.configure(bg='#E1DBD0')
+        Label(top, text=message, font=("Jetbrains Mono", 14), anchor='w', justify='center', bg='#E1DBD0', wraplength=420).pack(pady=(20, 5))
+
+        message_length = len(message)
+        height_increment = 25
+        base_width = 500
+        if message_length <= 35:
+            height = 180
+        else:
+            height = 180 + height_increment * ((message_length - 35) // 35)
+        top.geometry(f"{base_width}x{height}")
+
+        entry = Entry(top, font=("Jetbrains Mono", 12), width=40, highlightthickness=1, highlightbackground='#E1DBD0',highlightcolor='#E1DBD0')
+        entry.pack(padx=20, pady=5, ipadx=10, ipady=5)
+        entry.focus_set()
         value = None
 
         def submit():
             nonlocal value
-            value = str(entry.get())  # Get the value from the Entry widget
-            top.destroy()  # Close the input window
-            root.destroy()  # Close the root window
+            value = str(entry.get())
+            top.destroy()
+            root.destroy()
 
-        Button(top, text="Submit", command=submit, font=("Helvetica", 12), padx=20, pady=5).pack()  # Button to submit the input with larger font and padding
-        top.wait_window()  # Wait for the input window to be closed
+        entry.bind('<Return>', lambda event: submit())
+
+        image_submit = PhotoImage(file=relative_to_assets("submitbutton.png"))
+
+        submit_button = Button(top, image=image_submit, command=submit, relief="flat", borderwidth=0)
+        submit_button.pack(pady=(10, 30))
+        submit_button.configure(bg='#E1DBD0', activebackground='#E1DBD0')
+
+        top.wait_window()
         return value
+
 #=================FUNCTION=========================
     def check_takda(self):
         while self.current != None:
@@ -6785,8 +6804,8 @@ class Compilation:
 # UI --------------------------------------------------------------------------------------------------------------------------------
 style = ttk.Style()
 style.theme_use("clam")
-style.configure("Treeview", background="#373737", foreground="white", fieldbackground="#373737", rowheight=45, font=("JetBrains Mono", 18))
-style.configure("Treeview.Heading", font=("JetBrains Mono", 18))
+style.configure("Treeview", background="#373737", foreground="white", fieldbackground="#373737", rowheight=45, font=("Jetbrains Mono", 18))
+style.configure("Treeview.Heading", font=("Jetbrains Mono", 18))
 style.map('Treeview', background=[('selected', '#141414')])
 
 lexeme_tokens_area = ttk.Treeview(window, columns=("#1", "#2"), show="headings", style="Treeview.Heading")
@@ -6915,7 +6934,7 @@ def semantic_analyzer():
     if parser.errors[0] == "Syntax Completed: No errors found":
         update_lexical_errors_text("Syntax Completed: No errors found")
         update_lexical_errors_text("")
-        update_lexical_errors_text("========================================  RUNNING  =======================================\n")
+        update_lexical_errors_text("=====================================  RUNNING  ======================================\n")
         comp = Compilation(read.tokens)
         comp.sem()
         # print(comp.variables)
@@ -6926,7 +6945,7 @@ def semantic_analyzer():
         try:
             update_lexical_errors_text(comp.semantic_error[0])
         except:
-            add_lexical_errors("\n=========================================  DONE  =========================================\n")
+            add_lexical_errors("\n======================================  DONE  ========================================\n")
         # end=perf_counter()
     # print(end - start)
 #Rectangle Task Bar
@@ -6949,7 +6968,7 @@ canvas.create_rectangle(1810.0, 54.0, 1870.0, 953.0, fill="#32393D", outline="bl
 canvas.create_rectangle(59.0, 54.0, 1811.0, 907.0, fill="#000000", outline="")
 
 
-coding_area = Text(window, bg="#000000", fg="#FFFFFF", insertbackground="white", height=31, width=120, wrap="none", font=("JetBrains Mono", 18), relief="flat", borderwidth=1)
+coding_area = Text(window, bg="#000000", fg="#FFFFFF", insertbackground="white", height=27, width=110, wrap="none", font=("Jetbrains Mono", 18), relief="flat", borderwidth=1)
 coding_area.place(x=150, y=65)
 placeholder_text = "Start coding here"
 coding_area.insert("1.0", placeholder_text)
@@ -6965,7 +6984,7 @@ coding_area.bind("<FocusIn>", remove_placeholder)
 coding_area_height = int(coding_area.cget("height"))
 
 #Coding Area Numbering
-line_numbers = Text(window, bg="#141414", fg="#7d7878", width=5, height=coding_area_height, wrap="none", font=("JetBrains Mono", 18), relief="flat", borderwidth=1)
+line_numbers = Text(window, bg="#141414", fg="#7d7878", width=5, height=coding_area_height, wrap="none", font=("Jetbrains Mono", 18), relief="flat", borderwidth=1)
 line_numbers.place(x=60, y=65)
 line_numbers.config(state="disabled")  # Making the line numbers non-editable
 
@@ -6982,6 +7001,21 @@ def handle_tab_press(event):
     coding_area.insert("insert", " " * 4)
     return "break"
 
+def undo_action(event=None):
+    coding_area.edit_undo() 
+    return "break"
+
+def redo_action(event=None):
+    coding_area.edit_redo()
+    return "break"
+
+def semantic_analyzer_key(event=None):
+    semantic_analyzer()
+
+coding_area.bind("<Control-r>", semantic_analyzer_key)
+coding_area.config(undo=True)
+coding_area.bind("<Control-z>", undo_action)
+coding_area.bind("<Control-y>", redo_action)
 coding_area.bind("<Key>", update_line_numbers)
 coding_area.bind("<Return>", update_line_numbers)
 coding_area.bind("<ButtonRelease-1>", update_line_numbers)
@@ -6998,7 +7032,7 @@ lexical_error_canvas = Canvas(lexical_error_frame, bg="#BFBFBF", bd=0, highlight
 lexical_error_canvas.grid(row=0, column=0, sticky="nsew")
 lexical_error_canvas.config(width=55, height=55)
 
-lexical_errors_area = Text(window, bg="#BFBFBF", fg="#880808", font=("JetBrains Mono", 16),state="disabled", wrap="word", relief="flat", borderwidth=0)
+lexical_errors_area = Text(window, bg="#BFBFBF", fg="#880808", font=("Jetbrains Mono", 16),state="disabled", wrap="word", relief="flat", borderwidth=0)
 lexical_errors_area.place(x=100, y=645, width=1128, height=290)
 
 errorexpanded_geometry = (59, 600, 1752, 354)
@@ -7042,7 +7076,7 @@ lexeme_token_canvas.config(width=63, height=63)
 lexeme_tokens_area = ttk.Treeview(window, columns=("#1", "#2"), show="headings")
 lexeme_tokens_area.place(x=1250, y=68, width=540, height=871)
 
-lexeme_tokens_area.tag_configure('custom_font', font=("JetBrains Mono", 16))
+lexeme_tokens_area.tag_configure('custom_font', font=("Jetbrains Mono", 16))
     
 tokenexpanded_geometry = (1230, 54, 581, 900)
 tokencollapsed_geometry = (1746, 54, 65, 900)
@@ -7100,7 +7134,7 @@ settings_button.config(padx=42, pady=13)
 
 #Run Button
 image_run = PhotoImage(file=relative_to_assets("run.png"))
-run_button = tk.Button(window, image=image_run, bg="#32393D", relief="flat", borderwidth=1)
+run_button = tk.Button(window, image=image_run, bg="#32393D", relief="flat", borderwidth=1, command=semantic_analyzer)
 run_button.place(x=7, y=68)
 run_button.config(padx=42, pady=13)
 
