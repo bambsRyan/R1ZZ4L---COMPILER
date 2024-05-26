@@ -182,7 +182,7 @@ class Compilation:
         top.overrideredirect(True)  # Remove the window decorations
         top.attributes('-topmost', 1)  # Set the input window to be always on top
         top.geometry("+%d+%d" % (root.winfo_screenwidth() // 2 - top.winfo_reqwidth() // 2, root.winfo_screenheight() // 2 - top.winfo_reqheight() // 2))
-        top.geometry("500x100")  # Set the size of the input window (width x height)
+        top.geometry("500x150")  # Set the size of the input window (width x height)
         Label(top, text=message, font=("Helvetica", 14), anchor='w', justify='left').pack(pady=10) # Display the description with a larger font
         entry = Entry(top, font=("Helvetica", 12), width=40)  # Entry widget for user input with larger font and width
         entry.pack(padx=20, pady=10)  # Add padding to the Entry widget
@@ -1441,7 +1441,7 @@ class Compilation:
                 elif self.current == '[':
                     self.semantic()
                     x.append(self.yunit_list(ctr+1))
-                    if ctr != 0:
+                    if ctr != 0 and self.current == ']':
                         self.semantic()
                         return x
                     continue
@@ -1557,7 +1557,7 @@ class Compilation:
                 self.semantic()
                 while self.current not in ['newline', ","]:
                     if self.current == '[':
-                        self.semantic() 
+                        self.semantic()
                         valuelist = self.yunit_list()
                         if self.cont:
                             for i in valuelist:
@@ -1822,7 +1822,7 @@ class Compilation:
                 elif self.current == '[':
                     self.semantic()
                     x.append(self.yunit_list(ctr + 1))
-                    if ctr != 0:
+                    if ctr != 0 and self.current == ']':
                         self.semantic()
                         return x
                     continue
@@ -2212,7 +2212,7 @@ class Compilation:
                 elif self.current == '[':
                     self.semantic()
                     x.append(self.baybay_list(ctr + 1))
-                    if ctr != 0:
+                    if ctr != 0 and self.current == ']':
                         self.semantic()
                         return x
                     continue
@@ -2312,7 +2312,7 @@ class Compilation:
                 self.var.append(val)
                 self.declare('baybay_list', val)
             else:
-                self.func_var.append(val)   
+                self.func_var.append(val)
                 self.func_dec('baybay_list', val)
             self.jump(2)
             if self.current == '=':
@@ -2605,7 +2605,7 @@ class Compilation:
                 elif self.current == '[':
                     self.semantic()
                     x.append(self.titik_list(ctr + 1))
-                    if ctr != 0:
+                    if ctr != 0 and self.current == ']':
                         self.semantic()
                         return x
                     continue
