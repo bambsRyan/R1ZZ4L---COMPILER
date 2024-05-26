@@ -45,7 +45,7 @@ titik_ext = [","]
 titik_tala = ["[", "Identifier"]
 titik_content = ["Identifier", "Titik Literal", "saTitik", "["]
 titik_tala_continue = ["+"]
-titik_tala_content = ["Identifier", "Titik Literal", "saTitik"]
+titik_tala_content = ["Identifier", "Titik Literal", "saTitik", "["]
 titik_tala_content_continue = [","]
 titik_tala_concatenate = ["[", "Identifier"]
 bool_Identifier = ["Identifier"]
@@ -704,7 +704,7 @@ class Parser:
     def titik_ext(self):
         if self.match(','):
             if self.first(titik_Identifier):
-                self.titik_Identifier()
+                self.titik_Identifier() 
                 if self.first(titik_ext):
                     self.titik_ext()
             else:
@@ -715,8 +715,8 @@ class Parser:
             if self.first(titik_tala_content):
                 self.titik_tala_content()
             else:
-                if self.current != ']' and  self.current != ',':
-                    self.err('"Identifier", "Baybay Literal", "saBaybay", "(", "["') 
+                if self.current != ']' and self.current != ',':
+                    self.err('"Identifier", "Titik Literal", "saTitik", "["')
             if self.match(']'):
                 return
             else:

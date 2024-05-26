@@ -2238,9 +2238,9 @@ class Compilation:
                                 x.append(self.variables_for_function[z][self.val])
                         else:
                             if self.isFunc == 0:
-                                y+=str(self.variables[z][self.val])
+                                y+='\'' + str(self.variables[z][self.val]) + '\''
                             else:
-                                y += str(self.variables_for_function[z][self.val])
+                                y += '\'' + str(self.variables_for_function[z][self.val]) + '\''
                 elif self.current in ['+', '(', ')']:
                     y += self.val
                 elif self.current in ['-', '*', '/', '**']:
@@ -2248,7 +2248,7 @@ class Compilation:
                     self.cont = False
                     return
                 elif self.current == 'saBaybay':
-                    y += str(self.saBaybay())
+                    y += '\'' + str(self.saBaybay()) + '\''
                 else:
                     self.semantic_error.append(f"Semantic Error on line {self.line}: {self.current} is not a Baybay literal or Baybay list")
                     self.cont = False
@@ -2974,21 +2974,21 @@ class Compilation:
                             x += str('\'' +self.func_Identifier() +'\'')
                     elif a == 'titik_list':
                         if self.isFunc == 0:
-                            hold = str(self.Identifier())
+                            hold = self.Identifier()
                         else:
-                            hold = str(self.func_Identifier())
-                        if type (a) != str:
-                            x += str(a)
+                            hold = self.func_Identifier()
+                        if type (hold) != str:
+                            x += str(hold)
                         else:
                             titik_ctr = True
                             x += str('\'' + hold + '\'')
                     elif a == 'baybay_list':
                         if self.isFunc == 0:
-                            hold = str(self.Identifier())
+                            hold = self.Identifier()
                         else:
-                            hold = str(self.func_Identifier())
-                        if type (a) != str:
-                            x += str(a)
+                            hold = self.func_Identifier()
+                        if type (hold) != str:
+                            x += str(hold)
                         else:
                             x += str('\'' + hold + '\'')
                     else:
