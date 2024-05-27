@@ -248,7 +248,7 @@ class Compilation:
             self.y = None
             self.cont = False
             return
-        if x not in ['yunit_list', 'punto_list', 'baybay_list', 'titik_list', 'bool_list','function']:
+        if x not in ['yunit_list', 'punto_list', 'baybay_list', 'titik_list', 'bool_list','function', 'baybay']:
             self.semantic()
             if self.current =='[':
                 self.semantic_error.append(f"Semantic Error on line {self.line}: {name} is not subscriptable")
@@ -1230,7 +1230,7 @@ class Compilation:
             self.y = None
             self.cont = False
             return
-        if x not in ['yunit_list', 'punto_list', 'baybay_list', 'titik_list', 'bool_list','function']:
+        if x not in ['yunit_list', 'punto_list', 'baybay_list', 'titik_list', 'bool_list','function', 'baybay']:
             self.semantic()
             if self.current =='[':
                 self.semantic_error.append(f"Semantic Error on line {self.line}: {name} is not subscriptable")
@@ -7126,32 +7126,37 @@ token_colors = {
     'bura': ('#3a91f4', 'normal'),
 }
 
+
 def update_highlight(event=None):
-    # Clear previous tags
-    def clear_tags(event=None):
-        if event and event.state == 4 and event.keysym.lower() == 'a':
-            coding_area.tag_remove(SEL, "1.0", END)
-            for tag_name in coding_area.tag_names():
-                coding_area.tag_remove(tag_name, "1.0", END)
+    # Clear previous tags in a limited range
+    def clear_tags(start, end):
+        for tag_name in coding_area.tag_names():
+            coding_area.tag_remove(tag_name, start, end)
 
-    coding_area.bind("<Control-A>", clear_tags)
+    # Get current cursor position and define a buffer range
+    cursor_index = coding_area.index("insert")
+    line_start = coding_area.index("insert linestart")
+    line_end = coding_area.index("insert lineend")
 
-    # Perform lexing
-    line = coding_area.get("1.0", "end-1c")
+    # Perform lexing only within the buffer range
+    line = coding_area.get(line_start, line_end)
     read = lx.Lexer(line)
     read.Tokenize()
-    
-    # Update text color and style based on tokens
+
+    # Clear tags in the current line
+    clear_tags(line_start, line_end)
+
+    # Update text color and style based on tokens within the current line
     for token in read.tokens:
         value = re.escape(token['value'])  # Escape special characters
         color, font_style = token_colors.get(token['token'], ('#FFFFFF', 'normal'))  # Default color to white if token not found
-        start_index = "1.0"
+        start_index = line_start
 
         if token['token'] in ['Baybay Literal', 'Yunit Literal', 'Punto Literal', 'Titik Literal']:
             # Exact match for literals
             search_pattern = value
             while True:
-                start_index = coding_area.search(search_pattern, start_index, stopindex="end", regexp=True)
+                start_index = coding_area.search(search_pattern, start_index, stopindex=line_end, regexp=True)
                 if not start_index:
                     break
                 end_index = coding_area.index(f"{start_index}+{len(token['value'])}c")
@@ -7162,19 +7167,19 @@ def update_highlight(event=None):
         elif token['value'].startswith('$'):
             # Variables starting with '$'
             while True:
-                start_index = coding_area.search(r'\$[^\s]*', start_index, stopindex="end", regexp=True)
+                start_index = coding_area.search(r'\$[^\s]*', start_index, stopindex=line_end, regexp=True)
                 if not start_index:
                     break
-                end_index = coding_area.index(f"{start_index}+{len(token['value'])}c")
+                end_index = coding_area.index(f"{start_index} lineend")
                 coding_area.tag_add(token['token'], start_index, end_index)
                 coding_area.tag_config(token['token'], foreground='#808080', font=('JetBrains Mono', 18, font_style))
                 start_index = end_index
 
         else:
             # General token highlighting
-            search_pattern = r'\m' + value + r'\M'
+            search_pattern = value
             while True:
-                start_index = coding_area.search(search_pattern, start_index, stopindex="end", regexp=True)
+                start_index = coding_area.search(search_pattern, start_index, stopindex=line_end, regexp=True)
                 if not start_index:
                     break
                 end_index = coding_area.index(f"{start_index}+{len(token['value'])}c")
@@ -7182,11 +7187,15 @@ def update_highlight(event=None):
                 coding_area.tag_config(token['token'], foreground=color, font=('JetBrains Mono', 18, font_style))
                 start_index = end_index
 
+# Bind the update_highlight function to key release events
+def on_paste(event=None):
+    coding_area.after(10, lambda: update_highlight(event))   # Shorter delay for faster highlighting
 
-# Bind both KeyPress and KeyRelease events to the update_highlight function
+# Bind the update_highlight function to key release events
 coding_area.bind("<KeyRelease>", update_highlight)
+coding_area.bind("<Control-v>", on_paste) 
 
-# Start the update loop
+# Initial highlighting call
 update_highlight()
 
 #Coding Area Numbering
