@@ -449,7 +449,7 @@ class Compilation:
                 self.num = num
                 self.semantic()
                 return answer
-            while self.current not in ['+', '-', '*', '/', '%', '**','newline',',', ')','{', '==', '!=', '>', '<', '>=', '<=']:
+            while self.current not in ['+', '-', '*', '/', '%', '**','newline',',', ')','{', '==', '!=', '>', '<', '>=', '<=', 'at', 'o']:
                 if self.current == 'Identifier':
                     if self.isFunc == 0:
                         k = self.Identifier()
@@ -1434,7 +1434,7 @@ class Compilation:
                 self.num = num
                 self.semantic()
                 return answer
-            while self.current not in ['+', '-', '*', '/', '%', '**','newline',',', ')','{', '==', '!=', '>', '<', '>=', '<=']:
+            while self.current not in ['+', '-', '*', '/', '%', '**','newline',',', ')','{', '==', '!=', '>', '<', '>=', '<=', 'at', 'o']:
                 if self.current == 'Identifier':
                     if self.isFunc == 0:
                         k = self.Identifier()
@@ -3051,7 +3051,7 @@ class Compilation:
                     isnum = True
                     continue
                 elif self.current == 'at':
-                    y += 'and'
+                    y += ' and '
                     isBaybay = False
                     isBool = False
                     titik_ctr = False
@@ -3059,7 +3059,7 @@ class Compilation:
                     self.semantic()
                     continue
                 elif self.current == 'o':
-                    y += 'or'
+                    y += ' or '
                     isBaybay = False
                     isBool = False
                     titik_ctr = False
@@ -5500,13 +5500,13 @@ class Compilation:
                         isBool = False
                     continue
                 elif self.current == 'di':
-                    y+= 'not' + ' '
+                    y+= ' not' + ' '
                     isBool = False
                 elif self.current == 'Totoo':
-                    y += 'True'+ ' '
+                    y += ' True'+ ' '
                     isBool = True
                 elif self.current == 'Peke':
-                    y += 'False'+ ' '
+                    y += ' False'+ ' '
                     isBool = True
                 elif self.current == 'saBaybay':
                     y += str(self.saBaybay())
@@ -5528,10 +5528,10 @@ class Compilation:
                     y += str(self.val) + ' '
                     isBool = False
                 elif self.current == 'at':
-                    y += 'and' + ' '
+                    y += ' and' + ' '
                     isBool = False
                 elif self.current == 'o':
-                    y += 'or' + ' '
+                    y += ' or' + ' '
                     isBool = False
                 elif self.current == '(':
                     y += self.current + ' '
