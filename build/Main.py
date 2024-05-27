@@ -4177,7 +4177,7 @@ class Compilation:
                                 self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
                                 self.cont = False
                                 return
-                        if z == 'titik_list' or z == 'function':
+                        if z == 'titik_list' or z == 'titik' or z == 'function':
                             if self.isFunc == 0:
                                 list_holder = self.Identifier()
                             else:
@@ -4191,6 +4191,8 @@ class Compilation:
                                     self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid return value for function')
                                     self.cont = False
                                     return
+                            elif type(list_holder) == str and len(list_holder) <= 1:
+                                y += str(list_holder)
                             else:
                                 self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid Identifier')
                                 self.cont = False
