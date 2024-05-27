@@ -1,10 +1,11 @@
 from pathlib import Path
-from tkinter import Label, Tk, Canvas, Entry, Text, Button, PhotoImage, PanedWindow, Frame, Toplevel
+from tkinter import Label, Tk, Canvas, Entry, Text, Button, PhotoImage, PanedWindow, Frame, Toplevel, END
 import tkinter as tk
 import tkinter.ttk as ttk
 import Lexer as lx
 import Syntax as syn
 import os 
+import re
 import sys
 import Semantic as sem
 from time import perf_counter
@@ -4381,7 +4382,7 @@ class Compilation:
                                 self.semantic_error.append(f"Semantic Error on line {self.line}: {self.val} not defined")
                                 self.cont = False
                                 return
-                        if z == 'baybay_list':
+                        if z == 'baybay_list' or z == 'function':
                             if self.isFunc == 0:
                                 list_holder = self.Identifier()
                             else:
@@ -6984,6 +6985,103 @@ placeholder_text = "Start coding here"
 coding_area.insert("1.0", placeholder_text)
 coding_area.tag_add("placeholder", "1.0", "1.0 lineend")
 coding_area.tag_config("placeholder", foreground="#888888")
+
+token_colors = {
+    'g.ssSawa': ('#ffc305', 'italic'),
+    'gg.ssSawa': ('#ffc305', 'italic'),
+    'Titik Literal': ('#7d855a', 'normal'),
+    'Baybay Literal': ('#5e9965', 'normal'), 
+    'Yunit Literal': ('#2797a6', 'normal'),
+    'Punto Literal': ('#2797a6', 'normal'),
+    'yunit': ('#8e5478', 'normal'),
+    'punto': ('#8e5478', 'normal'),
+    'bool': ('#8e5478', 'normal'),
+    'baybay': ('#8e5478', 'normal'),
+    'titik': ('#8e5478', 'normal'),
+    'saYunit': ('#3a91f4', 'normal'),
+    'saPunto': ('#3a91f4', 'normal'),
+    'saBaybay': ('#3a91f4', 'normal'),
+    'saTitik': ('#3a91f4', 'normal'),
+    'sulat': ('#3a91f4', 'normal'),
+    'kuha': ('#3a91f4', 'normal'),
+    'kung': ('#b47c5d', 'normal'),
+    'kundi': ('#b47c5d', 'normal'),
+    'edi': ('#b47c5d', 'normal'),
+    'pili': ('#b47c5d', 'normal'),
+    'pag': ('#b47c5d', 'normal'),
+    'kusa': ('#b47c5d', 'normal'),
+    'para': ('#b47c5d', 'normal'),
+    'sa': ('#3a91f4', 'normal'),
+    'lawak': ('#3a91f4', 'normal'),
+    'habang': ('#3a91f4', 'normal'),
+    'gawin': ('#3a91f4', 'normal'),
+    'tuwing': ('#3a91f4', 'normal'),
+    'at': ('#3a91f4', 'normal'),
+    'o': ('#3a91f4', 'normal'),
+    'di': ('#3a91f4', 'normal'),
+    'Totoo': ('#FFA500', 'italic'),
+    'Peke': ('#FFA500', 'italic'),
+    'takda': ('#b47c5d', 'normal'),
+    'global': ('#3a91f4', 'normal'),
+    'balik': ('#3a91f4', 'normal'),
+    'bilang': ('#3a91f4', 'normal'),
+    'tuloy': ('#9f4424', 'normal'),
+    'labas': ('#9f4424', 'normal'),
+    'laktaw': ('#9f4424', 'normal'),
+    'tapos': ('#3a91f4', 'normal'),
+    'bura': ('#3a91f4', 'normal'),
+}
+def update_highlight(event=None):
+    # Clear previous tags
+    for tag_name in coding_area.tag_names():
+        coding_area.tag_remove(tag_name, "1.0", END)
+
+    # Perform lexing
+    line = coding_area.get("1.0", "end-1c")
+    read = lx.Lexer(line)
+    read.Tokenize()
+
+    # Update text color and style based on tokens
+    for token in read.tokens:
+        value = re.escape(token['value'])  # Escape special characters
+        color, font_style = token_colors.get(token['token'], ('#FFFFFF', 'normal'))  # Default color to white if token not found
+        start_index = "1.0"
+        if token['token'] == 'Baybay Literal':
+            search_pattern = re.escape(token['value'])
+            start_index = coding_area.search(search_pattern, start_index, stopindex="end", regexp=True)
+            while start_index:
+                end_index = f"{start_index}+{len(token['value'])}c"
+                coding_area.tag_add(token['token'], start_index, end_index)
+                coding_area.tag_config(token['token'], foreground=color, font=('JetBrains Mono', 18, font_style))
+                start_index = coding_area.search(search_pattern, end_index, stopindex="end", regexp=True)
+        elif token['value'].startswith('$'):
+            start_index = "1.0"
+            while True:
+                start_index = coding_area.search(r'\$[^\s]*', start_index, stopindex="end", regexp=True)
+                if not start_index:
+                    break
+                end_index = coding_area.index(f"{start_index}+{len(token['value'])}c")
+                coding_area.tag_add(token['token'], start_index, end_index)
+                coding_area.tag_config(token['token'], foreground='#808080', font=('JetBrains Mono', 18, font_style))
+                start_index = end_index
+        else:
+        
+            while True:
+                start_index = coding_area.search(r'\m' + value + r'\M', start_index, stopindex="end", regexp=True)
+                if not start_index:
+                    break
+                end_index = coding_area.index(f"{start_index}+{len(token['value'])}c")
+                coding_area.tag_add(token['token'], start_index, end_index)
+                coding_area.tag_config(token['token'], foreground=color, font=('JetBrains Mono', 18, font_style))
+                # Move start_index past the token
+                start_index = f"{start_index}+1c"
+
+
+# Bind both KeyPress and KeyRelease events to the update_highlight function
+coding_area.bind("<KeyRelease>", update_highlight)
+
+# Start the update loop
+update_highlight()
 
 def remove_placeholder(event):
     if coding_area.tag_ranges("placeholder"):
