@@ -1,5 +1,5 @@
 from pathlib import Path
-from tkinter import Label, Tk, Canvas, Entry, Text, Button, PhotoImage, PanedWindow, Frame, Toplevel, END
+from tkinter import SEL, Label, Tk, Canvas, Entry, Text, Button, PhotoImage, PanedWindow, Frame, Toplevel, END
 import tkinter as tk
 import tkinter.ttk as ttk
 import Lexer as lx
@@ -6986,6 +6986,21 @@ coding_area.insert("1.0", placeholder_text)
 coding_area.tag_add("placeholder", "1.0", "1.0 lineend")
 coding_area.tag_config("placeholder", foreground="#888888")
 
+def remove_placeholder(event):
+    if coding_area.get("1.0", "end-1c") == placeholder_text:
+        coding_area.delete("1.0", "end")
+        coding_area.tag_remove("placeholder", "1.0", "end")
+
+def add_placeholder(event):
+    if not coding_area.get("1.0", "end-1c"):
+        coding_area.insert("1.0", placeholder_text)
+        coding_area.tag_add("placeholder", "1.0", "end")
+        coding_area.tag_config("placeholder", foreground="#888888")
+
+coding_area.bind("<FocusIn>", remove_placeholder)
+coding_area.bind("<FocusOut>", add_placeholder)
+coding_area_height = int(coding_area.cget("height"))
+
 token_colors = {
     'g.ssSawa': ('#ffc305', 'italic'),
     'gg.ssSawa': ('#ffc305', 'italic'),
@@ -7033,8 +7048,13 @@ token_colors = {
 }
 def update_highlight(event=None):
     # Clear previous tags
-    for tag_name in coding_area.tag_names():
-        coding_area.tag_remove(tag_name, "1.0", END)
+    def clear_tags(event=None):
+        if event and event.state == 4 and event.keysym.lower() == 'a':
+            coding_area.tag_remove(SEL, "1.0", END)
+            for tag_name in coding_area.tag_names():
+                coding_area.tag_remove(tag_name, "1.0", END)
+
+    coding_area.bind("<Control-A>", clear_tags)
 
     # Perform lexing
     line = coding_area.get("1.0", "end-1c")
@@ -7082,14 +7102,6 @@ coding_area.bind("<KeyRelease>", update_highlight)
 
 # Start the update loop
 update_highlight()
-
-def remove_placeholder(event):
-    if coding_area.tag_ranges("placeholder"):
-        coding_area.delete("1.0", "1.0 lineend")
-        coding_area.tag_remove("placeholder", "1.0", "1.0 lineend")
-
-coding_area.bind("<FocusIn>", remove_placeholder)
-coding_area_height = int(coding_area.cget("height"))
 
 #Coding Area Numbering
 line_numbers = Text(window, bg="#141414", fg="#7d7878", width=5, height=coding_area_height, wrap="none", font=("Jetbrains Mono", 18), relief="flat", borderwidth=1)
