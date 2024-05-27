@@ -4191,6 +4191,8 @@ class Compilation:
                                     y += str(list_holder)
                                 elif type(list_holder[0]) == str and len(list_holder[0]) == 1:
                                     y += str(list_holder)
+                                elif type(list_holder[0]) == list:
+                                    y += str(list_holder)
                                 else:
                                     self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid return value for function')
                                     self.cont = False
@@ -4392,6 +4394,8 @@ class Compilation:
                                     y += str(list_holder)
                                 elif type(list_holder[0]) == str:
                                     y += str(list_holder)
+                                elif type(list_holder[0]) == list:
+                                    y += str(list_holder)
                                 else:
                                     self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid return value for function')
                                     self.cont = False
@@ -4449,6 +4453,8 @@ class Compilation:
                                 if len(list_holder) == 0:
                                     y += str(list_holder)
                                 elif type(list_holder[0]) == str :
+                                    y += str(list_holder)
+                                elif type(list_holder[0]) == list:
                                     y += str(list_holder)
                                 else:
                                     self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid return value for function')
@@ -4605,6 +4611,8 @@ class Compilation:
                                     y += str(list_holder)
                                 elif type(list_holder[0]) == int:
                                     y += str(list_holder)
+                                elif type(list_holder[1]) == list: 
+                                    y += str(list_holder)
                                 else:
                                     self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid return value for function')
                                     self.cont = False
@@ -4662,6 +4670,8 @@ class Compilation:
                                 if len(list_holder) == 0:
                                     y += str(list_holder)
                                 elif type(list_holder[0]) == int:
+                                    y += str(list_holder)
+                                elif type(list_holder[0]) == list:
                                     y += str(list_holder)
                                 else:
                                     self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid return value for function')
@@ -4923,6 +4933,8 @@ class Compilation:
                                     y += str(holder_list)
                                 elif type(holder[0]) == float:
                                     y += str(holder_list)
+                                elif type(holder[0]) == list:
+                                    y += str(holder_list)
                                 else:
                                     self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid return value for function')
                                     self.cont = False
@@ -4980,6 +4992,8 @@ class Compilation:
                                 if len(list_holder) == 0:
                                     y += str(list_holder)
                                 elif type(list_holder[0]) == float:
+                                    y += str(list_holder)
+                                elif type(list_holder[0]) == list:
                                     y += str(list_holder)
                                 else:
                                     self.semantic_error.append(f'Semantic Error in Line {self.line}: Invalid return value for function')
@@ -7004,10 +7018,10 @@ coding_area_height = int(coding_area.cget("height"))
 token_colors = {
     'g.ssSawa': ('#ffc305', 'italic'),
     'gg.ssSawa': ('#ffc305', 'italic'),
-    'Titik Literal': ('#7d855a', 'normal'),
     'Baybay Literal': ('#5e9965', 'normal'), 
     'Yunit Literal': ('#2797a6', 'normal'),
     'Punto Literal': ('#2797a6', 'normal'),
+    'Titik Literal': ('#818a60', 'normal'),
     'yunit': ('#8e5478', 'normal'),
     'punto': ('#8e5478', 'normal'),
     'bool': ('#8e5478', 'normal'),
@@ -7046,6 +7060,7 @@ token_colors = {
     'tapos': ('#3a91f4', 'normal'),
     'bura': ('#3a91f4', 'normal'),
 }
+
 def update_highlight(event=None):
     # Clear previous tags
     def clear_tags(event=None):
@@ -7060,22 +7075,27 @@ def update_highlight(event=None):
     line = coding_area.get("1.0", "end-1c")
     read = lx.Lexer(line)
     read.Tokenize()
-
+    
     # Update text color and style based on tokens
     for token in read.tokens:
         value = re.escape(token['value'])  # Escape special characters
         color, font_style = token_colors.get(token['token'], ('#FFFFFF', 'normal'))  # Default color to white if token not found
         start_index = "1.0"
-        if token['token'] == 'Baybay Literal':
-            search_pattern = re.escape(token['value'])
-            start_index = coding_area.search(search_pattern, start_index, stopindex="end", regexp=True)
-            while start_index:
-                end_index = f"{start_index}+{len(token['value'])}c"
+
+        if token['token'] in ['Baybay Literal', 'Yunit Literal', 'Punto Literal', 'Titik Literal']:
+            # Exact match for literals
+            search_pattern = value
+            while True:
+                start_index = coding_area.search(search_pattern, start_index, stopindex="end", regexp=True)
+                if not start_index:
+                    break
+                end_index = coding_area.index(f"{start_index}+{len(token['value'])}c")
                 coding_area.tag_add(token['token'], start_index, end_index)
                 coding_area.tag_config(token['token'], foreground=color, font=('JetBrains Mono', 18, font_style))
-                start_index = coding_area.search(search_pattern, end_index, stopindex="end", regexp=True)
+                start_index = end_index
+
         elif token['value'].startswith('$'):
-            start_index = "1.0"
+            # Variables starting with '$'
             while True:
                 start_index = coding_area.search(r'\$[^\s]*', start_index, stopindex="end", regexp=True)
                 if not start_index:
@@ -7084,17 +7104,18 @@ def update_highlight(event=None):
                 coding_area.tag_add(token['token'], start_index, end_index)
                 coding_area.tag_config(token['token'], foreground='#808080', font=('JetBrains Mono', 18, font_style))
                 start_index = end_index
+
         else:
-        
+            # General token highlighting
+            search_pattern = r'\m' + value + r'\M'
             while True:
-                start_index = coding_area.search(r'\m' + value + r'\M', start_index, stopindex="end", regexp=True)
+                start_index = coding_area.search(search_pattern, start_index, stopindex="end", regexp=True)
                 if not start_index:
                     break
                 end_index = coding_area.index(f"{start_index}+{len(token['value'])}c")
                 coding_area.tag_add(token['token'], start_index, end_index)
                 coding_area.tag_config(token['token'], foreground=color, font=('JetBrains Mono', 18, font_style))
-                # Move start_index past the token
-                start_index = f"{start_index}+1c"
+                start_index = end_index
 
 
 # Bind both KeyPress and KeyRelease events to the update_highlight function
