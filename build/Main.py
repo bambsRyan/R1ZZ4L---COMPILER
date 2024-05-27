@@ -4336,7 +4336,7 @@ class Compilation:
                             return
                         self.semantic()
                         self.semantic()
-                        a += '=' + str(titik_val)
+                        a += '=' +'\''+ str(titik_val) +'\''
                         exec(a)
                     else:
                         holder = (eval(a))
@@ -4526,7 +4526,7 @@ class Compilation:
                         baybay_val = self.inp(self.val[1:-1])
                         self.semantic()
                         self.semantic()
-                        a += '=' + str(baybay_val) 
+                        a += '=' + '\'' + str(baybay_val) + '\''
                         exec(a)
                         a = ''
                     else:
@@ -4547,7 +4547,7 @@ class Compilation:
                         baybay_val = self.inp(self.val[1:-1])
                         self.semantic()
                         self.semantic()
-                        a += '+=' + str(baybay_val)
+                        a += '+=' + '\'' + str(baybay_val) + '\''
                         exec(a)
                         a = ''
                     else:
