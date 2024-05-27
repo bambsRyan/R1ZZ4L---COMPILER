@@ -439,11 +439,14 @@ class Compilation:
                     self.variables_for_function = {key: {} for key in self.variables_for_function}
                     self.func_var = []
                     self.func_variables = {key: value for key, value in self.func_variables.items() if value == 'function'}
+                    self.storage = self.glob
+                    self.glob = {}
                 answer = self.run(self.functions[name][0], self.functions[name][1], parameters, name)
                 self.variables_for_function = val1
                 self.func_variables = val2
                 self.func_var = val3
                 self.isFunc -= 1
+                self.glob = self.storage
                 self.isReturn = False
                 self.line = line
                 self.num = num
