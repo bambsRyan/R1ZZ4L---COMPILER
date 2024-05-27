@@ -52,6 +52,7 @@ class Compilation:
         self.glob = {}
         self.kuha= ''
         self.var_dec = {}
+        self.storage = {}
 
     def sem(self):
         self.semantic()
@@ -1420,11 +1421,14 @@ class Compilation:
                     self.variables_for_function = {key: {} for key in self.variables_for_function}
                     self.func_var = []
                     self.func_variables = {key: value for key, value in self.func_variables.items() if value == 'function'}
+                    self.storage = self.glob
+                    self.glob = {}
                 answer = self.run(self.functions[name][0], self.functions[name][1], parameters,name)
                 self.variables_for_function = val1
                 self.func_variables = val2
                 self.func_var = val3
                 self.isFunc -= 1
+                self.glob = self.storage
                 self.isReturn = False
                 self.line = line
                 self.num = num
@@ -4128,10 +4132,11 @@ class Compilation:
                     return
                 else:
                     a = self.titik_expression()
+                    print(a)
                     if self.isFunc == 0:
-                        self.variables['titik'][name] = eval('\''+a+'\'')
+                        self.variables['titik'][name] = eval('\"'+a+'\"')
                     else:
-                        self.variables_for_function['titik'][name] = eval('\''+a+'\'')
+                        self.variables_for_function['titik'][name] = eval('\"'+a+'\"')
                         a = ''
                     return
             else:
@@ -4333,7 +4338,7 @@ class Compilation:
                         exec(a)
                     else:
                         holder = (eval(a))
-                        if type(holder) != str or type(holder) != list:
+                        if type(holder) != str and type(holder) != list:
                             self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
                             return
