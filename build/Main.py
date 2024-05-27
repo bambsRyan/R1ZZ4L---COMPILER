@@ -4345,7 +4345,12 @@ class Compilation:
                         a += '=' +'\''+ str(titik_val) +'\''
                         exec(a)
                     else:
-                        holder = (eval(a))
+                        try:
+                            holder = (eval(a))
+                        except:
+                            self.semantic_error.append(f"Semantic Error in line {self.line}: Index Error" )
+                            self.cont = False
+                            return
                         if type(holder) != str and type(holder) != list:
                             self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
@@ -4540,7 +4545,12 @@ class Compilation:
                         exec(a)
                         a = ''
                     else:
-                        holder = (eval(a))
+                        try:
+                            holder = (eval(a))
+                        except:
+                            self.semantic_error.append(f"Semantic Error in line {self.line}: Index Error" )
+                            self.cont = False
+                            return
                         if type(holder) != str and type(holder) != list:
                             self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Baybay array variable")
                             self.cont = False
@@ -4561,7 +4571,12 @@ class Compilation:
                         exec(a)
                         a = ''
                     else:
-                        holder = (eval(a))
+                        try:
+                            holder = (eval(a))
+                        except:
+                            self.semantic_error.append(f"Semantic Error in line {self.line}: Index Error" )
+                            self.cont = False
+                            return
                         if type(holder) != str and type (holder) != list:
                             self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Baybay array variable")
                             self.cont = False
@@ -4762,7 +4777,12 @@ class Compilation:
                         exec(a)
                         a = ''
                     else:
-                        holder = (eval(a))
+                        try:
+                            holder = (eval(a))
+                        except:
+                            self.semantic_error.append(f"Semantic Error in line {self.line}: Index Error" )
+                            self.cont = False
+                            return
                         if type(holder) != int and type(holder) != list:
                             self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
@@ -4794,7 +4814,12 @@ class Compilation:
                         exec(a)
                         a = ''
                     else:
-                        holder = (eval(a))
+                        try:
+                            holder = (eval(a))
+                        except:
+                            self.semantic_error.append(f"Semantic Error in line {self.line}: Index Error" )
+                            self.cont = False
+                            return
                         if type(holder) != int and type(holder) != list:
                             self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
@@ -4826,7 +4851,12 @@ class Compilation:
                         exec(a)
                         a = ''
                     else:
-                        holder = (eval(a))
+                        try:
+                            holder = (eval(a))
+                        except:
+                            self.semantic_error.append(f"Semantic Error in line {self.line}: Index Error" )
+                            self.cont = False
+                            return
                         if type(holder) != int:
                             self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
@@ -4855,7 +4885,12 @@ class Compilation:
                         exec(a)
                         a = ''
                     else:
-                        holder = (eval(a))
+                        try:
+                            holder = (eval(a))
+                        except:
+                            self.semantic_error.append(f"Semantic Error in line {self.line}: Index Error" )
+                            self.cont = False
+                            return
                         if type(holder) != int and type(holder) != list:
                             self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
@@ -4884,7 +4919,12 @@ class Compilation:
                         exec(a)
                         a = ''
                     else:
-                        holder = (eval(a))
+                        try:
+                            holder = (eval(a))
+                        except:
+                            self.semantic_error.append(f"Semantic Error in line {self.line}: Index Error" )
+                            self.cont = False
+                            return
                         if type(holder) != int:
                             self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
@@ -5084,7 +5124,12 @@ class Compilation:
                         exec(a)
                         a = ''
                     else:
-                        holder = (eval(a))
+                        try:
+                            holder = (eval(a))
+                        except:
+                            self.semantic_error.append(f"Semantic Error in line {self.line}: Index Error" )
+                            self.cont = False
+                            return
                         if type(holder) != float and type(holder) != list:
                             self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
@@ -5116,7 +5161,12 @@ class Compilation:
                         exec(a)
                         a = ''
                     else:
-                        holder = (eval(a))
+                        try:
+                            holder = (eval(a))
+                        except:
+                            self.semantic_error.append(f"Semantic Error in line {self.line}: Index Error" )
+                            self.cont = False
+                            return
                         if type(holder) != float and type(holder) != list:
                             self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
@@ -5149,7 +5199,12 @@ class Compilation:
                         exec(a)
                         a = ''
                     else:
-                        holder = (eval(a))
+                        try:
+                            holder = (eval(a))
+                        except:
+                            self.semantic_error.append(f"Semantic Error in line {self.line}: Index Error" )
+                            self.cont = False
+                            return
                         if type(holder) != float:
                             self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
@@ -5178,7 +5233,12 @@ class Compilation:
                         exec(a)
                         a = ''
                     else:
-                        holder = (eval(a))
+                        try:
+                            holder = (eval(a))
+                        except:
+                            self.semantic_error.append(f"Semantic Error in line {self.line}: Index Error" )
+                            self.cont = False
+                            return
                         if type(holder) != float:
                             self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
@@ -5207,7 +5267,12 @@ class Compilation:
                         exec(a)
                         a = ''
                     else:
-                        holder = (eval(a))
+                        try:
+                            holder = (eval(a))
+                        except:
+                            self.semantic_error.append(f"Semantic Error in line {self.line}: Index Error" )
+                            self.cont = False
+                            return
                         if type(holder) != float:
                             self.semantic_error.append(f"Semantic Error on line {self.line}: Invalid Assignment on Titik array variable")
                             self.cont = False
