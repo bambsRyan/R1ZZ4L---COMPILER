@@ -921,7 +921,7 @@ class Compilation:
         return eval(y)
             
     def run(self, num, line, parameters,var_name):
-        self.num = num -1 
+        self.num = num -1
         self.line = line
         self.semantic()
         self.jump(2)
